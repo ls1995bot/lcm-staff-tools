@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ใบนับสต็อคหมึก - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #023f88; --bg-preview: #555; }
+        @page { size: A4 landscape; margin: 0; }
+        
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; padding: 0; 
+            display: flex; height: 100vh; 
+            background-color: #f4f6f8; 
+            font-size: 9px;
+        }
+
+        /* --- ส่วนจัดการ (ซ้าย) --- */
+        #control-panel {
+            width: 280px; padding: 20px;
+            background: white; border-right: 1px solid #ccc;
+            display: flex; flex-direction: column; gap: 15px;
+            box-sizing: border-box; flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+
+        .btn { 
+            padding: 12px 15px; border: none; border-radius: 6px; 
+            font-family: 'Sarabun'; cursor: pointer; font-weight: bold; 
+            transition: 0.2s; text-align: center; font-size: 15px;
+        }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-clear { background: #dc3545; color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; }
+
+        /* --- พื้นที่แสดงตัวอย่าง (ขวา) --- */
+        #preview-area {
+            flex-grow: 1; background: var(--bg-preview); padding: 20px;
+            overflow: auto; display: flex; justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .a4-landscape {
+            background: white; width: 297mm; min-height: 210mm;
+            padding: 4mm; box-sizing: border-box; position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+        }
+
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2mm;
+            width: 100%;
+        }
+
+        .day-section { display: flex; flex-direction: column; }
+        .day-section:first-child { border-right: 1px dashed #ccc; padding-right: 2mm; }
+        .day-section:last-child { padding-left: 2mm; }
+
+        .inner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+        }
+
+        /* ปรับช่องวันที่ให้ยาวและกว้างขึ้นตามสต็อกกระดาษ */
+        .date-line {
+            background: #eee; border: 1px solid #000;
+            padding: 4px 8px; display: flex; align-items: center; 
+            height: 24px; margin-bottom: 2px; box-sizing: border-box;
+        }
+        .date-label { font-weight: bold; font-size: 11px; margin-right: 5px; }
+        .date-input { 
+            border: none; border-bottom: 1px solid #000; background: transparent; 
+            width: 60%; font-family: 'Sarabun'; font-size: 11px; outline: none;
+        }
+
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { 
+            color: #fff; border: 1px solid #666; text-align: center; 
+            height: 16px; font-weight: bold; font-size: 8.5px; padding: 0;
+            background: #0d2e5c; /* สีน้ำเงินเข้มตามสต็อกกระดาษ */
+        }
+        td { 
+            border: 1px solid #ccc; padding: 0; vertical-align: middle; 
+            height: 14.5px; font-size: 9px; white-space: nowrap; overflow: hidden;
+        }
+
+        input.cell-input {
+            width: 100%; height: 100%; border: none; outline: none;
+            text-align: center; font-family: 'Sarabun'; font-size: 9px;
+            background: transparent; color: #333; padding: 0;
+        }
+
+        .txt-missing { color: red; font-weight: bold; }
+        .txt-surplus { color: blue; font-weight: bold; }
+        .bg-readonly { background: #f9f9f9; color: #555; pointer-events: none; } 
+
+        .brand-row td { font-weight: bold; text-align: center; border: 1px solid #999; font-size: 9px; height: 16px; }
+        .bg-brother { background: #e3f2fd; color: #0d47a1; }
+        .bg-canon { background: #ffebee; color: #b71c1c; }
+        .bg-epson { background: #e0f2f1; color: #004d40; }
+        .bg-hp { background: #f1f8e9; color: #33691e; }
+        .bg-ribbon { background: #fff3e0; color: #e65100; }
+        .bg-tape { background: #f3e5f5; color: #4a148c; }
+        .bg-sum { background: #f5f5f5; color: #333; }
+
+        .badge { display: inline-block; width: 11px; height: 10px; line-height: 10px; text-align: center; font-size: 7px; font-weight: bold; border-radius: 2px; margin-right: 2px; border: 1px solid rgba(0,0,0,0.1); }
+        .b-k { background: #222; color: #fff; }   
+        .b-c { background: #00B0F0; color: #000; } 
+        .b-m { background: #FF00FF; color: #fff; } 
+        .b-y { background: #FFFF00; color: #000; } 
+        .b-w { background: #fff; color: #000; border:1px solid #ccc; }
+        .b-r { background: #d32f2f; color: #fff; }
+        .tri-box { display: inline-flex; margin-right: 2px; border: 1px solid #ccc; vertical-align: middle; }
+        .tri-box span { width: 3px; height: 10px; display: block; }
+
+        @media print {
+            body { display: block; background: white; }
+            #control-panel { display: none !important; }
+            #preview-area { width: 100%; padding: 0; background: white; overflow: visible; }
+            .a4-landscape { box-shadow: none; border: none; width: 100%; height: auto; margin: 0; padding: 4mm; }
+            .bg-readonly { background: #fff !important; }
+            * { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F">
+            <div>
+                <h2>นับสต็อคหมึก</h2>
+                <small>แหลมฉบังเครื่องเขียน (1995)</small>
+            </div>
+        </div>
+
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ใบนับสต็อค</button>
+        <button class="btn btn-clear" onclick="clearData()">ล้างข้อมูลตัวเลข</button>
+        <a href="index.html" class="btn btn-back">กลับหน้าหลัก</a>
+    </div>
+
+    <div id="preview-area">
+        <div class="a4-landscape">
+            <div class="main-wrapper">
+                <div class="day-section">
+                    <div class="date-line">
+                        <span class="date-label">วันที่:</span>
+                        <input type="text" class="date-input">
+                        <small style="color:#999; margin-left: auto;">(ตารางที่ 1)</small>
+                    </div>
+                    <div class="inner-grid">
+                        <div>
+                            <table>
+                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <tbody id="L_col1"></tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <table>
+                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <tbody id="L_col2"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="day-section">
+                    <div class="date-line">
+                        <span class="date-label">วันที่:</span>
+                        <input type="text" class="date-input">
+                        <small style="color:#999; margin-left: auto;">(ตารางที่ 2)</small>
+                    </div>
+                    <div class="inner-grid">
+                        <div>
+                            <table>
+                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <tbody id="R_col1"></tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <table>
+                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <tbody id="R_col2"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const B = '<span class="badge b-k">B</span>';
+        const C = '<span class="badge b-c">C</span>';
+        const M = '<span class="badge b-m">M</span>';
+        const Y = '<span class="badge b-y">Y</span>';
+        const W = '<span class="badge b-w">W</span>'; 
+        const R = '<span class="badge b-r">R</span>'; 
+        const TRI = '<span class="tri-box"><span style="background:#00B0F0"></span><span style="background:#FF00FF"></span><span style="background:#FFFF00"></span></span>';
+
+        const data_col1 = [
+            { h: "BROTHER (INK)", c: "bg-brother" },
+            { n: `${B} D60` }, { n: `${B} 6000` },
+            { n: `${C} 5000` }, { n: `${M} 5000` }, { n: `${Y} 5000` },
+            { n: `${C} D100` }, { n: `${M} D100` }, { n: `${Y} D100` },
+            { n: `${B} 3619XL` }, { n: `${C} 3619XL` }, { n: `${M} 3619XL` }, { n: `${Y} 3619XL` },
+            { n: `${B} 462XL` }, { n: `${C} 462XL` }, { n: `${M} 462XL` }, { n: `${Y} 462XL` },
+            { h: "BROTHER (LASER)", c: "bg-brother" },
+            { n: "TN1000 (แท้)" }, { n: "DR1000 (แท้)" },
+            { n: "TN1000 (เทียบ)" }, { n: "DR1000 (เทียบ)" },
+            { h: "CANON", c: "bg-canon" },
+            { n: `${B} 47` }, { n: `${TRI} 57` },
+            { n: `${B} 740` }, { n: `${TRI} 741` },
+            { n: `${B} 745` }, { n: `${TRI} 746` },
+            { n: `${B} 810` }, { n: `${TRI} 811` },
+            { n: `${B} 88` }, { n: `${TRI} 98` },
+            { n: `${B} 71` }, { n: `${C} 71` }, { n: `${M} 71` }, { n: `${Y} 71` },
+            { n: `${B} 790` }, { n: `${C} 790` }, { n: `${M} 790` }, { n: `${Y} 790` },
+            { h: "เพิ่มเติม", c: "bg-sum" },
+            { n: "" }, { n: "" }, { n: "" }
+        ];
+
+        const data_col2 = [
+            { h: "EPSON (INK)", c: "bg-epson" },
+            { n: `${B} 001` }, { n: `${C} 001` }, { n: `${M} 001` }, { n: `${Y} 001` },
+            { n: `${B} 003` }, { n: `${C} 003` }, { n: `${M} 003` }, { n: `${Y} 003` },
+            { n: `${B} 008` }, { n: `${C} 008` }, { n: `${M} 008` }, { n: `${Y} 008` },
+            { n: `${B} 664` }, { n: `${C} 664` }, { n: `${M} 664` }, { n: `${Y} 664` },
+            { n: `${B} 774` },
+            { h: "EPSON (RIBBON)", c: "bg-ribbon" },
+            { n: "LQ300" }, { n: "LQ310" }, { n: "LQ590" }, 
+            { n: "LQ630" }, { n: "LQ2090" }, { n: "LQ2180" },
+            { h: "HP", c: "bg-hp" },
+            { n: `${B} 678` }, { n: `${TRI} 678` },
+            { n: `${B} 680` }, { n: `${TRI} 680` },
+            { n: `${B} 682` }, { n: `${TRI} 682` },
+            { n: `${B} GT53` }, 
+            { n: `${C} GT52` }, { n: `${M} GT52` }, { n: `${Y} GT52` },
+            { h: "BROTHER (TZE TAPE)", c: "bg-tape" },
+            { n: `${W} 221 (9 ขาว)` }, { n: `${R} 421 (9 แดง)` }, { n: `${C} 521 (9 ฟ้า)` }, { n: `${Y} 621 (9 หล)` },
+            { n: `${W} 231 (12 ขาว)` }, { n: `${R} 431 (12 แดง)` }, { n: `${Y} 631 (12 หล)` },
+            { n: `${W} 251 (24 ขาว)` }
+        ];
+
+        function render(data, targetId) {
+            let html = "";
+            data.forEach((item, idx) => {
+                if(item.h) {
+                    html += `<tr class="brand-row"><td colspan="7" class="${item.c}">${item.h}</td></tr>`;
+                } else {
+                    let name = item.n ? item.n : "&nbsp;";
+                    let uId = targetId + "_" + idx;
+                    html += `
+                        <tr>
+                            <td style="font-weight:bold; text-align:left; padding-left:2px;">${name}</td>
+                            <td><input type="number" id="s1_${uId}" class="cell-input" oninput="calc('${uId}')"></td>
+                            <td><input type="number" id="st_${uId}" class="cell-input" oninput="calc('${uId}')"></td>
+                            <td class="bg-readonly"><input type="text" id="sum_${uId}" class="cell-input" readonly></td>
+                            <td><input type="number" id="pos_${uId}" class="cell-input" oninput="calc('${uId}')"></td>
+                            <td><div id="miss_${uId}" class="txt-missing"></div></td>
+                            <td><div id="surp_${uId}" class="txt-surplus"></div></td>
+                        </tr>
+                    `;
+                }
+            });
+            document.getElementById(targetId).innerHTML = html;
+        }
+
+        window.calc = function(uid) {
+            const s1 = parseFloat(document.getElementById('s1_' + uid).value) || 0;
+            const st = parseFloat(document.getElementById('st_' + uid).value) || 0;
+            const posEl = document.getElementById('pos_' + uid);
+            let total = s1 + st;
+            const sumInput = document.getElementById('sum_' + uid);
+            sumInput.value = (total > 0) ? total : '';
+            if (posEl.value === '') {
+                document.getElementById('miss_' + uid).innerText = '';
+                document.getElementById('surp_' + uid).innerText = '';
+                return;
+            }
+            let pos = parseFloat(posEl.value) || 0;
+            let diff = pos - total;
+            const missEl = document.getElementById('miss_' + uid);
+            const surpEl = document.getElementById('surp_' + uid);
+            missEl.innerText = ''; surpEl.innerText = '';
+            if (diff > 0) missEl.innerText = diff;
+            else if (diff < 0) surpEl.innerText = Math.abs(diff);
+            sumInput.setAttribute('value', sumInput.value);
+        }
+
+        document.addEventListener('wheel', function(e) { if (document.activeElement.type === 'number') document.activeElement.blur(); });
+        document.addEventListener('keydown', function(e) { if (e.target.type === 'number') { if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); } });
+
+        function clearData() {
+            if(confirm("ล้างข้อมูลตัวเลขทั้งหมด?")) {
+                document.querySelectorAll('input[type=number], input[type=text]').forEach(i => { if(!i.readOnly) i.value = ''; });
+                document.querySelectorAll('[id^="sum_"]').forEach(i => i.value = '');
+                document.querySelectorAll('[id^="miss_"], [id^="surp_"]').forEach(d => d.innerText = '');
+            }
+        }
+
+        render(data_col1, 'L_col1'); render(data_col2, 'L_col2');
+        render(data_col1, 'R_col1'); render(data_col2, 'R_col2');
+    </script>
+</body>
+</html>

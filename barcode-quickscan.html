@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>แผ่นบาร์โค้ดสแกนด่วน - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #023f88; --bg-preview: #555; }
+        @page { size: A4 portrait; margin: 0; }
+        
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; padding: 0; 
+            display: flex; height: 100vh; 
+            background-color: #f4f6f8; 
+        }
+
+        /* --- ส่วนจัดการข้อมูล (ซ้าย) --- */
+        #control-panel {
+            width: 35%; padding: 20px;
+            background: white; border-right: 1px solid #ccc;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+            box-sizing: border-box;
+        }
+
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .shop-header img { width: 40px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+
+        .input-group {
+            border: 1px solid #ddd; padding: 10px; border-radius: 8px;
+            background: #fff; margin-bottom: 8px;
+        }
+        .input-row { display: flex; gap: 5px; margin-bottom: 5px; align-items: center; }
+        
+        input {
+            width: 100%; padding: 8px; border: 1px solid #ccc;
+            border-radius: 4px; font-family: 'Sarabun'; font-size: 13px;
+        }
+
+        button { cursor: pointer; border: none; border-radius: 4px; font-weight: bold; font-family: 'Sarabun'; transition: 0.2s; }
+        .btn-add { background: var(--primary); color: white; width: 100%; padding: 12px; font-size: 15px; }
+        .btn-delete { background: #dc3545; color: white; padding: 5px 10px; font-size: 11px; }
+        .btn-print { 
+            background: #28a745; color: white; padding: 15px; font-size: 18px; 
+            position: sticky; bottom: 0; margin-top: auto;
+        }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; text-align: center; padding: 8px; font-size: 13px; margin-top: 5px; }
+
+        /* --- ส่วนแสดงผล (ขวา) --- */
+        #preview-area {
+            width: 65%; background: var(--bg-preview); padding: 20px;
+            overflow-y: auto; display: flex; justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .a4-page {
+            background: white; width: 210mm; min-height: 297mm;
+            padding: 8mm; box-sizing: border-box; position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        /* ลายน้ำร้านแหลมฉบังฯ */
+        .a4-page::before { 
+            content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 50%; height: 50%; 
+            background-image: url('https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F'); 
+            background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.04; z-index: 0; 
+        }
+
+        .header { position: relative; z-index: 1; border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+        
+        /* ตารางบาร์โค้ด - ปรับให้ Compact ขึ้น */
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 8px; /* ลดช่องว่างระหว่างการ์ด */
+            position: relative; z-index: 1; 
+        }
+        
+        .barcode-card { 
+            border: 1px solid #eee; 
+            padding: 8px 5px; 
+            text-align: center; 
+            background: rgba(255,255,255,0.9); 
+            border-radius: 3px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 95px; /* ลดความสูงการ์ดเพื่อประหยัดพื้นที่ */
+        }
+
+        .item-name { 
+            font-size: 10pt; 
+            font-weight: 700; 
+            margin-bottom: 3px; 
+            color: #222; 
+            line-height: 1.2;
+        }
+
+        /* ขยายขนาดเส้นบาร์โค้ด */
+        .barcode-img { 
+            max-width: 95%; 
+            height: 65px; /* ขยายความสูงเส้นบาร์โค้ดให้ใหญ่ขึ้นตามต้องการ */
+            object-fit: fill;
+        }
+
+        @media print {
+            body { display: block; background: white; }
+            #control-panel { display: none !important; }
+            #preview-area { width: 100%; padding: 0; overflow: visible; background: white; }
+            .a4-page { box-shadow: none; width: 100%; margin: 0; padding: 10mm; }
+            * { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F">
+            <div>
+                <h2>บาร์โค้ดสแกนด่วน</h2>
+                <small style="color:#666;">แหลมฉบังเครื่องเขียน (1995)</small>
+            </div>
+        </div>
+
+        <div id="input-list">
+            </div>
+
+        <button class="btn-add" onclick="addItem()">+ เพิ่มรายการสินค้า</button>
+        <button class="btn-print" onclick="window.print()">🖨️ สั่งพิมพ์ (A4)</button>
+        <a href="index.html" class="btn-back">กลับหน้าหลัก</a>
+    </div>
+
+    <div id="preview-area">
+        <div class="a4-page">
+            <div class="header">
+                <div style="font-size:14pt; font-weight:700; color:var(--primary);">แหลมฉบังเครื่องเขียน (1995)</div>
+                <div style="font-weight:bold; font-size:10pt; color:#666;">Barcode Quick-Scan</div>
+            </div>
+            <div class="grid-container" id="barcodeGrid">
+                </div>
+        </div>
+    </div>
+
+<script>
+    let items = [
+        { name: "ถ่ายเอกสาร A4 (1 หน้า)", code: "SCAN001" },
+        { name: "ถุงหูหิ้ว (ขนาดกลาง)", code: "BAG01" },
+        { name: "ถุงหูหิ้ว (ขนาดใหญ่)", code: "BAG02" }
+    ];
+
+    // ฟังก์ชันสร้างช่องกรอกข้อมูล (เรียกเฉพาะเมื่อเพิ่มหรือลบรายการ)
+    function renderInputs() {
+        const inputList = document.getElementById('input-list');
+        inputList.innerHTML = '';
+        items.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            div.innerHTML = `
+                <div class="input-row">
+                    <input type="text" placeholder="ชื่อสินค้า" value="${item.name}" oninput="updData(${idx}, 'name', this.value)">
+                </div>
+                <div class="input-row">
+                    <input type="text" placeholder="บาร์โค้ด" value="${item.code}" oninput="updData(${idx}, 'code', this.value)">
+                    <button class="btn-delete" onclick="delItem(${idx})">ลบ</button>
+                </div>
+            `;
+            inputList.appendChild(div);
+        });
+    }
+
+    // ฟังก์ชันสร้างตัวอย่างบาร์โค้ด (เรียกเมื่อมีการพิมพ์)
+    function renderPreview() {
+        const grid = document.getElementById('barcodeGrid');
+        grid.innerHTML = '';
+        items.forEach((item) => {
+            // ใช้ API สร้างบาร์โค้ด โดยเพิ่มความหนาเส้น (scale=4)
+            const barcodeUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(item.code || ' ')}&scale=4&rotate=N&includetext`;
+            const card = document.createElement('div');
+            card.className = 'barcode-card';
+            card.innerHTML = `
+                <div class="item-name">${item.name || 'ระบุชื่อ'}</div>
+                <img src="${barcodeUrl}" class="barcode-img" alt="barcode">
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function addItem() { 
+        items.push({ name: "", code: "" }); 
+        renderInputs(); 
+        renderPreview(); 
+    }
+
+    function delItem(idx) { 
+        if(confirm('ลบรายการนี้?')) { 
+            items.splice(idx, 1); 
+            renderInputs(); 
+            renderPreview(); 
+        } 
+    }
+
+    // ฟังก์ชันอัปเดตข้อมูล (แก้ไขปัญหา Cursor หาย)
+    function updData(idx, key, val) { 
+        items[idx][key] = val; 
+        // อัปเดตเฉพาะฝั่ง Preview หลังจากหยุดพิมพ์ 0.5 วินาที
+        clearTimeout(window.t); 
+        window.t = setTimeout(renderPreview, 500); 
+    }
+
+    // เริ่มต้นระบบ
+    renderInputs();
+    renderPreview();
+</script>
+
+</body>
+</html>

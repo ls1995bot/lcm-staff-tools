@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>แบบฟอร์มขอออกบิล (Final) - 12 ใบ/A4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ตั้งค่าหน้ากระดาษ A4 แบบไร้ขอบ */
+        @page { size: A4; margin: 0; }
+        
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Sarabun', sans-serif; 
+            -webkit-print-color-adjust: exact; 
+        }
+
+        /* โครงสร้างหลัก แบ่งเป็น 2 คอลัมน์ 6 แถว (12 ใบ) */
+        .page {
+            width: 210mm; 
+            height: 296mm;
+            display: grid; 
+            grid-template-columns: 50% 50%; 
+            grid-template-rows: repeat(6, 1fr); 
+            box-sizing: border-box;
+        }
+
+        /* ดีไซน์ของแต่ละใบ */
+        .slip {
+            border: 1px dashed #bbb; /* เส้นประสีเทา สำหรับตัด */
+            padding: 0 25px; /* ขยับขอบซ้ายขวาเข้ามา ให้ดูไม่ชิดขอบกระดาษเกินไป */
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+        }
+
+        /* ลบเส้นซ้อนทับ ตรงกลางและขอบ */
+        .slip:nth-child(even) { border-left: none; }
+        
+        /* หัวข้อ: ปรับระยะห่างด้านล่างเยอะๆ กันชน */
+        h3 { 
+            margin: 0 0 20px 0; /* <<< พื้นที่หายใจสำหรับสระลอย */
+            text-align: center; 
+            font-size: 14pt; 
+            font-weight: 600; 
+        }
+        
+        /* การจัดวางแต่ละบรรทัด */
+        .input-line { 
+            display: flex; 
+            align-items: flex-end; 
+            margin-bottom: 8px; /* ระยะห่างระหว่างบรรทัด */
+        }
+        
+        /* ข้อความหัวข้อบรรทัด (Label) */
+        .label { 
+            white-space: nowrap; 
+            margin-right: 8px; 
+            font-size: 11pt; 
+            font-weight: 600; 
+            color: #000; 
+            padding-bottom: 2px;
+        }
+        
+        /* ตัวหนังสือวงเล็บเล็กๆ */
+        .hint { 
+            font-size: 9pt; 
+            font-weight: normal; 
+            color: #555; 
+        } 
+        
+        /* เส้นจุดไข่ปลาสำหรับเขียน */
+        .fill-space {
+            border-bottom: 1.5px dotted #666;
+            flex-grow: 1; 
+            height: 25px; /* ความสูงช่องเขียน */
+        }
+        
+        /* หมายเหตุท้ายกระดาษ */
+        .footer-note { 
+            text-align: center; 
+            font-size: 9pt; 
+            margin-top: 10px; 
+            color: #777; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <script>
+        const slipTemplate = `
+            <div class="slip">
+                <h3>ข้อมูลสำหรับออกบิลเบิกโรงเรียน</h3>
+                
+                <div class="input-line">
+                    <span class="label">ชื่อ-สกุล นักเรียน:</span>
+                    <div class="fill-space"></div>
+                </div>
+                
+                <div class="input-line">
+                    <span class="label">ชั้น:</span>
+                    <div class="fill-space" style="flex-grow: 0.3; margin-right: 15px;"></div>
+                    <span class="label">โรงเรียน:</span>
+                    <div class="fill-space" style="flex-grow: 1;"></div>
+                </div>
+
+                <div class="input-line">
+                    <span class="label">จังหวัด <span class="hint">(เฉพาะต่างจังหวัด)</span>:</span>
+                    <div class="fill-space"></div>
+                </div>
+                
+                <div class="footer-note">
+                    (กรุณาเขียนตัวบรรจง เสร็จแล้วยื่นให้พนักงานได้เลยค่ะ)
+                </div>
+            </div>
+        `;
+
+        // สั่งพิมพ์รันลูป 12 ใบ
+        for (let i = 0; i < 12; i++) {
+            document.write(slipTemplate);
+        }
+    </script>
+</div>
+
+</body>
+</html>

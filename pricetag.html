@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>โปรแกรมพิมพ์ป้าย - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --theme-color: #023f88;
+            --sale-color: #d60000;
+            --bg-color: #f4f6f8;
+            --tag-width: 4.9cm;
+            --tag-height: 4.3cm;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            display: flex; height: 100vh;
+        }
+
+        /* --- ส่วนจัดการข้อมูล (ซ้าย) --- */
+        #control-panel {
+            width: 400px; padding: 20px;
+            background: white; border-right: 1px solid #ccc;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+            box-sizing: border-box;
+        }
+
+        .shop-header { display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--theme-color); }
+        
+        .settings-box { background: #eef3f8; padding: 12px; border-radius: 8px; border: 1px solid #d1d9e6; }
+        .input-group {
+            border: 1px solid #ddd; padding: 15px; border-radius: 8px;
+            background: #fff; position: relative; transition: all 0.2s;
+        }
+        .input-group:hover { border-color: var(--theme-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .input-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        
+        input, select {
+            width: 100%; padding: 8px; border: 1px solid #ccc;
+            border-radius: 4px; font-family: 'Sarabun'; font-size: 14px;
+        }
+        
+        .type-selector { font-weight: bold; color: var(--theme-color); border: 2px solid var(--theme-color); }
+        .label { font-size: 14px; color: #333; width: 85px; flex-shrink: 0; text-align: right; margin-right: 5px; }
+
+        button { cursor: pointer; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-family: 'Sarabun'; transition: 0.2s; }
+        .btn-add { background: var(--theme-color); color: white; width: 100%; padding: 12px; font-size: 16px; }
+        .btn-add:hover { background: #003366; }
+        .btn-small { background: #6c757d; color: white; font-size: 12px; padding: 4px 8px; }
+        .btn-copy { background: #ff9800; color: white; font-size: 11px; }
+        .btn-delete { background: #dc3545; color: white; font-size: 11px; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; text-align: center; padding: 10px; font-size: 14px; border-radius: 4px; margin-bottom: 5px; }
+        .btn-print { 
+            background: #28a745; color: white; padding: 15px; font-size: 18px; 
+            position: sticky; bottom: 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 10; margin-top: auto;
+        }
+
+        .bulk-inputs-container { background: #f8f9fa; border: 1px dashed #ccc; padding: 10px; border-radius: 4px; }
+        .bulk-input-row { display: flex; gap: 5px; margin-bottom: 5px; }
+
+        /* --- ส่วนแสดงผล (ขวา) --- */
+        #preview-area {
+            flex-grow: 1; background: #555; padding: 20px;
+            overflow-y: auto; display: flex; justify-content: center;
+        }
+
+        .a4-page {
+            background: white; width: 210mm; min-height: 297mm;
+            padding: 4mm; box-sizing: border-box;
+            display: flex; flex-wrap: wrap; align-content: flex-start; gap: 1px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* --- ดีไซน์ป้ายราคา --- */
+        .price-tag {
+            width: var(--tag-width); height: var(--tag-height);
+            border: 1px dashed #ddd; box-sizing: border-box; padding: 5px 8px;
+            position: relative; display: flex; flex-direction: column;
+            background: white; overflow: hidden;
+        }
+
+        .top-section { display: flex; justify-content: space-between; align-items: flex-start; height: 35%; margin-bottom: 2px; }
+        .header-left { display: flex; flex-direction: column; width: 75%; }
+        .product-name { font-size: 12px; font-weight: bold; color: #333; line-height: 1.35; overflow: hidden; max-height: 2.8em; margin-bottom: 2px; }
+        .product-code { font-size: 9px; color: #777; font-family: monospace; }
+        .header-right { width: 25%; display: flex; justify-content: flex-end; align-items: flex-start; }
+        .tag-logo { width: 30px; height: 30px; object-fit: contain; }
+
+        .mid-section { height: 12%; display: flex; align-items: center; }
+        .product-detail { font-size: 11px; font-weight: 400; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+
+        .bottom-section { flex-grow: 1; display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 1px; }
+        .bottom-left { width: 25%; display: flex; align-items: flex-end; justify-content: flex-start; height: 100%; }
+        .qr-code-img { width: 100%; max-width: 40px; height: auto; border: 1px solid #eee; }
+        .bottom-right { width: 75%; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; height: 100%; }
+
+        .price-normal { font-size: 42px; font-weight: 800; color: var(--theme-color); line-height: 1; letter-spacing: -1px; text-align: right; }
+        .price-sale-group { text-align: right; width: 100%; position: relative; }
+        .price-old { font-size: 10px; color: #999; text-decoration: line-through; display: block; line-height: 1;}
+        .price-sale { font-size: 42px; font-weight: 800; color: var(--sale-color); line-height: 0.9; letter-spacing: -1px; }
+        .sale-badge { position: absolute; top: 0; left: 0; background: var(--sale-color); color: white; font-size: 9px; padding: 2px 4px; border-radius: 2px; transform: rotate(-5deg); }
+
+        /* การจัดรูปแบบราคาส่งใหม่ */
+        .bulk-container { width: 100%; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+        .bulk-line { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted #eee; padding: 1px 0; }
+        .bulk-label { font-size: 9px; font-weight: normal; color: #777; background: transparent; padding: 0; }
+        .bulk-price { font-weight: 800; color: var(--theme-color); text-align: right; line-height: 1; }
+
+        .shop-footer { font-size: 9px; color: #888; text-align: center; border-top: 1px dotted #ccc; padding-top: 2px; margin-top: 2px; white-space: nowrap; overflow: hidden; font-weight: 400; }
+        .currency { font-size: 0.5em; margin-right: 1px; vertical-align: middle; }
+
+        @media print {
+            body { display: block; background: white; }
+            #control-panel { display: none !important; }
+            #preview-area { width: 100%; padding: 0; overflow: visible; background: white; }
+            .a4-page { width: 100%; box-shadow: none; padding: 4mm; margin: 0; }
+            .price-tag { border: 1px solid #eee; page-break-inside: avoid; }
+            @page { size: A4; margin: 0; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F">
+            <div>
+                <h2>โปรแกรมพิมพ์ป้าย</h2>
+                <small style="color:#666;">แหลมฉบังเครื่องเขียน (1995)</small>
+            </div>
+        </div>
+
+        <a href="index.html" class="btn-back">⬅️ กลับหน้าหลัก</a>
+
+        <div class="settings-box">
+            <small style="font-weight: bold; color: var(--theme-color);">ขนาดป้าย (ซม.)</small>
+            <div class="input-row" style="margin-top:5px;">
+                <input type="number" id="set-width" value="4.9" step="0.1" onchange="updateSize()">
+                <span style="font-size:12px;">x</span>
+                <input type="number" id="set-height" value="4.3" step="0.1" onchange="updateSize()">
+            </div>
+        </div>
+
+        <div id="input-list"></div>
+
+        <button class="btn-add" onclick="addTag()">+ เพิ่มรายการสินค้า</button>
+        <button class="btn-print" onclick="window.print()">🖨️ สั่งพิมพ์ (Print)</button>
+    </div>
+
+    <div id="preview-area">
+        <div class="a4-page" id="printable-sheet"></div>
+    </div>
+
+    <script>
+        let tagsData = [
+            { id: 1, type: 'normal', name: "สีไม้มาสเตอร์อาร์ต 12 สี PREMIUM", detail: "", price1: "49", price2: "", code: "8851907273156", qr: "" },
+            { id: 2, type: 'bulk', name: "บิลเงินสด คาร์บอนPS 2 ชั้น #1", detail: "", price1: "", price2: "", code: "8850893000470", qr: "",
+                tiers: [
+                    { qty: "เล่มละ", price: "45" },
+                    { qty: "ยกลัง (100)", price: "3200" }
+                ]
+            }
+        ];
+
+        renderInputs();
+        renderPreview();
+
+        function renderInputs() {
+            const list = document.getElementById('input-list');
+            list.innerHTML = ''; 
+
+            tagsData.forEach((tag, idx) => {
+                const div = document.createElement('div');
+                div.className = 'input-group';
+                let dynamicInputs = '';
+
+                if(tag.type === 'normal') {
+                    dynamicInputs = `<div class="input-row"><span class="label">ราคา:</span><input type="text" value="${tag.price1}" oninput="upd(${idx}, 'price1', this.value)"></div>`;
+                } else if(tag.type === 'sale') {
+                    dynamicInputs = `
+                        <div class="input-row"><span class="label">ราคาปกติ:</span><input type="text" value="${tag.price1}" oninput="upd(${idx}, 'price1', this.value)"></div>
+                        <div class="input-row"><span class="label" style="color:red;">ราคาลด:</span><input type="text" value="${tag.price2}" oninput="upd(${idx}, 'price2', this.value)"></div>
+                    `;
+                } else if(tag.type === 'bulk') {
+                    if(!tag.tiers) tag.tiers = [{qty: "1 ชิ้น", price: ""}, {qty: "ยกลัง", price: ""}];
+                    let tiersHTML = tag.tiers.map((t, tIdx) => `
+                        <div class="bulk-input-row">
+                            <input type="text" placeholder="จำนวน" value="${t.qty}" oninput="updTier(${idx}, ${tIdx}, 'qty', this.value)" style="width:45%;">
+                            <input type="text" placeholder="ราคา" value="${t.price}" oninput="updTier(${idx}, ${tIdx}, 'price', this.value)" style="width:35%;">
+                            <button class="btn-delete" onclick="removeTier(${idx}, ${tIdx})" style="padding:4px;">ลบ</button>
+                        </div>
+                    `).join('');
+                    dynamicInputs = `<div class="input-row"><span class="label">ราคาส่ง:</span><div style="width:100%;"><div class="bulk-inputs-container">${tiersHTML}<button class="btn-small" onclick="addTier(${idx})" style="margin-top:5px;">+ เพิ่มระดับ</button></div></div></div>`;
+                }
+
+                div.innerHTML = `
+                    <div class="input-row" style="background:#f8f9fa; padding:5px; border-radius:4px;">
+                        <select class="type-selector" onchange="upd(${idx}, 'type', this.value)">
+                            <option value="normal" ${tag.type==='normal'?'selected':''}>🔵 ราคาปกติ</option>
+                            <option value="sale" ${tag.type==='sale'?'selected':''}>🔴 ลดราคา</option>
+                            <option value="bulk" ${tag.type==='bulk'?'selected':''}>🟠 ราคาส่ง</option>
+                        </select>
+                        <button class="btn-copy" onclick="dup(${idx})">ก๊อป</button>
+                        <button class="btn-delete" onclick="del(${idx})">ลบ</button>
+                    </div>
+                    <div class="input-row"><input type="text" placeholder="ชื่อสินค้า" value="${tag.name}" oninput="upd(${idx}, 'name', this.value)" style="font-weight:bold;"></div>
+                    <div class="input-row"><input type="text" placeholder="Barcode" value="${tag.code}" oninput="upd(${idx}, 'code', this.value)"></div>
+                    <div class="input-row"><input type="text" placeholder="ลิงก์ QR (ถ้ามี)" value="${tag.qr || ''}" oninput="upd(${idx}, 'qr', this.value)"></div>
+                    ${dynamicInputs}
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderPreview() {
+            const preview = document.getElementById('printable-sheet');
+            preview.innerHTML = '';
+            tagsData.forEach((tag) => {
+                const pTag = document.createElement('div');
+                pTag.className = 'price-tag';
+                let qrHTML = tag.qr ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(tag.qr)}" class="qr-code-img">` : '';
+                let priceHTML = '';
+                if(tag.type === 'normal') priceHTML = `<div class="price-normal"><span class="currency">฿</span>${tag.price1}</div>`;
+                else if(tag.type === 'sale') priceHTML = `<div class="price-sale-group"><div class="sale-badge">SALE</div><span class="price-old">ปกติ ${tag.price1}</span><div class="price-sale"><span class="currency">฿</span>${tag.price2}</div></div>`;
+                else if(tag.type === 'bulk') {
+                    let tiers = tag.tiers || [];
+                    // ปรับขนาดตัวเลขราคาอัตโนมัติ (ถ้ามีหลายบรรทัดมากให้ลดขนาดลงเล็กน้อยกันล้น)
+                    let priceSize = tiers.length > 3 ? "16px" : "20px";
+                    
+                    let rowsHTML = tiers.map(t => `
+                        <div class="bulk-line">
+                            <span class="bulk-label">${t.qty}</span>
+                            <span class="bulk-price" style="font-size:${priceSize}"><span class="currency">฿</span>${t.price}</span>
+                        </div>
+                    `).join('');
+                    priceHTML = `<div class="bulk-container">${rowsHTML}</div>`;
+                }
+                pTag.innerHTML = `
+                    <div class="top-section"><div class="header-left"><div class="product-name">${tag.name}</div><div class="product-code">${tag.code}</div></div><div class="header-right"><img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F" class="tag-logo"></div></div>
+                    <div class="mid-section"><div class="product-detail">${tag.detail || ''}</div></div>
+                    <div class="bottom-section"><div class="bottom-left">${qrHTML}</div><div class="bottom-right">${priceHTML}</div></div>
+                    <div class="shop-footer">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div>
+                `;
+                preview.appendChild(pTag);
+            });
+        }
+
+        function addTier(idx) { tagsData[idx].tiers.push({qty: "", price: ""}); renderInputs(); renderPreview(); }
+        function removeTier(idx, tIdx) { tagsData[idx].tiers.splice(tIdx, 1); renderInputs(); renderPreview(); }
+        function updTier(idx, tIdx, f, v) { tagsData[idx].tiers[tIdx][f] = v; renderPreview(); }
+        function addTag() { tagsData.push({ id: Date.now(), type: 'normal', name: "", price1: "", code: "", qr: "", tiers:[] }); renderInputs(); renderPreview(); }
+        function dup(i) { let n = JSON.parse(JSON.stringify(tagsData[i])); n.id = Date.now(); tagsData.splice(i+1, 0, n); renderInputs(); renderPreview(); }
+        function del(i) { if(confirm('ลบป้ายนี้?')) { tagsData.splice(i, 1); renderInputs(); renderPreview(); } }
+        function upd(i, k, v) { tagsData[i][k] = v; if(k === 'type') renderInputs(); renderPreview(); }
+        function updateSize() {
+            document.documentElement.style.setProperty('--tag-width', document.getElementById('set-width').value + 'cm');
+            document.documentElement.style.setProperty('--tag-height', document.getElementById('set-height').value + 'cm');
+        }
+    </script>
+</body>
+</html>

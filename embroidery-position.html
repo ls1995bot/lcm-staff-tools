@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ใบระบุตำแหน่งปัก - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #023f88; --bg-preview: #555; }
+        @page { size: A4; margin: 0; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; background-color: #f4f6f8; }
+        #control-panel { width: 380px; padding: 20px; background: white; border-right: 1px solid #ccc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; flex-shrink: 0; overflow-y: auto; }
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+        .setting-group { background: #f0f4f8; padding: 12px; border-radius: 8px; border: 1px solid #ccdceb; }
+        .setting-label { font-weight: bold; color: var(--primary); display: block; margin-bottom: 5px; font-size: 13px; }
+        .sidebar-input { width: 100%; padding: 8px; font-family: 'Sarabun'; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; box-sizing: border-box; outline: none; }
+        .btn { padding: 12px 15px; border: none; border-radius: 6px; font-family: 'Sarabun'; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: center; font-size: 15px; }
+        .btn-print { background: var(--primary); color: white; margin-top: 10px; }
+        .btn-clear { background: #dc3545; color: white; margin-top: 5px; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; border-radius: 6px; padding: 12px; display: block; text-align: center; font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+        #preview-area { flex-grow: 1; background: var(--bg-preview); padding: 15px; overflow: auto; display: flex; justify-content: center; box-sizing: border-box; }
+        .a4-page { background: white; width: 210mm; height: 297mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; box-sizing: border-box; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .slip { border: 0.2mm dashed #999; padding: 6mm; position: relative; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; }
+        .slip::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50%; height: 50%; background-image: url('https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.04; z-index: 0; }
+        .slip-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+        h2 { text-align: center; margin: 0 0 5px 0; font-size: 14pt; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 3px; }
+        .info-row { display: flex; margin-bottom: 4px; gap: 5px; align-items: flex-end; font-size: 9.5pt; }
+        .label { font-weight: 700; white-space: nowrap; }
+        .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; height: 16px; font-weight: bold; overflow: hidden; white-space: nowrap; }
+        .shirt-display { flex-grow: 1; display: flex; justify-content: center; align-items: center; margin: 8px 0; border: 1px solid #eee; background: rgba(255,255,255,0.6); border-radius: 5px; padding: 10px; }
+        .shirt-img { max-width: 100%; max-height: 180px; object-fit: contain; }
+        .checklist-box { background: #f9f9f9; padding: 6px; border: 0.5px solid #ccc; border-radius: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 8.5pt; margin-bottom: 5px; }
+        .check-item { display: flex; align-items: center; gap: 4px; font-weight: bold; }
+        .checkbox-rect { width: 10px; height: 10px; border: 1.2px solid var(--primary); border-radius: 2px; flex-shrink: 0; }
+        .footer-msg { text-align: center; font-size: 8.5pt; font-weight: bold; color: #d63031; margin-top: auto; border-top: 1px solid #eee; padding-top: 5px; }
+        @media print { body { display: block; background: white; } #control-panel { display: none !important; } #preview-area { width: 100%; padding: 0; background: white; overflow: visible; } .a4-page { box-shadow: none; border: none; width: 100%; height: 100%; padding: 0; } * { -webkit-print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F">
+            <div><h2>ใบระบุตำแหน่งปัก</h2><small>แหลมฉบังเครื่องเขียน (1995)</small></div>
+        </div>
+        <a href="index.html" class="btn btn-back">⬅️ กลับหน้าหลัก</a>
+        <div class="setting-group">
+            <span class="setting-label">ข้อมูลเบื้องต้น:</span>
+            <input type="text" id="in_cust" class="sidebar-input" placeholder="ชื่อลูกค้า">
+            <input type="text" id="in_school" class="sidebar-input" style="margin-top:5px;" placeholder="ชื่อโรงเรียน">
+        </div>
+        <div class="setting-group">
+            <span class="setting-label">เลือกประเภทเสื้อ (เพื่อแสดงโครง):</span>
+            <select id="shirtSelector" class="sidebar-input">
+                <option value="เสื้อเชิ้ตนักเรียนชายแขนสั้น.png" selected>เสื้อเชิ้ตนักเรียนชายแขนสั้น</option>
+                <option value="เสื้อนักเรียนหญิง เตรียมแขนพอง.png">เสื้อนักเรียนหญิง เตรียมแขนพอง</option>
+                <option value="เสื้อนักเรียนหญิง ปกทหารเรือ.png">เสื้อนักเรียนหญิง ปกทหารเรือ</option>
+                <option value="เสื้อนักเรียนหญิง ผ่าตลอด คอบัวกลม.png">เสื้อนักเรียนหญิง ผ่าตลอด คอบัวกลม</option>
+                <option value="เสื้อนักเรียนหญิง ฮาวายแขนพอง.png">เสื้อนักเรียนหญิง ฮาวายแขนพอง</option>
+                <option value="บัว แขนยาว เอวจั๊ม.png">บัว แขนยาว เอวจั๊ม</option>
+                <option value="เสื้อเนตรนารี.png">เสื้อเนตรนารี</option>
+                <option value="เสื้อยุวกาชาด.png">เสื้อยุวกาชาด</option>
+                <option value="เสื้อลูกเสือสีกากี.png">เสื้อลูกเสือสีกากี</option>
+                <option value="เสื้ออนุบาลคอบัว 4 หลัก.png">เสื้ออนุบาลคอบัว 4 หลัก</option>
+                <option value="เสื้ออนุบาลคอบัวเอวจั๊ม.png">เสื้ออนุบาลคอบัวเอวจั๊ม</option>
+                <option value="เสื้ออนุบาลคอฮาวาย 4 หลัก.png">เสื้ออนุบาลคอฮาวาย 4 หลัก</option>
+                <option value="เสื้ออนุบาลคอฮาวายเอวจั๊ม.png">เสื้ออนุบาลคอฮาวายเอวจั๊ม</option>
+            </select>
+        </div>
+        <div class="setting-group">
+            <span class="setting-label">ข้อมูลงานปัก (ทิ้งว่างเพื่อเขียนมือ):</span>
+            <input type="text" id="in_name" class="sidebar-input" placeholder="ชื่อที่ปัก">
+            <input type="text" id="in_color" class="sidebar-input" style="margin-top:5px;" placeholder="สีด้าย">
+            <input type="text" id="in_abbr" class="sidebar-input" style="margin-top:5px;" placeholder="ตัวย่อโรงเรียน">
+            <input type="text" id="in_class" class="sidebar-input" style="margin-top:5px;" placeholder="ชั้นปี / ดาว">
+        </div>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ใบระบุตำแหน่ง (A4)</button>
+        <button class="btn btn-clear" onclick="clearForm()">ล้างข้อมูล</button>
+    </div>
+    <div id="preview-area"><div class="a4-page" id="slipsContainer"></div></div>
+<script>
+    function syncAll() {
+        const longDots = "................................................................................";
+        const shortDots = "........................................";
+        const cust = document.getElementById('in_cust').value || longDots;
+        const school = document.getElementById('in_school').value || longDots;
+        const date = new Date().toLocaleDateString('th-TH');
+        const p_name = document.getElementById('in_name').value || longDots;
+        const p_color = document.getElementById('in_color').value || shortDots;
+        const p_abbr = document.getElementById('in_abbr').value || shortDots;
+        const p_class = document.getElementById('in_class').value || shortDots;
+        const selectedShirt = document.getElementById('shirtSelector').value;
+        const slipTemplate = `
+            <div class="slip">
+                <div class="slip-content">
+                    <h2>ใบระบุตำแหน่งปัก</h2>
+                    <div class="info-row"><span class="label">ลูกค้า:</span><div class="fill-line">${cust}</div><span class="label">วันที่:</span><div class="fill-line" style="flex-grow:0; width:70px; text-align:center;">${date}</div></div>
+                    <div class="info-row"><span class="label">โรงเรียน:</span><div class="fill-line">${school}</div></div>
+                    <div class="shirt-display"><img src="${selectedShirt}" class="shirt-img" alt="โครงเสื้อ" onerror="this.src='https://via.placeholder.com/150?text=No+Shirt+Image'"></div>
+                    <div class="checklist-box">
+                        <div class="check-item"><div class="checkbox-rect"></div> ปักชื่อ-นามสกุล</div>
+                        <div class="check-item"><div class="checkbox-rect"></div> ปักอักษรย่อ รร.</div>
+                        <div class="check-item"><div class="checkbox-rect"></div> ปักเลขประจำตัว</div>
+                        <div class="check-item"><div class="checkbox-rect"></div> ปักจุด/ดาว/ม.</div>
+                    </div>
+                    <div class="info-row"><span class="label">ปักชื่อ:</span><div class="fill-line">${p_name}</div></div>
+                    <div class="info-row"><span class="label">สีด้าย:</span><div class="fill-line">${p_color}</div><span class="label">ตัวย่อ:</span><div class="fill-line">${p_abbr}</div></div>
+                    <div class="info-row"><span class="label">ชั้น/ดาว:</span><div class="fill-line">${p_class}</div></div>
+                    <div class="footer-msg">** กรุณาวงกลมตำแหน่งปักบนรูปเสื้อด้านบน **</div>
+                </div>
+            </div>
+        `;
+        const container = document.getElementById('slipsContainer');
+        container.innerHTML = "";
+        for (let i = 0; i < 4; i++) { container.innerHTML += slipTemplate; }
+    }
+    function clearForm() { if(confirm('ล้างข้อมูล?')) { location.reload(); } }
+    document.querySelectorAll('#control-panel input, #control-panel select').forEach(el => { el.addEventListener('input', syncAll); });
+    syncAll();
+</script>
+</body>
+</html>

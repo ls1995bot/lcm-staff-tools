@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>สต็อกกระดาษ - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style id="print-settings">
+        @page { size: A4 portrait; margin: 0; }
+    </style>
+    <style>
+        :root { --primary: #023f88; --bg-preview: #555; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; background-color: #f4f6f8; }
+
+        /* --- แถบควบคุมด้านซ้าย --- */
+        #control-panel {
+            width: 280px; padding: 20px; background: white; border-right: 1px solid #ccc;
+            display: flex; flex-direction: column; gap: 15px; box-sizing: border-box; flex-shrink: 0; overflow-y: auto;
+        }
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+        .mode-box { background: #f0f4f8; padding: 15px; border-radius: 8px; border: 1px solid #ccdceb; }
+        .mode-title { font-weight: bold; color: var(--primary); margin-bottom: 10px; display: block; }
+        .mode-label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; margin-bottom: 8px; }
+        .btn { padding: 12px 15px; border: none; border-radius: 6px; font-family: 'Sarabun'; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: center; font-size: 15px; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-clear { background: #dc3545; color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; }
+
+        /* --- พื้นที่แสดงผลด้านขวา --- */
+        #preview-area { flex-grow: 1; background: var(--bg-preview); padding: 20px; overflow: auto; display: flex; justify-content: center; box-sizing: border-box; }
+        .page-sheet { background: white; box-sizing: border-box; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: none; padding: 5mm; }
+        .page-sheet.active { display: block; }
+
+        #page-daily { width: 210mm; min-height: 297mm; }
+        #page-sat { width: 297mm; min-height: 210mm; }
+
+        .grid-daily { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 0; height: 100%; border: 0.5px solid #000; }
+        .grid-sat { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 0; height: 100%; border: 0.5px solid #000; }
+
+        .stock-box { border: 0.5px solid #000; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+        
+        /* หัวตารางส่วนวันที่ */
+        .box-header { 
+            background: #eee; border-bottom: 1px solid #000; 
+            padding: 4px 10px; display: flex; align-items: center; height: 28px; 
+        }
+        .date-label { font-size: 12px; font-weight: bold; color: #333; margin-right: 5px; white-space: nowrap; }
+        .date-input { border: none; border-bottom: 1px solid #000; background: transparent; width: 100%; font-family: 'Sarabun'; font-size: 12px; font-weight: bold; outline: none; }
+
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { border: 1px solid #666; background: #0d2e5c; color: white; text-align: center; font-weight: bold; height: 16px; font-size: 11px; }
+        td { border: 1px solid #ccc; padding: 0 2px; vertical-align: middle; }
+
+        /* ปรับสัดส่วนคอลัมน์ใหม่ตามสั่ง */
+        .col-item { width: 40%; } /* รายการกว้างพิเศษ */
+        .col-num { width: 7.5%; } /* ช่องตัวเลขอื่นๆ ขนาดเท่าๆ กัน */
+
+        #page-daily td { height: 26px; font-size: 12px; }
+        #page-sat td { height: 19px; font-size: 11px; }
+
+        input.cell { width: 100%; height: 100%; border: none; text-align: center; font-family: 'Sarabun'; font-weight: bold; background: transparent; font-size: inherit; }
+        .txt-miss { color: red; font-weight: bold; }
+        .txt-surp { color: blue; font-weight: bold; }
+        
+        .badge { display: inline-block; width: 10px; height: 10px; border: 1px solid #ccc; margin-right: 4px; border-radius: 50%; }
+        .c-yel { background: #FFEB3B; } .c-org { background: #FF9800; } .c-grn { background: #4CAF50; }
+        .c-red { background: #F44336; } .c-blu { background: #0046ad; } .c-pnk { background: #FF4081; }
+        .c-rbw { background: linear-gradient(135deg, #ff0000, #ffff00, #0000ff); }
+
+        @media print {
+            body { display: block; background: white; }
+            #control-panel { display: none !important; }
+            #preview-area { width: 100%; padding: 0; background: white; overflow: visible; }
+            .page-sheet { box-shadow: none; border: none; width: 100% !important; height: auto !important; margin: 0; padding: 5mm; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F">
+            <div><h2>สต็อกกระดาษ</h2><small>แหลมฉบังเครื่องเขียน (1995)</small></div>
+        </div>
+        <div class="mode-box">
+            <span class="mode-title">เลือกโหมดการเช็ค:</span>
+            <label class="mode-label"><input type="radio" name="viewMode" value="daily" checked onchange="switchMode()"> เช็คทุกวัน (6 ชุด/หน้า)</label>
+            <label class="mode-label"><input type="radio" name="viewMode" value="sat" onchange="switchMode()"> เช็ควันเสาร์ (4 ชุด/หน้า)</label>
+        </div>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ใบนับสต็อก</button>
+        <button class="btn btn-clear" onclick="clearAll()">ล้างข้อมูลทั้งหมด</button>
+        <a href="index.html" class="btn btn-back">กลับหน้าหลัก</a>
+    </div>
+
+    <div id="preview-area">
+        <div id="page-daily" class="page-sheet active"><div class="grid-daily" id="daily-container"></div></div>
+        <div id="page-sat" class="page-sheet"><div class="grid-sat" id="sat-container"></div></div>
+    </div>
+
+    <script>
+        const dailyItems = [
+            { n: "ดีไลท์", c: "c-yel", p: 5 }, { n: "ควอลิตี้ (ส้ม)", c: "c-org", p: 5 }, { n: "Idea Max", c: "c-org", p: 5 },
+            { n: "Idea Green", c: "c-grn", p: 5 }, { n: "Idea Work", c: "c-red", p: 5 }, { n: "Ultimate", c: "c-blu", p: 5 },
+            { n: "Double A 80g", c: "c-blu", p: 5 }, { n: "Double A Color", c: "c-rbw", p: 5 }, 
+            { n: "A5 ลูกศร", c: "c-red", p: 10 }, { n: "สมุดหัก PS", c: "", p: 10 }, { n: "สมุดหัก ULUX", c: "", p: 10 }
+        ];
+
+        const satItems = [
+            { n: "ดีไลท์", c: "c-yel", p: 5 }, { n: "ควอลิตี้ (ส้ม)", c: "c-org", p: 5 }, { n: "Idea Max", c: "c-org", p: 5 },
+            { n: "Idea Green", c: "c-grn", p: 5 }, { n: "Idea Work", c: "c-red", p: 5 }, { n: "Ultimate", c: "c-blu", p: 5 },
+            { n: "Double A 80g", c: "c-blu", p: 5 }, { n: "Double A Color", c: "c-rbw", p: 5 },
+            { n: "A5 ขาว (ลูกศร)", c: "c-red", p: 10 }, { n: "A5 ขาว (Arrow)", c: "", p: 10 },
+            { n: "A3 Quality 70g", c: "c-yel", p: 5 }, { n: "A3 Idea Work", c: "c-red", p: 5 },
+            { n: "A3 Arrow Blue", c: "c-blu", p: 5 }, { n: "A3 Double A", c: "c-blu", p: 5 },
+            { n: "F14 80G Quality", c: "c-pnk", p: 5 }, { n: "F14 70G Quality", c: "c-yel", p: 5 },
+            { n: "B4 80G Double A", c: "c-blu", p: 5 }, { n: "สมุดหัก PS", c: "", p: 10 }, { n: "สมุดหัก ULUX", c: "", p: 10 }
+        ];
+
+        function createTable(id, items) {
+            let rows = items.map((item, idx) => {
+                let uid = `${id}_${idx}`;
+                return `<tr>
+                    <td class="col-item" style="text-align:left; font-weight:bold;">${item.c ? `<span class="badge ${item.c}"></span>` : ''}${item.n}</td>
+                    <td class="col-num"><input type="number" id="f1r_${uid}" class="cell" oninput="cal('${uid}',${item.p})"></td>
+                    <td class="col-num"><input type="number" id="f1b_${uid}" class="cell" oninput="cal('${uid}',${item.p})"></td>
+                    <td class="col-num"><input type="number" id="f4r_${uid}" class="cell" oninput="cal('${uid}',${item.p})"></td>
+                    <td class="col-num"><input type="number" id="f4b_${uid}" class="cell" oninput="cal('${uid}',${item.p})"></td>
+                    <td class="col-num" style="background:#f9f9f9;"><input type="text" id="tot_${uid}" class="cell" readonly></td>
+                    <td class="col-num"><input type="number" id="pos_${uid}" class="cell" oninput="cal('${uid}',${item.p})"></td>
+                    <td id="miss_${uid}" class="col-num txt-miss" style="text-align:center;"></td>
+                    <td id="surp_${uid}" class="col-num txt-surp" style="text-align:center;"></td>
+                </tr>`;
+            }).join('');
+
+            return `<div class="stock-box">
+                <div class="box-header">
+                    <span class="date-label">วันที่:</span>
+                    <input type="text" class="date-input">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="col-item">รายการ</th>
+                            <th colspan="2" class="col-num" style="width:15%">ชั้น 1</th>
+                            <th colspan="2" class="col-num" style="width:15%">ชั้น 4</th>
+                            <th rowspan="2" class="col-num">สรุป</th>
+                            <th rowspan="2" class="col-num">คอม</th>
+                            <th rowspan="2" class="col-num">ขาด</th>
+                            <th rowspan="2" class="col-num">เกิน</th>
+                        </tr>
+                        <tr>
+                            <th style="font-size:7.5px;">รีม</th><th style="font-size:7.5px;">ลัง</th>
+                            <th style="font-size:7.5px;">รีม</th><th style="font-size:7.5px;">ลัง</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+        }
+
+        function render() {
+            let dailyHTML = ''; for(let i=1; i<=6; i++) dailyHTML += createTable(`d${i}`, dailyItems);
+            document.getElementById('daily-container').innerHTML = dailyHTML;
+            let satHTML = ''; for(let i=1; i<=4; i++) satHTML += createTable(`s${i}`, satItems);
+            document.getElementById('sat-container').innerHTML = satHTML;
+        }
+
+        window.cal = function(uid, pack) {
+            const v = (id) => parseFloat(document.getElementById(id).value) || 0;
+            let total = v(`f1r_${uid}`) + (v(`f1b_${uid}`)*pack) + v(`f4r_${uid}`) + (v(`f4b_${uid}`)*pack);
+            document.getElementById(`tot_${uid}`).value = total || '';
+            let pos = document.getElementById(`pos_${uid}`).value;
+            if(pos === '') { document.getElementById(`miss_${uid}`).innerText = ''; document.getElementById(`surp_${uid}`).innerText = ''; return; }
+            let diff = total - parseFloat(pos);
+            document.getElementById(`miss_${uid}`).innerText = diff < 0 ? Math.abs(diff) : '';
+            document.getElementById(`surp_${uid}`).innerText = diff > 0 ? diff : '';
+        }
+
+        window.switchMode = function() {
+            const mode = document.querySelector('input[name="viewMode"]:checked').value;
+            document.querySelectorAll('.page-sheet').forEach(el => el.classList.remove('active'));
+            document.getElementById(mode === 'daily' ? 'page-daily' : 'page-sat').classList.add('active');
+            document.getElementById('print-settings').innerHTML = mode === 'daily' ? '@page { size: A4 portrait; margin: 0; }' : '@page { size: A4 landscape; margin: 0; }';
+        }
+
+        window.clearAll = function() {
+            if(confirm('ล้างข้อมูลทั้งหมด?')) {
+                document.querySelectorAll('input[type=number], input[type=text]').forEach(el => { if(el.type!=='radio') el.value=''; });
+                document.querySelectorAll('.txt-miss, .txt-surp').forEach(el => el.innerText='');
+            }
+        }
+        document.addEventListener('wheel', e => { if(document.activeElement.type === 'number') document.activeElement.blur(); });
+        render();
+    </script>
+</body>
+</html>

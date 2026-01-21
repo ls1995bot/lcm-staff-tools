@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ใบฝากห่อปก - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        @page { size: A4; margin: 0; }
+        body { margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; background-color: #f0f0f0; }
+        
+        .no-print {
+            position: fixed; top: 10px; right: 10px;
+            background: white; padding: 10px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;
+            display: flex; gap: 10px;
+        }
+        .btn {
+            padding: 8px 15px; border: none; border-radius: 4px;
+            font-family: 'Sarabun'; cursor: pointer; font-weight: bold;
+            background: #023f88; color: white; text-decoration: none;
+            display: inline-block; text-align: center;
+        }
+        .btn-back { background: #6c757d; }
+
+        .page {
+            width: 210mm; height: 297mm;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+            background: white; box-sizing: border-box;
+        }
+
+        .slip {
+            border: 0.2mm dashed #999; 
+            padding: 1mm 5mm 2mm 5mm; 
+            position: relative; display: flex; flex-direction: column;
+            overflow: hidden; box-sizing: border-box;
+        }
+
+        /* ลายน้ำโลโก้ร้านแหลมฉบังเครื่องเขียน (1995) */
+        .slip::before {
+            content: ""; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 50%; height: 50%;
+            background-image: url('https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F');
+            background-repeat: no-repeat; background-position: center;
+            background-size: contain; opacity: 0.05; z-index: 0;
+        }
+
+        .slip-content { position: relative; z-index: 1; }
+
+        h2 { 
+            text-align: center; 
+            margin: 0 0 1px 0; 
+            font-size: 13pt; 
+            border-bottom: 1.2px solid #000; padding-bottom: 1px;
+        }
+
+        .info-row { display: flex; margin-bottom: 2px; gap: 4px; align-items: flex-end; }
+        .label { font-weight: 700; font-size: 10pt; white-space: nowrap; }
+        .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; height: 22px; }
+
+        /* ตารางติดบาร์โค้ด */
+        .barcode-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(3, 1fr); gap: 4px;
+            margin-top: 4px;
+        }
+
+        .barcode-slot {
+            border: 0.4px solid #000; padding: 1px 4px;
+            display: flex; flex-direction: column;
+            height: 35mm; /* รักษาพื้นที่ 3.5 x 2.5 ซม. */
+            background: rgba(255,255,255,0.4);
+        }
+
+        .slot-header { font-size: 8pt; font-weight: bold; color: #555; }
+        
+        .barcode-spacer {
+            flex-grow: 1; 
+            width: 100%;
+        }
+
+        .qty-line { text-align: right; font-size: 9pt; font-weight: bold; padding-top: 1px; }
+        .qty-fill { display: inline-block; border-bottom: 1px solid #000; width: 28px; text-align: center; }
+
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+            .page { box-shadow: none; margin: 0; }
+            * { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <a href="index.html" class="btn btn-back">⬅️ กลับหน้าหลัก</a>
+    <button class="btn" onclick="window.print()">🖨️ พิมพ์ใบฝากห่อปก</button>
+</div>
+
+<div class="page">
+    <script>
+        const slipTemplate = `
+            <div class=\"slip\">
+                <div class=\"slip-content\">
+                    <h2>ห่อปกพลาสติก</h2>
+                    
+                    <div class=\"info-row\">
+                        <span class=\"label\">ชื่อผู้ฝาก:</span>
+                        <div class=\"fill-line\"></div>
+                        <span class=\"label\">วันที่:</span>
+                        <div class=\"fill-line\" style=\"flex-grow: 0; width: 85px;\"></div>
+                    </div>
+
+                    <div class=\"info-row\">
+                        <span class=\"label\">ชื่อโรงเรียน:</span>
+                        <div class=\"fill-line\"></div>
+                    </div>
+
+                    <div class=\"info-row\">
+                        <span class=\"label\">เบอร์โทร:</span>
+                        <div class=\"fill-line\" style=\"width: 125px;\"></div>
+                        <span class=\"label\">รวม:</span>
+                        <div class=\"fill-line\" style=\"flex-grow: 0; width: 55px;\"></div>
+                        <span class=\"label\">เล่ม</span>
+                    </div>
+
+                    <div class=\"barcode-grid\">
+                        ${[1, 2, 3, 4, 5, 6].map(num => `
+                            <div class=\"barcode-slot\">
+                                <div class=\"slot-header\">ลำดับที่ ${num}</div>
+                                <div class=\"barcode-spacer\"></div>
+                                <div class=\"qty-line\">
+                                    จำนวน <div class=\"qty-fill\">&nbsp;</div> อัน
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        for (let i = 0; i < 4; i++) {
+            document.write(slipTemplate);
+        }
+    </script>
+</div>
+
+</body>
+</html>

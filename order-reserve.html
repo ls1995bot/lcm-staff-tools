@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ใบมัดจำสินค้า - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #023f88; --bg-preview: #555; }
+        @page { size: A4; margin: 4mm; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; display: flex; height: 100vh; background-color: #f4f6f8; }
+        #control-panel { width: 380px; padding: 20px; background: white; border-right: 1px solid #ccc; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; flex-shrink: 0; overflow-y: auto; }
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+        .setting-group { background: #f0f4f8; padding: 10px; border-radius: 8px; border: 1px solid #ccdceb; margin-bottom: 5px; }
+        .setting-label { font-weight: bold; color: var(--primary); display: block; margin-bottom: 5px; font-size: 13px; }
+        .sidebar-input { width: 100%; padding: 8px; font-family: 'Sarabun'; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; box-sizing: border-box; outline: none; }
+        .sidebar-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .sidebar-table input { padding: 4px; font-size: 12px; }
+        .btn { padding: 12px 15px; border: none; border-radius: 6px; font-family: 'Sarabun'; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: center; font-size: 15px; }
+        .btn-print { background: var(--primary); color: white; margin-top: 10px; }
+        .btn-clear { background: #dc3545; color: white; margin-top: 5px; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; border-radius: 6px; padding: 12px; display: block; text-align: center; font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+        #preview-area { flex-grow: 1; background: var(--bg-preview); padding: 10px; overflow: auto; display: flex; justify-content: center; box-sizing: border-box; }
+        .a4-page { background: white; width: 210mm; height: 297mm; padding: 8mm 10mm; box-sizing: border-box; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between; }
+        .cut-line { border-top: 1.5px dashed #aaa; width: 100%; margin: 2mm 0; position: relative; }
+        .cut-icon { position: absolute; left: 50%; top: -10px; transform: translateX(-50%); background: white; padding: 0 10px; color: #999; font-size: 11px; }
+        .bill-box { height: 128mm; position: relative; z-index: 1; display: flex; flex-direction: column; border: 1px solid #eee; padding: 4mm; box-sizing: border-box; }
+        .bill-box::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50%; height: 50%; background-image: url('https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.08; z-index: -1; }
+        .bill-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .company-name { font-size: 12pt; font-weight: 700; color: #023f88; }
+        .company-addr { font-size: 8.5pt; color: #444; line-height: 1.2; }
+        .bill-title-box { text-align: right; }
+        .bill-title { font-size: 18pt; font-weight: 800; color: var(--primary); margin: 0; line-height: 1; }
+        .info-grid { display: flex; justify-content: space-between; margin: 8px 0; font-size: 10.5pt; }
+        .line-item { border-bottom: 1px dotted #000; padding: 0 5px; font-weight: bold; display: inline-block; min-width: 30px; }
+        table.preview-table { width: 100%; border-collapse: collapse; margin-top: 2px; table-layout: fixed; }
+        table.preview-table th { border: 1px solid #000; background: #f4f7f9; padding: 4px; font-size: 9.5pt; font-weight: bold; }
+        table.preview-table td { border: 1px solid #000; padding: 4px; height: 22px; vertical-align: middle; font-size: 10pt; text-align: center; }
+        .align-left { text-align: left !important; padding-left: 8px !important; }
+        .summary-container { display: flex; justify-content: space-between; margin-top: 10px; gap: 15px; }
+        .sum-block { width: 52%; font-size: 10pt; font-weight: bold; }
+        .sum-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .total-box { border: 1.5px solid #000; background: #f9f9f9; padding: 4px 8px; margin-top: 2px; font-size: 12pt; color: var(--primary); font-weight: 800; }
+        .sign-section { display: flex; justify-content: space-around; margin-top: 15px; text-align: center; font-size: 9.5pt; }
+        .sign-line { border-bottom: 1px solid #000; margin-bottom: 3px; width: 140px; height: 18px; }
+        @media print { body { display: block; background: white; } #control-panel { display: none !important; } #preview-area { width: 100%; padding: 0; background: white; overflow: visible; } .a4-page { box-shadow: none; border: none; width: 100%; height: 100%; padding: 5mm 10mm; margin: 0; } * { -webkit-print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F">
+            <div><h2>ใบมัดจำสินค้า</h2><small>แหลมฉบังเครื่องเขียน (1995)</small></div>
+        </div>
+        <a href="index.html" class="btn btn-back">⬅️ กลับหน้าหลัก</a>
+        <div class="setting-group"><span class="setting-label">ข้อมูลลูกค้า:</span><input type="text" id="in_date" class="sidebar-input" placeholder="วันที่"><input type="text" id="in_cust" class="sidebar-input" style="margin-top:5px;" placeholder="ชื่อลูกค้า"><input type="text" id="in_tel" class="sidebar-input" style="margin-top:5px;" placeholder="เบอร์โทร"></div>
+        <div class="setting-group"><span class="setting-label">รายการสินค้า (ว่างไว้เพื่อเขียนมือ):</span><table class="sidebar-table"><thead><tr><th>ชื่อสินค้า</th><th width="60">ราคา</th><th width="40">จวน.</th></tr></thead><tbody id="sidebar-items"><script>for(let i=1; i<=5; i++){document.write(`<tr><td><input type="text" id="in_n${i}" class="sidebar-input" oninput="syncAll()"></td><td><input type="number" id="in_p${i}" class="sidebar-input" oninput="syncAll()"></td><td><input type="number" id="in_q${i}" class="sidebar-input" oninput="syncAll()"></td></tr>`);}</script></tbody></table></div>
+        <div class="setting-group" style="background:#fff5f5;"><span class="setting-label" style="color:#d60000;">ยอดมัดจำ (บาท):</span><input type="number" id="in_deposit" class="sidebar-input" style="border-color:#d60000; font-size:18px; color:#d60000; font-weight:bold;" oninput="syncAll()"></div>
+        <div class="setting-group"><span class="setting-label">กำหนดรับสินค้า:</span><input type="text" id="in_pickup" class="sidebar-input" placeholder="ระบุกำหนดรับ..." oninput="syncAll()"></div>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ใบมัดจำ (A4)</button><button class="btn btn-clear" onclick="clearForm()">ล้างข้อมูล</button>
+    </div>
+    <div id="preview-area"><div class="a4-page"><div id="bill-container-1"></div><div class="cut-line"><span class="cut-icon">✂️ ตัดตามรอยประ</span></div><div id="bill-container-2"></div></div></div>
+<script>
+    document.getElementById('in_date').value = new Date().toLocaleDateString('th-TH');
+    function syncAll() {
+        const date = document.getElementById('in_date').value || "....................";
+        const cust = document.getElementById('in_cust').value || "..................................................";
+        const tel = document.getElementById('in_tel').value || "....................";
+        const pickup = document.getElementById('in_pickup').value || "....................";
+        const depositVal = parseFloat(document.getElementById('in_deposit').value) || 0;
+        let grandTotal = 0; let itemsHTML = "";
+        for(let i=1; i<=5; i++) {
+            const name = document.getElementById('in_n'+i).value;
+            const price = parseFloat(document.getElementById('in_p'+i).value) || 0;
+            const qty = parseFloat(document.getElementById('in_q'+i).value) || 0;
+            const sub = price * qty; grandTotal += sub;
+            itemsHTML += `<tr><td>${i}</td><td class="align-left">${name || "&nbsp;"}</td><td>${price > 0 ? price.toLocaleString() : ""}</td><td>${qty > 0 ? qty : ""}</td><td style="font-weight:bold;">${sub > 0 ? sub.toLocaleString() : ""}</td></tr>`;
+        }
+        const balance = grandTotal - depositVal;
+        const fmt_sum = (v) => v > 0 ? v.toLocaleString(undefined, {minimumFractionDigits: 2}) : "..........";
+        const billTemplate = (type) => `
+            <div class="bill-box">
+                <div class="bill-header"><div style="width:65%;"><div class="company-name">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div><div class="company-addr">88/9-12 ม.9 ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี 20230<br>โทร: 038-330-262</div></div><div class="bill-title-box"><div class="bill-title">ใบมัดจำสินค้า</div><div style="font-size:9pt; font-weight:bold;">(${type})</div><div style="margin-top:2px;">วันที่: <span class="line-item">${date}</span></div></div></div>
+                <div class="info-grid"><div style="flex-grow:1;">ลูกค้า: <span class="line-item" style="width:75%;">${cust}</span></div><div style="width:180px; text-align:right;">โทร: <span class="line-item" style="width:110px;">${tel}</span></div></div>
+                <table class="preview-table"><thead><tr><th width="8%">ลำดับ</th><th width="50%">รายการสินค้า</th><th width="14%">ราคา</th><th width="10%">จำนวน</th><th width="18%">รวมเงิน</th></tr></thead><tbody>${itemsHTML}</tbody></table>
+                <div class="summary-container"><div class="sum-block"><div class="sum-row">ได้รับมัดจำแล้ว: <span style="color:blue;">${fmt_sum(depositVal)}</span> บาท</div><div class="sum-row">ราคาประเมินรวม: <span>${fmt_sum(grandTotal)}</span> บาท</div><div class="sum-row" style="color:red;">ยอดคงเหลือค้างชำระ: <span>${fmt_sum(balance)}</span> บาท</div></div><div class="sum-block"><div class="total-box">รวมเงินทั้งสิ้น: <span style="float:right;">${fmt_sum(grandTotal)}</span></div><div style="margin-top:5px;">กำหนดรับสินค้า: <span class="line-item" style="width:120px;">${pickup}</span></div></div></div>
+                <div class="sign-section"><div><div class="sign-line"></div>ลงชื่อ (ลูกค้า)</div><div><div class="sign-line"></div>ลงชื่อ (พนักงานขาย)</div></div>
+            </div>`;
+        document.getElementById('bill-container-1').innerHTML = billTemplate("สำหรับร้านค้า");
+        document.getElementById('bill-container-2').innerHTML = billTemplate("สำหรับลูกค้า");
+    }
+    function clearForm() { if(confirm('ล้างข้อมูลทั้งหมด?')) { location.reload(); } }
+    syncAll();
+    document.querySelectorAll('#control-panel input').forEach(el => el.addEventListener('input', syncAll));
+</script>
+</body>
+</html>
