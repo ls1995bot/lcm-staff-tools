@@ -58,7 +58,6 @@
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
 
-        /* Save Status Fade Effect */
         #saveStatus { color: #000; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
 
         .print-header, .print-watermark { display: none; }
@@ -113,6 +112,7 @@
             <div><div style="font-size:1.2rem; font-weight:bold;">สคูลบัส (SCHOOL BUS)</div><div style="font-size:0.75rem; opacity:0.8;">ระบบส่งเงินขายประจำวัน</div></div>
         </div>
         <div class="toolbar">
+            <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold; cursor:pointer; background:#fff;">
             <span id="saveStatus">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
             <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button>
@@ -124,7 +124,6 @@
 
     <div id="dailyPage">
         <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
-            <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold; cursor:pointer;">
             <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
         
