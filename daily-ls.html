@@ -38,6 +38,10 @@
         .btn-sm { padding: 4px 12px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-size: 0.8rem; margin: 0 2px; }
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
+        .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .guide-step { margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 15px; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
         .print-header, .print-watermark { display: none; }
         @media print {
@@ -74,7 +78,7 @@
             <div class="col-left">
                 <div class="card"><div class="card-head h-morn"><span style="flex-grow:1;">1. เงินทอนเช้า</span><div style="display:flex; gap:10px; align-items:center;"><input type="time" id="timeMorn" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;"><span id="totalMorn" style="min-width:60px; text-align:right;">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table></div>
                 <div class="card"><div class="card-head h-eve"><span style="flex-grow:1;">2. ปิดร้าน (นับได้)</span><div style="display:flex; gap:10px; align-items:center;"><input type="time" id="timeEve" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;"><span id="totalEve" style="min-width:60px; text-align:right;">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table></div>
-                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button></div></div>
+                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบแถว</button></div></div>
             </div>
             <div class="col-right">
                 <div class="card"><div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div><div class="qr-wrapper"><table id="qrTable"><thead><tr><th id="th_q1">1</th><th id="th_q2">2</th><th id="th_q3">3</th><th id="th_q4">4</th><th id="th_q5">5</th></tr></thead><tbody id="tbQR"></tbody></table></div><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button></div></div>
@@ -93,6 +97,7 @@
                 <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
         </div>
+        <div class="guide-box no-print"><h3><i class="fas fa-info-circle"></i> คู่มือการใช้งาน</h3><div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนและวันที่ต้องการ ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div><div class="guide-step"><h5>2. บันทึกยอด</h5><p>กรอกยอดเงินในช่อง "ยอดรวม" ระบบจะคำนวณจำนวนใบและเหรียญให้อัตโนมัติ</p></div><div class="guide-step"><h5>3. การนำทาง</h5><p>ใช้ปุ่ม <b>ลูกศร</b> หรือ <b>Enter</b> เพื่อเลื่อนไปยังช่องถัดไปได้อย่างรวดเร็ว</p></div><div class="guide-step"><h5>4. การบันทึก</h5><p>ระบบจะบันทึกข้อมูลแบบ Real-time ลงในเครื่อง และส่งสรุปไปยัง Google Sheet โดยอัตโนมัติ</p></div></div>
     </div>
 </div>
 <div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
@@ -124,32 +129,9 @@
     function delQrRow() { if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
-    function calc() {
-        let m=0, e=0, q=0; denoms.forEach(d => { let mv=num(`mv_${d}`); m+=mv; let ev=num(`ev_${d}`); e+=ev; });
-        for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) q+=num(`q_${c}_${r}`);
-        let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0));
-        document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q);
-        let grand = (e + ops + q) - m; document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand);
-        let diff = grand - num('posVal'); const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal');
-        if(Math.abs(diff)<1) { box.className='status-box status-ok'; box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
-        else if(diff<0) { box.className='status-box status-bad'; box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText='- '+fmt(Math.abs(diff)); } 
-        else { box.className='status-box status-over'; box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+ '+fmt(Math.abs(diff)); }
-        triggerSave();
-    }
-    function getForm() { 
-        let opsData = []; const rows = document.getElementById('tbOps').rows; for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
-        const d = { pos: document.getElementById('posVal').value, tp: document.getElementById('timePOS').value, tm: document.getElementById('timeMorn').value, te: document.getElementById('timeEve').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; 
-        denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); 
-        for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } 
-        return d; 
-    }
-    function setForm(d) { 
-        document.getElementById('posVal').value = d.pos||''; document.getElementById('timePOS').value = d.tp||''; document.getElementById('timeMorn').value = d.tm||''; document.getElementById('timeEve').value = d.te||''; document.getElementById('empName').value = d.emp||''; 
-        const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
-        denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
-        if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } 
-        calc(); 
-    }
+    function calc() { let m=0, e=0, q=0; denoms.forEach(d => { let mv=num(`mv_${d}`); m+=mv; let ev=num(`ev_${d}`); e+=ev; }); for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) q+=num(`q_${c}_${r}`); let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q); let grand = (e + ops + q) - m; document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand); let diff = grand - num('posVal'); const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal'); if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } else if(diff<0) { box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } else { box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } triggerSave(); }
+    function getForm() { let opsData = []; const rows = document.getElementById('tbOps').rows; for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); const d = { pos: document.getElementById('posVal').value, tp: document.getElementById('timePOS').value, tm: document.getElementById('timeMorn').value, te: document.getElementById('timeEve').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } return d; }
+    function setForm(d) { document.getElementById('posVal').value = d.pos||''; document.getElementById('timePOS').value = d.tp||''; document.getElementById('timeMorn').value = d.tm||''; document.getElementById('timeEve').value = d.te||''; document.getElementById('empName').value = d.emp||''; const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } calc(); }
     function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LaemChabang_${getKey(curD)}.json`; a.click(); }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ ดึงข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     init();
