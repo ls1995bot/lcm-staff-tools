@@ -12,13 +12,12 @@
         .container { max-width: 1350px; margin: 0 auto; }
         .main-layout { display: grid; grid-template-columns: 33% 65.5%; gap: 1.5%; align-items: start; }
 
-        /* Toolbar ปรับปุ่มเท่ากัน */
+        /* Toolbar */
         .toolbar { display: flex; gap: 8px; align-items: center; } 
         .btn-main { 
             cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); 
             font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; 
-            width: 125px; /* บังคับเท่ากันทุกปุ่ม */
-            height: 55px; justify-content: center;
+            width: 125px; height: 55px; justify-content: center;
             transition: 0.2s; text-decoration: none; box-sizing: border-box;
         }
         .btn-main span { font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
@@ -48,35 +47,61 @@
         .guide-step { margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 15px; }
         .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
 
-        .print-header { display: none; }
+        .shop-logo { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border); }
+        
+        .print-header, .print-watermark { display: none; }
+
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
-            body { background: white; padding: 0; }
-            .no-print, .app-header, .btn-main, .guide-box { display: none !important; }
-            .print-header { display: block !important; text-align: center; border-bottom: 3px double #000; margin-bottom: 15px; padding-bottom: 10px; }
-            .print-header h1 { font-size: 28pt; margin: 0; font-weight: 800; }
-            .print-header p { font-size: 14pt; margin: 5px 0; font-weight: 600; }
+            @page { size: A4 portrait; margin: 5mm; }
+            body { background: white; padding: 0; position: relative; overflow: hidden; }
+            .no-print, .app-header, .btn-main, .guide-box, .toolbar { display: none !important; }
+            
+            /* --- Layout การพิมพ์แบบประหยัดพื้นที่ --- */
             .main-layout { display: grid; grid-template-columns: 33% 66%; gap: 1%; }
-            .card { border: 1px solid #000; border-radius: 0; margin-bottom: 10px; }
-            input { border: none !important; background: transparent !important; font-weight: bold; font-size: 10pt !important; }
+            .card { border: 1px solid #000; border-radius: 0; margin-bottom: 5px; page-break-inside: avoid; }
+            .card-head { background: #eee !important; color: #000 !important; border-bottom: 1px solid #000; padding: 2px 5px; font-size: 0.8rem; }
+            th { background: #ddd !important; color: #000; padding: 2px; font-size: 0.75rem; }
+            td { padding: 2px; font-size: 0.75rem; }
+            input { border: none !important; background: transparent !important; padding: 0 !important; font-weight: bold; font-size: 0.8rem !important; }
+            
+            /* Compact Header (บรรทัดเดียว) */
+            .print-header { 
+                display: flex !important; justify-content: space-between; align-items: flex-end;
+                border-bottom: 2px solid #000; margin-bottom: 5px; padding-bottom: 2px;
+            }
+            .print-header h1 { font-size: 16pt; margin: 0; font-weight: 800; line-height: 1; }
+            .print-header div { font-size: 10pt; text-align: right; line-height: 1.2; }
+
+            /* Watermark (ลายน้ำ) */
+            .print-watermark {
+                display: block !important;
+                position: fixed; top: 40%; left: 50%;
+                transform: translate(-50%, -50%) rotate(-30deg);
+                font-size: 70pt; font-weight: 900;
+                color: rgba(0,0,0,0.04); /* จางมากๆ */
+                z-index: -1; white-space: nowrap; pointer-events: none;
+            }
+            
             .qr-wrapper { max-height: none !important; overflow: visible !important; }
-            .footer-credit { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 9pt; display: block !important; }
+            .footer-credit { display: none; }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <div class="print-watermark">SCHOOL BUS</div>
+
     <div class="print-header">
-        <h1>สคูลบัส (SCHOOL BUS)</h1>
-        <p>รายงานส่งเงินประจำวันที่: <span id="pDate">...</span></p>
-        <p>พนักงานผู้ส่งเงิน: <span id="pStaff" style="border-bottom: 2px solid #000; min-width: 250px; display: inline-block;">...</span></p>
+        <h1>SCHOOL BUS</h1>
+        <div>
+            <div>วันที่: <span id="pDate">...</span></div>
+            <div>พนง: <span id="pStaff">...</span></div>
+        </div>
     </div>
 
     <div class="app-header no-print">
         <div style="display:flex; align-items:center; gap:12px;">
-            <div style="width:50px; height:50px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; border:2px solid var(--border);">
-                <i class="fas fa-bus" style="font-size:1.8rem; color:var(--primary);"></i>
-            </div>
+            <div class="shop-logo"><i class="fas fa-bus" style="font-size:1.8rem; color:var(--primary);"></i></div>
             <div><div style="font-size:1.2rem; font-weight:bold;">สคูลบัส (SCHOOL BUS)</div><div style="font-size:0.75rem; opacity:0.8;">ระบบส่งเงินขายประจำวัน</div></div>
         </div>
         <div class="toolbar">
@@ -106,16 +131,16 @@
                 
                 <div class="card">
                     <div class="card-head h-sum">5. สรุปยอดขายจริง</div>
-                    <div style="padding:8px 15px;">
+                    <div style="padding:5px 10px;">
                         <div class="sum-row"><span>(2) เงินสดปิดร้าน:</span><span id="sumCash">0.00</span></div>
                         <div class="sum-row" style="color:#138496;"><span>(3) (+) ฝาก/เบิกใช้:</span><span id="sumOps">0.00</span></div>
                         <div class="sum-row" style="color:#8e44ad;"><span>(4) (+) QR Code:</span><span id="sumQR">0.00</span></div>
                         <div class="sum-row" style="color:#d35400;"><span>(1) (-) หักเงินทอนเช้า:</span><span id="sumFloat">- 0.00</span></div>
                         <div class="sum-final">
-                            <div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ:</span><span id="grandTotal" style="font-size:1.4rem;">0.00</span></div>
+                            <div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ:</span><span id="grandTotal" style="font-size:1.2rem;">0.00</span></div>
                         </div>
-                        <div style="margin-top:8px; border-top:2px solid #eee; padding-top:8px;">
-                            <div class="sum-row"><span>ยอดขาย POS:</span><span><input type="number" id="posVal" style="font-size:1.2rem; width:150px; color:#000; font-weight:bold;" oninput="calc()"></span></div>
+                        <div style="margin-top:5px; border-top:2px solid #eee; padding-top:5px;">
+                            <div class="sum-row"><span>ยอดขาย POS:</span><span><input type="number" id="posVal" style="font-size:1.1rem; width:120px; color:#000; font-weight:bold;" oninput="calc()"></span></div>
                         </div>
                     </div>
                 </div>
@@ -145,7 +170,7 @@
 
     function init() { buildTable('tbMorn', 'm'); buildTable('tbEve', 'e'); buildQR(qrRows); buildOps(3, true); const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); changeMonth(); }
     function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(curD || new Date().getDate()); }
-    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { forceSave(); curD = i; loadDay(i); renderTabs(); }; c.appendChild(d); } }
+    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { forceSave(); curD = i; loadDay(i); renderTabs(); }; c.appendChild(d); } }
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD || new Date().getDate()); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '................................'; triggerSave(); }
     function loadDay(d) { document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') i.value=''; if(i.type=='checkbox') i.checked=false; }); document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); const k = getKey(d); if(db[k]) { if(db[k].ops) buildOps(db[k].ops.length, false); if(db[k].qr_r && db[k].qr_r > qrRows) { for(let i=qrRows+1; i<=db[k].qr_r; i++) addQrRow(); } setForm(db[k]); } else { buildOps(3, true); calc(); } updatePrintInfo(); }
@@ -157,7 +182,7 @@
     function buildOps(n, def) { for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
     function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
     function buildQR(r) { const t=document.getElementById('tbQR'); t.innerHTML=''; for(let i=1;i<=r;i++) addQrRowHTML(i); }
-    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}"><input type="number" id="q_${c}_${r}" style="border:none; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
+    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}" style="width:13px;height:13px;margin:0 1px;"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
     function addQrRow() { qrRows++; addQrRowHTML(qrRows); }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
