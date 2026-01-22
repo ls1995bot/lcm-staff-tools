@@ -12,6 +12,7 @@
         .container { max-width: 1350px; margin: 0 auto; }
         .main-layout { display: grid; grid-template-columns: 33% 65.5%; gap: 1.5%; align-items: start; }
 
+        /* Toolbar */
         .toolbar { display: flex; gap: 8px; align-items: center; } 
         .btn-main { 
             cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); 
@@ -34,7 +35,7 @@
         
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; table-layout: fixed; }
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background: #f8f9fa; color: #666; }
+        th { background: #eef3f8; color: #333; }
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         
         .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; }
@@ -46,15 +47,20 @@
         .guide-step { margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 15px; }
         .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
 
-        .shop-logo { width: 55px; height: 55px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
+        .shop-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; display: flex; align-items: center; justify-content: center; background: #fff; color: var(--primary); font-size: 1.5rem; }
         
+        /* ปุ่มเล็กสำหรับเพิ่ม/ลบแถว */
+        .btn-sm { padding: 4px 12px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-size: 0.8rem; margin: 0 2px; }
+        .btn-add { background: #e8f5e9; color: #27ae60; }
+        .btn-del { background: #fbe9e7; color: #c0392b; }
+
         /* Print Styles */
         .print-header, .print-watermark { display: none; }
 
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; position: relative; overflow: hidden; }
-            .no-print, .app-header, .btn-main, .guide-box { display: none !important; }
+            .no-print, .app-header, .btn-main, .guide-box, .toolbar { display: none !important; }
             
             .main-layout { display: grid; grid-template-columns: 33% 66%; gap: 1%; }
             .card { border: 1px solid #000; border-radius: 0; margin-bottom: 5px; page-break-inside: avoid; }
@@ -98,11 +104,11 @@
 
     <div class="app-header no-print">
         <div style="display:flex; align-items:center; gap:12px;">
-            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F" class="shop-logo">
-            <div><div style="font-size:1.3rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div>
+            <div class="shop-logo"><i class="fas fa-store"></i></div>
+            <div><div style="font-size:1.2rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div>
         </div>
         <div class="toolbar">
-            <span id="saveStatus">💾 จำแล้ว!</span>
+            <span id="saveStatus" style="color: #fff;">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
             <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button>
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองลงคอม</small></button>
@@ -121,10 +127,18 @@
             <div class="col-left">
                 <div class="card"><div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table></div>
                 <div class="card"><div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><span id="totalEve">0.00</span></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table></div>
-                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:3px; text-align:center;"><button onclick="addOpsRow('')">+ เพิ่ม</button></div></div>
+                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table>
+                <div class="no-print" style="padding:5px; text-align:center;">
+                    <button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button>
+                    <button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button>
+                </div></div>
             </div>
             <div class="col-right">
-                <div class="card"><div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div><div class="qr-wrapper"><table id="qrTable"><thead><tr><th id="th_q1">1</th><th id="th_q2">2</th><th id="th_q3">3</th><th id="th_q4">4</th><th id="th_q5">5</th></tr></thead><tbody id="tbQR"></tbody></table></div><div class="no-print" style="padding:3px; text-align:center;"><button onclick="addQrRow()">+ เพิ่มแถว</button></div></div>
+                <div class="card"><div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div><div class="qr-wrapper"><table id="qrTable"><thead><tr><th id="th_q1">1</th><th id="th_q2">2</th><th id="th_q3">3</th><th id="th_q4">4</th><th id="th_q5">5</th></tr></thead><tbody id="tbQR"></tbody></table></div>
+                <div class="no-print" style="padding:5px; text-align:center;">
+                    <button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button>
+                    <button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button>
+                </div></div>
                 
                 <div class="card">
                     <div class="card-head h-sum">5. สรุปยอดขายจริง</div>
@@ -136,8 +150,8 @@
                         <div class="sum-final">
                             <div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ:</span><span id="grandTotal" style="font-size:1.4rem;">0.00</span></div>
                         </div>
-                        <div style="margin-top:5px; border-top:2px solid #eee; padding-top:5px;">
-                            <div class="sum-row"><span>ยอดขาย POS:</span><span><input type="number" id="posVal" style="font-size:1.1rem; width:120px; color:#000; font-weight:bold;" oninput="calc()"></span></div>
+                        <div style="margin-top:8px; border-top:2px solid #eee; padding-top:8px;">
+                            <div class="sum-row"><span>ยอดขาย POS:</span><span><input type="number" id="posVal" style="font-size:1.2rem; width:150px; color:#000; font-weight:bold;" oninput="calc()"></span></div>
                         </div>
                     </div>
                 </div>
@@ -178,9 +192,11 @@
     function buildTable(id, p) { const tb = document.getElementById(id); denoms.forEach(d => tb.innerHTML += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`); }
     function buildOps(n, def) { for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
     function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
+    function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
     function buildQR(r) { const t=document.getElementById('tbQR'); t.innerHTML=''; for(let i=1;i<=r;i++) addQrRowHTML(i); }
-    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}"><input type="number" id="q_${c}_${r}" style="border:none; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
+    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}" style="width:13px;height:13px;margin:0 1px;"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
     function addQrRow() { qrRows++; addQrRowHTML(qrRows); }
+    function delQrRow() { if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
     function calc() {
