@@ -97,7 +97,33 @@
                 <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
         </div>
-        <div class="guide-box no-print"><h3><i class="fas fa-info-circle"></i> คู่มือการใช้งาน</h3><div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนและวันที่ต้องการ ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div><div class="guide-step"><h5>2. บันทึกยอด</h5><p>กรอกยอดเงินในช่อง "ยอดรวม" ระบบจะคำนวณจำนวนใบและเหรียญให้อัตโนมัติ</p></div><div class="guide-step"><h5>3. การนำทาง</h5><p>ใช้ปุ่ม <b>ลูกศร</b> หรือ <b>Enter</b> เพื่อเลื่อนไปยังช่องถัดไปได้อย่างรวดเร็ว</p></div><div class="guide-step"><h5>4. การบันทึก</h5><p>ระบบจะบันทึกข้อมูลแบบ Real-time ลงในเครื่อง และส่งสรุปไปยัง Google Sheet โดยอัตโนมัติ</p></div></div>
+        <div class="guide-box no-print">
+            <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
+            <div class="guide-step">
+                <h5>1. การเลือกวันที่</h5>
+                <p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p>
+            </div>
+            <div class="guide-step">
+                <h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5>
+                <p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมทั้งหมดให้ทันที</p>
+            </div>
+            <div class="guide-step">
+                <h5>3. การบันทึกยอดโอน (QR Code)</h5>
+                <p>กรอกยอดเงินที่ลูกค้าโอนแต่ละรายการในตาราง หมวดที่ 4 และอย่าลืม <strong>"ติ๊กถูก"</strong> เมื่อตรวจสอบยอดในแอปธนาคารเรียบร้อยแล้ว</p>
+            </div>
+            <div class="guide-step">
+                <h5>4. สรุปผลต่างยอดขาย</h5>
+                <p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ในช่องสุดท้าย ระบบจะเปรียบเทียบกับยอดขายจริง หากยอดตรงกันผลต่างจะเป็นสีเขียว (0.00)</p>
+            </div>
+            <div class="guide-step">
+                <h5>5. บันทึกลงเครื่อง</h5>
+                <p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อให้ระบบจำข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> ทุกครั้งก่อนปิดเครื่องเพื่อสำรองข้อมูล กันข้อมูลหาย</p>
+            </div>
+            <div class="guide-step">
+                <h5>6. การเรียกดูข้อมูลเก่า</h5>
+                <p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลังได้ทุกเมื่อ</p>
+            </div>
+        </div>
     </div>
 </div>
 <div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
