@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบส่งเงินขาย สมาร์ทคิดส์ สหพัฒน์</title>
-    <link rel="icon" href="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/341102443_776995057411998_217094537919066157_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=9gbPPkhpM_sQ7kNvwEKAw-l&_nc_oc=Adm_DNMNYxe2ah6EEDpyRahokM7eHSGUxqcHm_FvZ21qjbthWO_ex38Mx25bm7IJtBw&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=UDoIpsDFse0jMIkBVc09Nw&oh=00_AfoBCuv7v4yCLTT8P81qPI2CHpw1PC4EqaKqXzvyZuIknw&oe=69765B38">
+    <link rel="icon" href="logo-sk.png.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -59,7 +59,6 @@
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
 
-        /* Save Status Fade Effect */
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
 
         .print-header, .print-watermark { display: none; }
@@ -111,13 +110,13 @@
 
     <div class="app-header no-print">
         <div style="display:flex; align-items:center; gap:12px;">
-            <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/341102443_776995057411998_217094537919066157_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=9gbPPkhpM_sQ7kNvwEKAw-l&_nc_oc=Adm_DNMNYxe2ah6EEDpyRahokM7eHSGUxqcHm_FvZ21qjbthWO_ex38Mx25bm7IJtBw&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=UDoIpsDFse0jMIkBVc09Nw&oh=00_AfoBCuv7v4yCLTT8P81qPI2CHpw1PC4EqaKqXzvyZuIknw&oe=69765B38" class="shop-logo">
+            <img src="logo-sk.png.png" class="shop-logo">
             <div><div style="font-size:1.3rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div>
         </div>
         <div class="toolbar">
             <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold; cursor:pointer;">
             
-            <span id="saveStatus" style="color: #fff; margin: 0 10px;">💾 จำแล้ว!</span>
+            <span id="saveStatus">💾 จำแล้ว!</span>
             
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
             <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button>
@@ -266,9 +265,18 @@
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD || new Date().getDate()); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '................................'; triggerSave(); }
     function loadDay(d) { document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; }}); document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); const k = getKey(d); if(db[k]) { if(db[k].ops) buildOps(db[k].ops.length, false); if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } setForm(db[k]); } else { buildOps(3, true); calc(); } updatePrintInfo(); }
+    
     function triggerSave() { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, 300); }
-    function forceSave() { if(!curD) return; db[getKey(curD)] = getForm(); localStorage.setItem(KEY, JSON.stringify(db)); showSaveStatus(); }
-    function showSaveStatus() { const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 800); }
+    function forceSave() { 
+        if(!curD) return; 
+        db[getKey(curD)] = getForm(); 
+        localStorage.setItem(KEY, JSON.stringify(db)); 
+        
+        const el = document.getElementById('saveStatus'); 
+        el.style.opacity = 1; 
+        setTimeout(() => { el.style.opacity = 0; }, 1000); 
+    }
+    
     function manualSave() { forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); }
     function buildTable(id, p) { const tb = document.getElementById(id); denoms.forEach(d => tb.innerHTML += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`); }
     function buildOps(n, def) { document.getElementById('tbOps').innerHTML = ''; for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
@@ -280,18 +288,31 @@
     function delQrRow() { if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
+    
     function calc() {
-        let m=0, e=0, q=0; denoms.forEach(d => { let mv=num(`mv_${d}`); m+=mv; document.getElementById(`mq_${d}`).innerText = mv ? (mv/d) : '-'; let ev=num(`ev_${d}`); e+=ev; document.getElementById(`eq_${d}`).innerText = ev ? (ev/d) : '-'; });
+        let m=0, e=0, q=0; denoms.forEach(d => { let mv=num(`mv_${d}`); m+=mv; let ev=num(`ev_${d}`); e+=ev; });
         for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) q+=num(`q_${c}_${r}`);
         let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0));
-        document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q);
-        let grand = (e + ops + q) - m; document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand);
+        
+        document.getElementById('totalMorn').innerText = fmt(m); 
+        document.getElementById('totalEve').innerText = fmt(e); 
+        document.getElementById('totalOps').innerText = fmt(ops); 
+        document.getElementById('totalQR').innerText = fmt(q);
+        
+        let grand = (e + ops + q) - m; 
+        document.getElementById('sumCash').innerText = fmt(e); 
+        document.getElementById('sumOps').innerText = fmt(ops); 
+        document.getElementById('sumQR').innerText = fmt(q); 
+        document.getElementById('sumFloat').innerText = '- ' + fmt(m); 
+        document.getElementById('grandTotal').innerText = fmt(grand);
+        
         let diff = grand - num('posVal'); const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal');
-        if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
-        else if(diff<0) { box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
-        else { box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); }
+        if(Math.abs(diff)<1) { box.className='status-box status-ok'; box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
+        else if(diff<0) { box.className='status-box status-bad'; box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText='- '+fmt(Math.abs(diff)); } 
+        else { box.className='status-box status-over'; box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+ '+fmt(Math.abs(diff)); }
         triggerSave();
     }
+    
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
