@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบส่งเงินขาย แหลมฉบังเครื่องเขียน</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #023f88; --bg: #f4f6f9; --border: #ccdceb; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #2c3e50; }
@@ -33,20 +34,20 @@
         .status-bad { background: #f8d7da; color: #842029; border-color: #f5c2c7; }
         .status-over { background: #fff3cd; color: #664d03; border-color: #ffecb5; }
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .toolbar { display: flex; gap: 10px; align-items: center; } 
-        .btn-main { cursor: pointer; padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; min-width: 100px; transition: 0.2s; }
+        .toolbar { display: flex; gap: 8px; align-items: center; } 
+        .btn-main { cursor: pointer; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; min-width: 90px; transition: 0.2s; text-decoration: none; }
         .btn-main:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .btn-main span { font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
-        .btn-main small { font-size: 0.7rem; font-weight: normal; opacity: 0.9; }
+        .btn-main small { font-size: 0.65rem; font-weight: normal; opacity: 0.9; }
         .shop-logo { width: 55px; height: 55px; border-radius: 50%; border: 2px solid white; object-fit: cover; }
         .qr-wrapper { max-height: 480px; overflow-y: auto; }
-        #saveStatus { font-size: 0.8rem; color: #a3d9a5; font-weight: bold; margin-right: 10px; opacity: 0; }
+        #saveStatus { font-size: 0.8rem; color: #a3d9a5; font-weight: bold; margin-right: 5px; opacity: 0; }
         .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .guide-box h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .guide-step { margin-bottom: 15px; }
-        .guide-step h5 { margin: 0 0 5px 0; color: #333; font-size: 1rem; }
+        .guide-box h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .guide-step { margin-bottom: 15px; border-left: 3px solid #eee; padding-left: 15px; }
+        .guide-step h5 { margin: 0 0 5px 0; color: #333; font-size: 1rem; font-weight: bold; }
         .guide-step p { margin: 0; font-size: 0.9rem; color: #666; line-height: 1.5; }
-        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; font-size: 9pt; }
@@ -68,12 +69,24 @@
         </div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
-            <input type="month" id="monthPicker" onchange="changeMonth()" style="background:#fff; border-radius:4px; border:none; padding:8px; font-weight:bold; margin-right:5px;">
-            <a href="index.html" class="btn-main" style="background:#6c757d; text-decoration:none;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
-            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>อัปเดตยอด</small></button>
-            <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
+            <input type="month" id="monthPicker" onchange="changeMonth()" style="background:#fff; border-radius:4px; border:none; padding:8px; font-weight:bold;">
+            <a href="index.html" class="btn-main" style="background:#6c757d;">
+                <span>⬅️ กลับ</span>
+                <small>หน้าเมนูหลัก</small>
+            </a>
+            <button class="btn-main" style="background:#28a745;" onclick="manualSave()">
+                <span>💾 จำไว้</span>
+                <small>บันทึก/ซิงค์ระบบ</small>
+            </button>
+            <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()">
+                <span>📂 ส่งออก</span>
+                <small>สำรองไฟล์ลงคอม</small>
+            </button>
             <input type="file" id="fileInput" style="display:none;" onchange="importFile(this)">
-            <button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()"><span>📥 เปิด</span><small>ดูย้อนหลัง</small></button>
+            <button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()">
+                <span>📥 เปิด</span>
+                <small>ดูข้อมูลเก่า</small>
+            </button>
         </div>
     </div>
     <div id="dailyPage">
@@ -84,23 +97,53 @@
             <div class="col-left">
                 <div class="card"><div class="card-head h-morn"><span>1. เงินทอนเช้า</span><div><input type="time" id="timeMorn" oninput="triggerSave()"> <span id="totalMorn">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table></div>
                 <div class="card"><div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><div><input type="time" id="timeEve" oninput="triggerSave()"> <span id="totalEve">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table></div>
-                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th width="40%">รายการ</th><th width="40%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:3px; text-align:center;"><button class="btn" style="background:#e8f5e9; color:#27ae60; padding:2px 8px; border:1px solid #ccc; border-radius:4px;" onclick="addOpsRow('')">+ เพิ่ม</button><button class="btn" style="background:#fbe9e7; color:#c0392b; padding:2px 8px; border:1px solid #ccc; border-radius:4px;" onclick="delOpsRow()">- ลบ</button></div></div>
+                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th width="40%">รายการ</th><th width="40%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:3px; text-align:center;"><button class="btn btn-sm" style="background:#e8f5e9; color:#27ae60;" onclick="addOpsRow('')">+ เพิ่ม</button><button class="btn btn-sm" style="background:#fbe9e7; color:#c0392b;" onclick="delOpsRow()">- ลบ</button></div></div>
             </div>
             <div class="col-right">
                 <div class="card"><div class="card-head h-qr"><span>4. QR Code / โอนเข้าบัญชี</span><span>รวม: <span id="totalQR">0.00</span></span></div><div class="qr-wrapper"><table id="qrTable"><thead><tr><th id="th_q1">1(0)</th><th id="th_q2">2(0)</th><th id="th_q3">3(0)</th><th id="th_q4">4(0)</th><th id="th_q5">5(0)</th></tr></thead><tbody id="tbQR"></tbody></table></div><div class="no-print" style="padding:4px; text-align:center;"><button class="btn" style="background:#f3e5f5; color:#8e44ad; padding:4px 15px; border:1px solid #ccc; border-radius:4px; font-weight:bold;" onclick="addQrRow()">+ เพิ่มแถว QR</button><button class="btn" style="background:#fbe9e7; color:#c0392b; padding:4px 15px; border:1px solid #ccc; border-radius:4px; font-weight:bold;" onclick="delQrRow()">- ลบแถว</button></div></div>
                 <div class="card"><div class="card-head h-sum">5. สรุปยอดขายจริง</div><div style="padding:8px 15px;"><div class="sum-row"><span>(2) เงินสดปิดร้าน:</span><span id="sumCash">0.00</span></div><div class="sum-row" style="color:#138496;"><span>(3) (+) ฝาก/เบิกใช้:</span><span id="sumOps">0.00</span></div><div class="sum-row" style="color:#8e44ad;"><span>(4) (+) QR Code:</span><span id="sumQR">0.00</span></div><div class="sum-row" style="color:#d35400;"><span>(1) (-) หักเงินทอนเช้า:</span><span id="sumFloat">- 0.00</span></div><div class="sum-final"><div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ:</span><span style="font-size:1.2rem;" id="grandTotal">0.00</span></div></div><div style="margin-top:8px; border-top:2px solid #eee; padding-top:8px;"><div class="sum-row"><span>ยอดขาย POS:</span><span style="width:120px;"><input type="number" id="posVal" style="font-weight:bold; color:var(--primary); font-size:1.1rem;" oninput="calc()"></span></div></div></div></div>
                 <div id="statusBox" class="status-box"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div>
-                <div class="no-print" style="margin-top:10px; display:flex; gap:10px;"><button class="btn" style="background:#2c3e50; color:white; flex-grow:1; padding:12px; font-size:1.1rem; border-radius:8px;" onclick="window.print()">🖨️ สั่งพิมพ์ (A4)</button><button class="btn" style="background:#dc3545; color:white; padding:8px;" onclick="clearDay()">ลบวันนี้</button></div>
+                <div class="no-print" style="margin-top:10px; display:flex; gap:10px;"><button class="btn" style="background:#2c3e50; color:white; flex-grow:1; padding:12px; font-size:1.1rem; border-radius:8px;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button><button class="btn" style="background:#dc3545; color:white; padding:8px;" onclick="clearDay()">ลบวันนี้</button></div>
+            </div>
+        </div>
+
+        <div class="guide-box no-print">
+            <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
+            <div class="guide-step">
+                <h5>1. การเลือกวันที่</h5>
+                <p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p>
+            </div>
+            <div class="guide-step">
+                <h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5>
+                <p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมทั้งหมดให้ทันที</p>
+            </div>
+            <div class="guide-step">
+                <h5>3. การบันทึกยอดโอน (QR Code)</h5>
+                <p>กรอกยอดเงินที่ลูกค้าโอนแต่ละรายการในตาราง หมวดที่ 4 และอย่าลืม <strong>"ติ๊กถูก"</strong> เมื่อตรวจสอบยอดในแอปธนาคารเรียบร้อยแล้ว</p>
+            </div>
+            <div class="guide-step">
+                <h5>4. สรุปผลต่างยอดขาย</h5>
+                <p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ในช่องสุดท้าย ระบบจะเปรียบเทียบกับยอดขายจริง หากยอดตรงกันผลต่างจะเป็นสีเขียว (0.00)</p>
+            </div>
+            <div class="guide-step">
+                <h5>5. บันทึกลงเครื่อง</h5>
+                <p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อให้ระบบจำข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> ทุกครั้งก่อนปิดเครื่องเพื่อสำรองข้อมูล กันข้อมูลหาย</p>
+            </div>
+            <div class="guide-step">
+                <h5>6. การเรียกดูข้อมูลเก่า</h5>
+                <p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลังได้ทุกเมื่อ</p>
             </div>
         </div>
     </div>
+    <div class="footer-credit" style="text-align:center; color:#999; display:none;">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด©</div>
 </div>
 <div style="position:fixed; bottom:0; width:100%; background:white; border-top:1px solid #ccc; padding:4px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 15, saveTimer = null;
-    const KEY = 'cashApp_LaemChabang_V44';
+    const KEY = 'cashApp_LaemChabang_V46'; // อัปเดตเป็น V46
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
+
     function init() { buildTable('tbMorn', 'm'); buildTable('tbEve', 'e'); buildQR(qrRows); buildOps(3, true); const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); changeMonth(); document.addEventListener('keydown', handleNav); window.addEventListener('beforeunload', forceSave); }
     function handleNav(e) { const el = e.target; if(el.tagName !== 'INPUT') return; const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; if (arrows.includes(e.key)) { e.preventDefault(); navigate(el, e.key); } if (e.key === 'Enter') { e.preventDefault(); navigate(el, 'ArrowDown'); } }
     function navigate(el, key) { const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="month"]):not([type="file"])')); const idx = inputs.indexOf(el); if(el.id.startsWith('q_')) { const [_, c, r] = el.id.split('_').map(Number); let nC = c, nR = r; if (key === 'ArrowUp') nR--; if (key === 'ArrowDown') nR++; if (key === 'ArrowLeft') nC--; if (key === 'ArrowRight') nC++; const target = document.getElementById(`q_${nC}_${nR}`); if(target) { target.focus(); return; } } if(el.classList.contains('op-val') || el.classList.contains('op-name') || el.classList.contains('op-time')) { const rows = document.getElementById('tbOps').rows; const curRowIdx = Array.from(rows).indexOf(el.closest('tr')); const colIdx = Array.from(el.closest('tr').cells).indexOf(el.closest('td')); let nRIdx = curRowIdx; if (key === 'ArrowUp') nRIdx--; if (key === 'ArrowDown') nRIdx++; if(rows[nRIdx]) { rows[nRIdx].cells[colIdx].querySelector('input').focus(); return; } } let dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1; const next = idx + dir; if(next >= 0 && next < inputs.length) inputs[next].focus(); }
