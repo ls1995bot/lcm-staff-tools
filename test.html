@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard — แหลมฉบังเครื่องเขียน (1995)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --apple-canvas: #ffffff;
+            --apple-gray: #f5f5f7;
+            --apple-text: #1d1d1f;
+            --apple-sub: #86868b;
+            --line-green: #06c755;
+            --ls-blue: #0071e3; 
+            --sk-pink: #ff3b30; 
+            --sb-yellow: #ff9f0a; 
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--apple-canvas);
+            color: var(--apple-text);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* --- Apple Global Nav --- */
+        nav {
+            position: sticky; top: 0; z-index: 9999;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            height: 44px; display: flex; align-items: center;
+        }
+        .nav-content {
+            width: 100%; max-width: 1024px; margin: 0 auto;
+            padding: 0 22px; color: #f5f5f7;
+            font-size: 13px; font-weight: 300;
+            display: flex; justify-content: space-between;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            padding: 60px 20px 40px; text-align: center;
+            max-width: 900px; margin: 0 auto;
+        }
+        .hero img { 
+            width: 80px; height: 80px; border-radius: 20px; 
+            margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+        }
+        .hero h1 { 
+            font-size: 40px; font-weight: 700; margin: 0; 
+            letter-spacing: -0.02em; line-height: 1.1;
+        }
+        .hero p { 
+            font-size: 19px; font-weight: 400; color: var(--apple-sub); 
+            margin: 10px 0 0; letter-spacing: -0.01em;
+        }
+        .green-divider {
+            margin-top: 30px; width: 60px; height: 4px; background: var(--line-green);
+            margin-left: auto; margin-right: auto; border-radius: 10px;
+        }
+
+        /* --- Container & Grid --- */
+        .container { max-width: 1024px; margin: 0 auto; padding: 0 20px 80px; }
+        
+        .section-header {
+            margin: 50px 0 20px; font-size: 28px; font-weight: 700;
+            letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px;
+        }
+        .section-header i { color: #424245; font-size: 22px; }
+
+        .grid-menu { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 16px; 
+        }
+
+        /* --- Card Style --- */
+        .menu-card {
+            position: relative;
+            background: var(--apple-gray);
+            border-radius: 20px;
+            padding: 30px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-decoration: none;
+            color: var(--apple-text);
+            z-index: 1;
+            overflow: hidden;
+            transition: all 0.3s var(--ease);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Effect สำหรับคอมพิวเตอร์ (Hover) */
+        @media (hover: hover) {
+            .menu-card::before {
+                content: "";
+                position: absolute;
+                top: 0; left: 0; height: 100%; width: 0;
+                background-color: #1d1d1f;
+                z-index: -1;
+                transition: width 0.4s var(--ease);
+            }
+            .menu-card:hover { transform: scale(1.02); color: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+            .menu-card:hover::before { width: 100%; }
+            .menu-card:hover .card-icon { color: #ffffff !important; }
+            .menu-card:hover .card-content p { color: #a1a1a6; }
+        }
+
+        /* Effect สำหรับมือถือ (Active/Touch) */
+        .menu-card:active {
+            transform: scale(0.97);
+            background-color: #e8e8ed;
+        }
+
+        .card-icon { font-size: 28px; margin-bottom: 20px; transition: color 0.3s; }
+        .icon-ls { color: var(--ls-blue); }
+        .icon-sk { color: var(--sk-pink); }
+        .icon-sb { color: var(--sb-yellow); }
+        .icon-gen { color: var(--ls-blue); }
+
+        .card-content h3 { font-size: 20px; font-weight: 700; margin: 0; }
+        .card-content p { font-size: 15px; color: var(--apple-sub); margin: 6px 0 0; line-height: 1.4; }
+
+        footer {
+            background: var(--apple-gray);
+            padding: 60px 22px; text-align: left;
+            color: var(--apple-sub); font-size: 13px;
+        }
+        .footer-content { max-width: 1024px; margin: 0 auto; line-height: 1.8; }
+        .footer-bottom { margin-top: 20px; padding-top: 20px; border-top: 1px solid #d2d2d7; }
+
+        /* --- Mobile Breakpoints --- */
+        @media (max-width: 734px) {
+            .hero h1 { font-size: 32px; }
+            .hero p { font-size: 17px; }
+            .section-header { font-size: 24px; margin: 40px 0 15px; }
+            .grid-menu { grid-template-columns: 1fr; }
+            .menu-card { padding: 25px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-content">
+            <span>แหลมฉบังเครื่องเขียน (1995)</span>
+            <span style="font-weight: 600;">System Portal</span>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F" alt="Store Logo">
+        <h1>ระบบจัดการภายใน</h1>
+        <p>เครื่องมือจัดการร้านค้าและอำนวยความสะดวกพนักงาน</p>
+        <div class="green-divider"></div>
+    </div>
+
+    <div class="container">
+
+        <div class="section-header"><i class="fas fa-coins"></i> การเงินประจำวัน</div>
+        <div class="grid-menu">
+            <a href="daily-ls.html" class="menu-card">
+                <div class="card-icon icon-ls"><i class="fas fa-store"></i></div>
+                <div class="card-content">
+                    <h3>ส่งเงิน แหลมฉบังเครื่องเขียน</h3>
+                    <p>บันทึกยอดขายและสรุปเงินสด สำนักงานใหญ่</p>
+                </div>
+            </a>
+            <a href="daily-sk.html" class="menu-card">
+                <div class="card-icon icon-sk"><i class="fas fa-heart"></i></div>
+                <div class="card-content">
+                    <h3>ส่งเงิน สมาร์ทคิดส์</h3>
+                    <p>บันทึกยอดขายและสรุปเงินสด สาขาสหพัฒน์</p>
+                </div>
+            </a>
+            <a href="daily-sb.html" class="menu-card">
+                <div class="card-icon icon-sb"><i class="fas fa-bus-alt"></i></div>
+                <div class="card-content">
+                    <h3>ส่งเงิน สคูลบัส</h3>
+                    <p>บันทึกยอดขายและสรุปเงินสด (ชุดนักเรียน)</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-header"><i class="fas fa-sliders-h"></i> การจัดการ</div>
+        <div class="grid-menu">
+            <a href="order-reserve.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-hand-holding-usd"></i></div>
+                <div class="card-content">
+                    <h3>ใบมัดจำสินค้า</h3>
+                    <p>ระบบบันทึกเงินจองและมัดจำล่วงหน้า</p>
+                </div>
+            </a>
+            <a href="bill-school.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-file-invoice"></i></div>
+                <div class="card-content">
+                    <h3>แบบฟอร์มขอออกบิล</h3>
+                    <p>สำหรับนักเรียนเขียนข้อมูลเบิกโรงเรียน</p>
+                </div>
+            </a>
+            <a href="pricetag.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-tags"></i></div>
+                <div class="card-content">
+                    <h3>พิมพ์ป้ายราคา</h3>
+                    <p>สร้างป้ายราคาพร้อมรายละเอียดสินค้า</p>
+                </div>
+            </a>
+            <a href="barcode-quickscan.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-barcode"></i></div>
+                <div class="card-content">
+                    <h3>ทำบาร์โค้ด / ป้ายสแกนด่วน</h3>
+                    <p>สร้างบาร์โค้ดชั่วคราว สำหรับสินค้าใหม่หรือของขายดี</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-header"><i class="fas fa-boxes"></i> เช็คสต็อกสินค้า</div>
+        <div class="grid-menu">
+            <a href="stock-ink.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-tint"></i></div>
+                <div class="card-content">
+                    <h3>สต็อกหมึกพิมพ์</h3>
+                    <p>เช็คหมึก Brother / Epson / HP คงเหลือ</p>
+                </div>
+            </a>
+            <a href="stock-paper.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-copy"></i></div>
+                <div class="card-content">
+                    <h3>สต็อกกระดาษ</h3>
+                    <p>นับจำนวนกระดาษถ่ายเอกสารประจำวัน</p>
+                </div>
+            </a>
+            <a href="stock-books.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-book"></i></div>
+                <div class="card-content">
+                    <h3>สต็อกหนังสือ</h3>
+                    <p>ระบายสี นิทาน แบบฝึกหัด ภาพประกอบการศึกษา</p>
+                </div>
+            </a>
+            <a href="stock-others.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-archive"></i></div>
+                <div class="card-content">
+                    <h3>สต็อกสินค้าอื่นๆ</h3>
+                    <p>เช็คสต็อกสินค้าทั่วไปแยกตามสีและขนาด</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-header"><i class="fas fa-user-graduate"></i> หน้านักเรียน</div>
+        <div class="grid-menu">
+            <a href="embroidery-guide.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-book-open"></i></div>
+                <div class="card-content">
+                    <h3>ตัวอย่างการปัก</h3>
+                    <p>คู่มือรูปแบบการปักแยกตามโรงเรียน</p>
+                </div>
+            </a>
+            <a href="embroidery-forms.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-print"></i></div>
+                <div class="card-content">
+                    <h3>แบบฟอร์มส่งปัก</h3>
+                    <p>พิมพ์ใบส่งปัก A5 สำหรับลูกค้าและช่าง</p>
+                </div>
+            </a>
+            <a href="embroidery-book.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-journal-whills"></i></div>
+                <div class="card-content">
+                    <h3>สมุดส่งปัก</h3>
+                    <p>พิมพ์สมุดบันทึกรายการส่งปักรวม</p>
+                </div>
+            </a>
+            <a href="embroidery-position.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-crosshairs"></i></div>
+                <div class="card-content">
+                    <h3>ระบุตำแหน่งปัก</h3>
+                    <p>เลือกโครงเสื้อและจุดที่ต้องการปัก</p>
+                </div>
+            </a>
+            <a href="book-wrap.html" class="menu-card">
+                <div class="card-icon icon-gen"><i class="fas fa-scroll"></i></div>
+                <div class="card-content">
+                    <h3>ใบฝากห่อปก</h3>
+                    <p>ข้อมูลลูกค้าสำหรับงานห่อปกสมุด/หนังสือ</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            Copyright &copy; 2026 บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด. All rights reserved. <br>
+            <div class="footer-bottom">
+                <span>Designed with absolute simplicity for Laem Chabang Family</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
