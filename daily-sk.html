@@ -158,7 +158,20 @@
     function triggerSave() { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, 300); }
     function forceSave() { if(!curD) return; db[getKey(curD)] = getForm(); localStorage.setItem(KEY, JSON.stringify(db)); const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); silentCloudSync(); }
     function manualSave() { forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); }
-    function silentCloudSync() { const k = getKey(curD); const form = getForm(); const summaryData = { date: k, shop: "สมาร์ทคิดส์ สหพัฒน์", emp: form.emp || "ไม่ระบุ", pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); }
+    function silentCloudSync() { 
+    const k = getKey(curD); 
+    const form = getForm(); 
+    const summaryData = { 
+        targetTab: "ใบส่งเงิน SK", // <--- เพิ่มบรรทัดนี้
+        date: k, 
+        shop: "สมาร์ทคิดส์ สหพัฒน์", 
+        emp: form.emp || "ไม่ระบุ", 
+        pos: form.pos || 0, 
+        actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
+        diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
+    }; 
+    fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); 
+}
     function buildTable(id, p) { const tb = document.getElementById(id); denoms.forEach(d => { tb.innerHTML += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`; }); }
     function buildOps(n, def) { document.getElementById('tbOps').innerHTML = ''; for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
     function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
