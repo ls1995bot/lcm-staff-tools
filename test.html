@@ -20,7 +20,7 @@
 
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
-        .card { background: #fff; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; }
+        .card { background: #fff; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .card-head { padding: 8px 15px; font-weight: bold; background: #fff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
         .h-info { border-left: 5px solid #0ea5e9; color: #0369a1; }
         .h-details { border-left: 5px solid #8b5cf6; color: #6d28d9; }
@@ -64,7 +64,6 @@
                 position: relative;
             }
             
-            /* เส้นประตัดแบ่งครึ่งแนวตั้ง */
             .vertical-cut-line {
                 position: absolute; left: 50%; top: 5mm; bottom: 5mm;
                 border-left: 1.5px dashed #444; width: 1px; transform: translateX(-50%);
@@ -72,7 +71,7 @@
             
             .bill-box { 
                 width: 46%; height: 100%; display: flex; flex-direction: column; overflow: hidden;
-                border: none !important; /* ถอดกรอบออกตามสั่ง */
+                border: none !important; 
             }
             
             .bill-header { 
@@ -88,7 +87,7 @@
 
             .shirt-print-container { 
                 position: relative; width: fit-content; max-width: 100%; 
-                margin: 4mm auto; border: 0.1mm solid #eee; height: auto;
+                margin: 3mm auto; border: 0.1mm solid #eee; height: auto;
             }
             .shirt-print-img { max-height: 330px; width: auto; display: block; }
             
@@ -105,7 +104,7 @@
 <div class="container no-print">
     <div class="app-header">
         <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:1.1rem; font-weight:bold;">ระบบใบงานปัก (V.67 - Borderless)</div>
+            <div style="font-size:1.1rem; font-weight:bold;">ระบบใบระบุตำแหน่งปัก (Landscape)</div>
         </div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
@@ -118,19 +117,19 @@
     <div class="main-layout">
         <div class="col-left">
             <div class="card">
-                <div class="card-head h-info">ข้อมูลลูกค้า</div>
-                <div class="form-row"><span class="form-label">ชื่อลูกค้า:</span><input type="text" id="custName" oninput="syncAll()"></div>
-                <div class="form-row"><span class="form-label">เบอร์โทรศัพท์:</span><input type="text" id="custTel" oninput="syncAll()"></div>
-                <div class="form-row"><span class="form-label">บริษัท/โรงเรียน:</span><input type="text" id="custSchool" oninput="syncAll()"></div>
+                <div class="card-head h-info">ข้อมูลเบื้องต้น</div>
+                <div class="form-row"><span class="form-label">ชื่อนักเรียนที่ปัก:</span><input type="text" id="custName" oninput="syncAll()"></div>
+                <div class="form-row"><span class="form-label">เบอร์โทรศัพท์ติดต่อ:</span><input type="text" id="custTel" oninput="syncAll()"></div>
+                <div class="form-row"><span class="form-label">โรงเรียน:</span><input type="text" id="custSchool" oninput="syncAll()"></div>
             </div>
 
             <div class="card">
-                <div class="card-head h-details">รายละเอียดตำแหน่งปัก</div>
+                <div class="card-head h-details">รายละเอียดตำแหน่งปัก (Auto-Fit)</div>
                 <div style="overflow-x:auto;">
                     <table id="detailsTable">
-                        <thead><tr><th width="15%">ลบ</th><th width="12%">จุด</th><th>รายละเอียดปัก</th><th width="30%">สีด้าย</th></tr></thead>
+                        <thead><tr><th width="15%">ลบ</th><th width="12%">จุด</th><th>รายละเอียดงานปัก</th><th width="30%">สีด้าย</th></tr></thead>
                         <tbody id="detailsBody">
-                            <tr><td colspan="4" align="center" style="color:#94a3b8; padding:20px;">คลิกที่รูปเสื้อด้านขวาเพื่อเริ่ม</td></tr>
+                            <tr><td colspan="4" align="center" style="color:#94a3b8; padding:20px;">คลิกที่รูปเสื้อเพื่อระบุตำแหน่ง</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -273,9 +272,9 @@
                     <div class="bill-title">ใบระบุตำแหน่งปัก (${type})</div>
                     <div class="bill-date">วันที่: ${data.date}</div>
                 </div>
-                <div class="info-row"><span class="label">ลูกค้า:</span><div class="fill-line">${data.cust}</div></div>
+                <div class="info-row"><span class="label">นักเรียน:</span><div class="fill-line">${data.cust}</div></div>
                 <div class="info-row"><span class="label">โทร:</span><div class="fill-line">${data.tel}</div></div>
-                <div class="info-row"><span class="label">รร./บริษัท:</span><div class="fill-line">${data.school}</div></div>
+                <div class="info-row"><span class="label">โรงเรียน:</span><div class="fill-line">${data.school}</div></div>
                 <div class="shirt-print-container"><img src="${selectedImg}" class="shirt-print-img">${data.pins.map(pinLayer).join('')}</div>
                 <table class="print-table">
                     <thead><tr><th width="12%">จุด</th><th>รายละเอียดงานปัก</th><th width="30%">สีด้าย</th></tr></thead>
@@ -302,8 +301,8 @@
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1000);
         const summary = { 
             type: "EMBROIDERY_POS", tab: "ใบปักชื่อตจว.", 
-            date: new Date().toISOString().slice(0,10), shop: "งานปัก (V.67)", 
-            emp: document.getElementById('custName').value || "ลูกค้าทั่วไป", 
+            date: new Date().toISOString().slice(0,10), shop: "งานปัก (Final)", 
+            emp: document.getElementById('custName').value || "นักเรียนใหม่", 
             pos: pins.length, actual: selectedImg 
         };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summary) });
