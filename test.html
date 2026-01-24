@@ -3,307 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard — แหลมฉบังเครื่องเขียน (1995)</title>
+    <title>ระบบส่งเงินขาย แหลมฉบังเครื่องเขียน</title>
     <link rel="icon" href="logo-ls.png.png">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --apple-canvas: #ffffff;
-            --apple-gray: #f5f5f7;
-            --apple-text: #1d1d1f;
-            --apple-sub: #86868b;
-            --line-green: #06c755;
-            --ls-blue: #0071e3; 
-            --sk-pink: #ff3b30; 
-            --sb-yellow: #ff9f0a; 
-            --ease: cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body {
-            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
-            margin: 0; padding: 0;
-            background-color: var(--apple-canvas);
-            color: var(--apple-text);
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        /* --- Apple Global Nav --- */
-        nav {
-            position: sticky; top: 0; z-index: 9999;
-            background: rgba(0, 0, 0, 0.82);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            height: 44px; display: flex; align-items: center;
-        }
-        .nav-content {
-            width: 100%; max-width: 1024px; margin: 0 auto;
-            padding: 0 22px; color: #f5f5f7;
-            font-size: 13px; font-weight: 300;
-            display: flex; justify-content: space-between;
-        }
-
-        /* --- Hero Section --- */
-        .hero {
-            padding: 60px 20px 40px; text-align: center;
-            max-width: 900px; margin: 0 auto;
-        }
-        .hero img { 
-            width: 80px; height: 80px; border-radius: 20px; 
-            margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
-        }
-        .hero h1 { 
-            font-size: 40px; font-weight: 700; margin: 0; 
-            letter-spacing: -0.02em; line-height: 1.1;
-        }
-        .hero p { 
-            font-size: 19px; font-weight: 400; color: var(--apple-sub); 
-            margin: 10px 0 0; letter-spacing: -0.01em;
-        }
-        .green-divider {
-            margin-top: 30px; width: 60px; height: 4px; background: var(--line-green);
-            margin-left: auto; margin-right: auto; border-radius: 10px;
-        }
-
-        /* --- Container & Grid --- */
-        .container { max-width: 1024px; margin: 0 auto; padding: 0 20px 80px; }
-        
-        .section-header {
-            margin: 50px 0 20px; font-size: 28px; font-weight: 700;
-            letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px;
-        }
-        .section-header i { color: #424245; font-size: 22px; }
-
-        .grid-menu { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 16px; 
-        }
-
-        /* --- Card Style --- */
-        .menu-card {
-            position: relative;
-            background: var(--apple-gray);
-            border-radius: 20px;
-            padding: 30px 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            text-decoration: none;
-            color: var(--apple-text);
-            z-index: 1;
-            overflow: hidden;
-            transition: all 0.3s var(--ease);
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Effect สำหรับคอมพิวเตอร์ (Hover) */
-        @media (hover: hover) {
-            .menu-card::before {
-                content: "";
-                position: absolute;
-                top: 0; left: 0; height: 100%; width: 0;
-                background-color: #1d1d1f;
-                z-index: -1;
-                transition: width 0.4s var(--ease);
-            }
-            .menu-card:hover { transform: scale(1.02); color: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-            .menu-card:hover::before { width: 100%; }
-            .menu-card:hover .card-icon { color: #ffffff !important; }
-            .menu-card:hover .card-content p { color: #a1a1a6; }
-        }
-
-        /* Effect สำหรับมือถือ (Active/Touch) */
-        .menu-card:active {
-            transform: scale(0.97);
-            background-color: #e8e8ed;
-        }
-
-        .card-icon { font-size: 28px; margin-bottom: 20px; transition: color 0.3s; }
-        .icon-ls { color: var(--ls-blue); }
-        .icon-sk { color: var(--sk-pink); }
-        .icon-sb { color: var(--sb-yellow); }
-        .icon-gen { color: var(--ls-blue); }
-
-        .card-content h3 { font-size: 20px; font-weight: 700; margin: 0; }
-        .card-content p { font-size: 15px; color: var(--apple-sub); margin: 6px 0 0; line-height: 1.4; }
-
-        footer {
-            background: var(--apple-gray);
-            padding: 60px 22px; text-align: left;
-            color: var(--apple-sub); font-size: 13px;
-        }
-        .footer-content { max-width: 1024px; margin: 0 auto; line-height: 1.8; }
-        .footer-bottom { margin-top: 20px; padding-top: 20px; border-top: 1px solid #d2d2d7; }
-
-        /* --- Mobile Breakpoints --- */
-        @media (max-width: 734px) {
-            .hero h1 { font-size: 32px; }
-            .hero p { font-size: 17px; }
-            .section-header { font-size: 24px; margin: 40px 0 15px; }
-            .grid-menu { grid-template-columns: 1fr; }
-            .menu-card { padding: 25px 20px; }
+        :root { --primary: #023f88; --bg: #f4f6f9; --border: #ccdceb; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #2c3e50; }
+        .container { max-width: 1350px; margin: 0 auto; }
+        .main-layout { display: grid; grid-template-columns: 33% 65.5%; gap: 1.5%; align-items: start; }
+        .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } 
+        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 125px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
+        .btn-main span { font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
+        .btn-main small { font-size: 0.65rem; opacity: 0.9; white-space: nowrap; }
+        .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .card { background: #fff; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; overflow: hidden; }
+        .card-head { padding: 6px 10px; font-weight: bold; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        .h-morn { border-left: 5px solid #f39c12; background: #fffdf5; color: #d35400; }
+        .h-eve { border-left: 5px solid #27ae60; background: #f3fff6; color: #27ae60; }
+        .h-ops { border-left: 5px solid #17a2b8; background: #f0fbff; color: #138496; }
+        .h-qr { border-left: 5px solid #8e44ad; background: #fcfaff; color: #8e44ad; }
+        .h-sum { border-left: 5px solid var(--primary); background: #f0f7ff; color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; table-layout: fixed; }
+        th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
+        input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        input:focus { outline: 2px solid var(--primary); background: #f0f7ff; }
+        .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; align-items: center; }
+        .sum-final { background: var(--primary); color: white; padding: 10px; border-radius: 4px; margin-top: 5px; font-weight: 800; }
+        .status-box { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 1.1rem; font-weight: bold; flex-direction: column; }
+        .shop-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; object-fit: cover; background: #fff; }
+        .btn-sm { padding: 4px 12px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-size: 0.8rem; margin: 0 2px; }
+        .btn-add { background: #e8f5e9; color: #27ae60; }
+        .btn-del { background: #fbe9e7; color: #c0392b; }
+        .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .guide-step { margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 15px; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
+        #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        .print-header, .print-watermark { display: none; }
+        @media print {
+            @page { size: A4 portrait; margin: 5mm; }
+            body { background: white; padding: 0; position: relative; overflow: hidden; }
+            .no-print, .app-header, .btn-main, .guide-box, .toolbar { display: none !important; }
+            .main-layout { display: grid; grid-template-columns: 33% 66%; gap: 1%; }
+            .card { border: 1px solid #000; border-radius: 0; margin-bottom: 5px; page-break-inside: avoid; }
+            .card-head { background: #eee !important; color: #000 !important; border-bottom: 1px solid #000; padding: 2px 5px; font-size: 0.8rem; }
+            th { background: #ddd !important; color: #000; padding: 2px; font-size: 0.65rem; }
+            td { padding: 2px; font-size: 0.7rem; }
+            input { border: none !important; background: transparent !important; padding: 0 !important; font-weight: bold; font-size: 0.75rem !important; }
+            .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; margin-bottom: 5px; padding-bottom: 2px; }
+            .print-header h1 { font-size: 16pt; margin: 0; font-weight: 800; line-height: 1; }
+            .print-header div { font-size: 10pt; text-align: right; line-height: 1.2; }
+            .print-watermark { display: block !important; position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 60pt; font-weight: 900; color: rgba(0,0,0,0.04); z-index: -1; white-space: nowrap; pointer-events: none; }
         }
     </style>
 </head>
 <body>
-
-    <nav>
-        <div class="nav-content">
-            <span>แหลมฉบังเครื่องเขียน (1995)</span>
-            <span style="font-weight: 600;">System Portal</span>
-        </div>
-    </nav>
-
-    <div class="hero">
-        <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F" alt="Store Logo">
-        <h1>ระบบจัดการภายใน</h1>
-        <p>เครื่องมือจัดการร้านค้าและอำนวยความสะดวกพนักงาน</p>
-        <div class="green-divider"></div>
+<div class="container">
+    <div class="print-watermark">แหลมฉบังเครื่องเขียน</div>
+    <div class="print-header"><h1>แหลมฉบังเครื่องเขียน (1995)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
+    <div class="app-header no-print">
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.2rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div></div>
+        <div class="toolbar"><span id="saveStatus">💾 จำแล้ว!</span><a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a><button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button><button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองลงคอม</small></button><button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()"><span>📥 เปิด</span><small>ดูข้อมูลเก่า</small></button><input type="file" id="fileInput" style="display:none;" onchange="importFile(this)"></div>
     </div>
-
-    <div class="container">
-
-        <div class="section-header"><i class="fas fa-coins"></i> การเงินประจำวัน</div>
-        <div class="grid-menu">
-            <a href="daily-ls.html" class="menu-card">
-                <div class="card-icon icon-ls"><i class="fas fa-store"></i></div>
-                <div class="card-content">
-                    <h3>ส่งเงิน แหลมฉบังเครื่องเขียน</h3>
-                    <p>บันทึกยอดขายและสรุปเงินสด สำนักงานใหญ่</p>
-                </div>
-            </a>
-            <a href="daily-sk.html" class="menu-card">
-                <div class="card-icon icon-sk"><i class="fas fa-heart"></i></div>
-                <div class="card-content">
-                    <h3>ส่งเงิน สมาร์ทคิดส์</h3>
-                    <p>บันทึกยอดขายและสรุปเงินสด สาขาสหพัฒน์</p>
-                </div>
-            </a>
-            <a href="daily-sb.html" class="menu-card">
-                <div class="card-icon icon-sb"><i class="fas fa-bus-alt"></i></div>
-                <div class="card-content">
-                    <h3>ส่งเงิน สคูลบัส</h3>
-                    <p>บันทึกยอดขายและสรุปเงินสด (ชุดนักเรียน)</p>
-                </div>
-            </a>
+    <div id="dailyPage">
+        <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
+            <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold; cursor:pointer;">
+            <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
-
-        <div class="section-header"><i class="fas fa-sliders-h"></i> การจัดการ</div>
-        <div class="grid-menu">
-            <a href="order-reserve.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-hand-holding-usd"></i></div>
-                <div class="card-content">
-                    <h3>ใบมัดจำสินค้า</h3>
-                    <p>ระบบบันทึกเงินจองและมัดจำล่วงหน้า</p>
+        <div class="main-layout">
+            <div class="col-left">
+                <div class="card"><div class="card-head h-morn"><span style="flex-grow:1;">1. เงินทอนเช้า</span><div style="display:flex; gap:10px; align-items:center;"><input type="time" id="timeMorn" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;"><span id="totalMorn" style="min-width:60px; text-align:right;">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table></div>
+                <div class="card"><div class="card-head h-eve"><span style="flex-grow:1;">2. ปิดร้าน (นับได้)</span><div style="display:flex; gap:10px; align-items:center;"><input type="time" id="timeEve" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;"><span id="totalEve" style="min-width:60px; text-align:right;">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table></div>
+                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบแถว</button></div></div>
+            </div>
+            <div class="col-right">
+                <div class="card">
+                    <div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div>
+                    <div class="qr-wrapper">
+                        <table id="qrTable">
+                            <thead>
+                                <tr>
+                                    <th id="qr_col_sum_1">0.00</th><th id="qr_col_sum_2">0.00</th><th id="qr_col_sum_3">0.00</th><th id="qr_col_sum_4">0.00</th><th id="qr_col_sum_5">0.00</th><th id="qr_col_sum_6">0.00</th>
+                                </tr>
+                                <tr style="background:#f1f1f1;">
+                                    <th>คอลัมน์ 1</th><th>คอลัมน์ 2</th><th>คอลัมน์ 3</th><th>คอลัมน์ 4</th><th>คอลัมน์ 5</th><th>คอลัมน์ 6</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbQR"></tbody>
+                        </table>
+                    </div>
+                    <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button></div>
                 </div>
-            </a>
-            <a href="bill-school.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-file-invoice"></i></div>
-                <div class="card-content">
-                    <h3>แบบฟอร์มขอออกบิล</h3>
-                    <p>สำหรับนักเรียนเขียนข้อมูลเบิกโรงเรียน</p>
+                <div class="card">
+                    <div class="card-head h-sum">5. สรุปยอดขายจริง</div>
+                    <div style="padding:5px 10px;">
+                        <div class="sum-row"><span>(2) เงินสดปิดร้าน:</span><span id="sumCash">0.00</span></div>
+                        <div class="sum-row" style="color:#138496;"><span>(3) (+) ฝาก/เบิกใช้:</span><span id="sumOps">0.00</span></div>
+                        <div class="sum-row" style="color:#8e44ad;"><span>(4) (+) QR Code:</span><span id="sumQR">0.00</span></div>
+                        <div class="sum-row" style="color:#d35400;"><span>(1) (-) หักเงินทอนเช้า:</span><span id="sumFloat">- 0.00</span></div>
+                        <div class="sum-final"><div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ (2+3+4-1):</span><span id="grandTotal" style="font-size:1.2rem;">0.00</span></div></div>
+                        <div style="margin-top:5px; border-top:2px solid #eee; padding-top:5px;"><div class="sum-row"><span>ยอดขาย POS:</span><div style="display:flex; gap:5px; justify-content:flex-end; align-items:center;"><input type="number" id="posVal" style="font-size:1.1rem; width:120px; color:#000; font-weight:bold;" oninput="calc()"><input type="time" id="timePOS" style="width:75px; text-align:center; font-size:0.9rem;" oninput="triggerSave()"></div></div></div>
+                    </div>
                 </div>
-            </a>
-            <a href="pricetag.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-tags"></i></div>
-                <div class="card-content">
-                    <h3>พิมพ์ป้ายราคา</h3>
-                    <p>สร้างป้ายราคาพร้อมรายละเอียดสินค้า</p>
-                </div>
-            </a>
-            <a href="barcode-quickscan.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-barcode"></i></div>
-                <div class="card-content">
-                    <h3>ทำบาร์โค้ด / ป้ายสแกนด่วน</h3>
-                    <p>สร้างบาร์โค้ดชั่วคราว สำหรับสินค้าใหม่หรือของขายดี</p>
-                </div>
-            </a>
-        </div>
-
-        <div class="section-header"><i class="fas fa-boxes"></i> เช็คสต็อกสินค้า</div>
-        <div class="grid-menu">
-            <a href="stock-ink.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-tint"></i></div>
-                <div class="card-content">
-                    <h3>สต็อกหมึกพิมพ์</h3>
-                    <p>เช็คหมึก Brother / Epson / HP คงเหลือ</p>
-                </div>
-            </a>
-            <a href="stock-paper.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-copy"></i></div>
-                <div class="card-content">
-                    <h3>สต็อกกระดาษ</h3>
-                    <p>นับจำนวนกระดาษถ่ายเอกสารประจำวัน</p>
-                </div>
-            </a>
-            <a href="stock-books.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-book"></i></div>
-                <div class="card-content">
-                    <h3>สต็อกหนังสือ</h3>
-                    <p>ระบายสี นิทาน แบบฝึกหัด ภาพประกอบการศึกษา</p>
-                </div>
-            </a>
-            <a href="stock-others.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-archive"></i></div>
-                <div class="card-content">
-                    <h3>สต็อกสินค้าอื่นๆ</h3>
-                    <p>เช็คสต็อกสินค้าทั่วไปแยกตามสีและขนาด</p>
-                </div>
-            </a>
-        </div>
-
-        <div class="section-header"><i class="fas fa-user-graduate"></i> หน้านักเรียน</div>
-        <div class="grid-menu">
-            <a href="embroidery-guide.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-book-open"></i></div>
-                <div class="card-content">
-                    <h3>ตัวอย่างการปัก</h3>
-                    <p>คู่มือรูปแบบการปักแยกตามโรงเรียน</p>
-                </div>
-            </a>
-            <a href="embroidery-forms.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-print"></i></div>
-                <div class="card-content">
-                    <h3>แบบฟอร์มส่งปัก</h3>
-                    <p>พิมพ์ใบส่งปัก A5 สำหรับลูกค้าและช่าง</p>
-                </div>
-            </a>
-            <a href="embroidery-book.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-journal-whills"></i></div>
-                <div class="card-content">
-                    <h3>สมุดส่งปัก</h3>
-                    <p>พิมพ์สมุดบันทึกรายการส่งปักรวม</p>
-                </div>
-            </a>
-            <a href="embroidery-position.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-crosshairs"></i></div>
-                <div class="card-content">
-                    <h3>ระบุตำแหน่งปัก</h3>
-                    <p>เลือกโครงเสื้อและจุดที่ต้องการปัก</p>
-                </div>
-            </a>
-            <a href="book-wrap.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-scroll"></i></div>
-                <div class="card-content">
-                    <h3>ใบฝากห่อปก</h3>
-                    <p>ข้อมูลลูกค้าสำหรับงานห่อปกสมุด/หนังสือ</p>
-                </div>
-            </a>
-        </div>
-
-    </div>
-
-    <footer>
-        <div class="footer-content">
-            Copyright &copy; 2026 บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด. All rights reserved. <br>
-            <div class="footer-bottom">
-                <span>Designed with absolute simplicity for Laem Chabang Family</span>
+                <div id="statusBox" class="status-box"><div style="width:100%; display:flex; justify-content:center; gap:10px;"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div><div style="font-size:0.8rem; font-weight:normal; margin-top:5px; opacity:0.8;">เวลาปัจจุบัน: <span id="realtimeClock">--:--:--</span></div></div>
+                <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
         </div>
-    </footer>
+        <div class="guide-box no-print">
+            <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
+            <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
+            <div class="guide-step"><h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5><p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมทั้งหมดให้ทันที</p></div>
+            <div class="guide-step"><h5>3. การบันทึกยอดโอน (QR Code)</h5><p>กรอกยอดเงินที่ลูกค้าโอนแต่ละรายการในตาราง หมวดที่ 4 และอย่าลืม <strong>"ติ๊กถูก"</strong> เมื่อตรวจสอบยอดในแอปธนาคารเรียบร้อยแล้ว</p></div>
+            <div class="guide-step"><h5>4. สรุปผลต่างยอดขาย</h5><p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ในช่องสุดท้าย ระบบจะเปรียบเทียบกับยอดขายจริง หากยอดตรงกันผลต่างจะเป็นสีเขียว (0.00)</p></div>
+            <div class="guide-step"><h5>5. บันทึกลงเครื่อง</h5><p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อให้ระบบจำข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> ทุกครั้งก่อนปิดเครื่องเพื่อสำรองข้อมูล กันข้อมูลหาย</p></div>
+            <div class="guide-step"><h5>6. การเรียกดูข้อมูลเก่า</h5><p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลังได้ทุกเมื่อ</p></div>
+        </div>
+    </div>
+</div>
+<div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
+<script>
+    const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
+    let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null;
+    const KEY = 'cashApp_LaemChabang_V55';
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
+    
+    function init() { buildTable('tbMorn', 'm'); buildTable('tbEve', 'e'); buildQR(qrRows); buildOps(3, true); const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); changeMonth(); document.addEventListener('keydown', handleNav); startClock(); }
+    function startClock() { setInterval(() => { document.getElementById('realtimeClock').innerText = new Date().toLocaleTimeString('th-TH'); }, 1000); }
+    
+    function handleNav(e) { const el = e.target; if(el.tagName !== 'INPUT') return; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); navigate(el, e.key); } if (e.key === 'Enter') { e.preventDefault(); navigate(el, 'ArrowDown'); } }
+    function navigate(el, key) { 
+        const allInputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="month"]):not([type="file"])')); 
+        const idx = allInputs.indexOf(el); 
+        if(el.id.startsWith('q_')) { 
+            const [_, c, r] = el.id.split('_').map(Number); 
+            let nC = c, nR = r; 
+            if (key === 'ArrowUp') nR--; else if (key === 'ArrowDown') nR++; 
+            else if (key === 'ArrowLeft') nC--; else if (key === 'ArrowRight') nC++; 
+            const target = document.getElementById(`q_${nC}_${nR}`); 
+            if(target) { target.focus(); return; }
+        }
+        let dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1; 
+        const next = idx + dir; if(next >= 0 && next < allInputs.length) allInputs[next].focus(); 
+    }
 
+    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(curD || new Date().getDate()); }
+    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { forceSave(); curD = i; loadDay(i); renderTabs(); }; c.appendChild(d); } }
+    function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+    function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD || new Date().getDate()); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '................................'; triggerSave(); }
+    function loadDay(d) { document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; }}); document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); const k = getKey(d); if(db[k]) { if(db[k].ops) buildOps(db[k].ops.length, false); if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } setForm(db[k]); } else { buildOps(3, true); calc(); } updatePrintInfo(); }
+    function triggerSave() { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, 300); }
+    function forceSave() { if(!curD) return; db[getKey(curD)] = getForm(); localStorage.setItem(KEY, JSON.stringify(db)); const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); silentCloudSync(); }
+    function manualSave() { forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); }
+    function silentCloudSync() { const k = getKey(curD); const form = getForm(); const summaryData = { date: k, shop: "แหลมฉบังเครื่องเขียน", emp: form.emp || "ไม่ระบุ", pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); }
+    function buildTable(id, p) { const tb = document.getElementById(id); denoms.forEach(d => tb.innerHTML += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`); }
+    function buildOps(n, def) { document.getElementById('tbOps').innerHTML = ''; for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
+    function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
+    function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
+    function buildQR(r) { const t=document.getElementById('tbQR'); t.innerHTML=''; for(let i=1;i<=r;i++) addQrRowHTML(i); }
+    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=6;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
+    function addQrRow() { qrRows++; addQrRowHTML(qrRows); }
+    function delQrRow() { if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
+    function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
+    function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
+    function calc() { 
+        let m=0, e=0, q_all=0; 
+        denoms.forEach(d => { 
+            let mv=num(`mv_${d}`); m+=mv; document.getElementById(`mq_${d}`).innerText = mv ? (mv/d) : '-'; // Fix: Restore count calculation
+            let ev=num(`ev_${d}`); e+=ev; document.getElementById(`eq_${d}`).innerText = ev ? (ev/d) : '-'; // Fix: Restore count calculation
+        }); 
+        for(let c=1; c<=6; c++) {
+            let col_sum = 0;
+            for(let r=1; r<=qrRows; r++) col_sum += num(`q_${c}_${r}`);
+            document.getElementById(`qr_col_sum_${c}`).innerText = fmt(col_sum);
+            q_all += col_sum;
+        }
+        let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); 
+        document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q_all); 
+        let grand = (e + ops + q_all) - m; document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q_all); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand); 
+        let diff = grand - num('posVal'); const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal'); 
+        if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
+        else if(diff<0) { box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
+        else { box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
+        triggerSave(); 
+    }
+    function getForm() { 
+        let opsData = []; const rows = document.getElementById('tbOps').rows; for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
+        const d = { pos: document.getElementById('posVal').value, tp: document.getElementById('timePOS').value, tm: document.getElementById('timeMorn').value, te: document.getElementById('timeEve').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; 
+        denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); 
+        for(let r=1; r<=qrRows; r++) for(let c=1; c<=6; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } 
+        return d; 
+    }
+    function setForm(d) { 
+        document.getElementById('posVal').value = d.pos||''; document.getElementById('timePOS').value = d.tp||''; document.getElementById('timeMorn').value = d.tm||''; document.getElementById('timeEve').value = d.te||''; document.getElementById('empName').value = d.emp||''; 
+        const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
+        denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
+        if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } 
+        calc(); 
+    }
+    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LaemChabang_${getKey(curD)}.json`; a.click(); }
+    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ ดึงข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
+    init();
+</script>
 </body>
 </html>
