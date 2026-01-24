@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบส่งเงินขาย แหลมฉบังเครื่องเขียน</title>
     <link rel="icon" href="logo-ls.png.png">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
         .h-sum { border-left: 5px solid var(--primary); background: #f0f7ff; color: var(--primary); }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; table-layout: fixed; }
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background: #f8f9fa; color: #666; }
+        th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -58,7 +58,6 @@
             .print-header h1 { font-size: 16pt; margin: 0; font-weight: 800; line-height: 1; }
             .print-header div { font-size: 10pt; text-align: right; line-height: 1.2; }
             .print-watermark { display: block !important; position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 60pt; font-weight: 900; color: rgba(0,0,0,0.04); z-index: -1; white-space: nowrap; pointer-events: none; }
-            .qr-wrapper { max-height: none !important; overflow: visible !important; }
         }
     </style>
 </head>
@@ -118,7 +117,7 @@
             <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
             <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
             <div class="guide-step"><h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5><p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมทั้งหมดให้ทันที</p></div>
-            <div class="guide-step"><h5>3. การบันทึกยอดโอน (QR Code)</h5><p>กรอกยอดโอนแต่ละรายการลงในหมวด 4 ระบบจะแสดง <b>ยอดรวมของแต่ละคอลัมน์ไว้ที่หัวตาราง</b> เพื่อให้เช็คยอดได้ง่าย</p></div>
+            <div class="guide-step"><h5>3. การบันทึกยอดโอน (QR Code)</h5><p>กรอกยอดเงินที่ลูกค้าโอนแต่ละรายการในตาราง หมวดที่ 4 และอย่าลืม <strong>"ติ๊กถูก"</strong> เมื่อตรวจสอบยอดในแอปธนาคารเรียบร้อยแล้ว</p></div>
             <div class="guide-step"><h5>4. สรุปผลต่างยอดขาย</h5><p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ในช่องสุดท้าย ระบบจะเปรียบเทียบกับยอดขายจริง หากยอดตรงกันผลต่างจะเป็นสีเขียว (0.00)</p></div>
             <div class="guide-step"><h5>5. บันทึกลงเครื่อง</h5><p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อให้ระบบจำข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> ทุกครั้งก่อนปิดเครื่องเพื่อสำรองข้อมูล กันข้อมูลหาย</p></div>
             <div class="guide-step"><h5>6. การเรียกดูข้อมูลเก่า</h5><p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลังได้ทุกเมื่อ</p></div>
@@ -129,7 +128,7 @@
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null;
-    const KEY = 'cashApp_LaemChabang_V54';
+    const KEY = 'cashApp_LaemChabang_V55';
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
     
     function init() { buildTable('tbMorn', 'm'); buildTable('tbEve', 'e'); buildQR(qrRows); buildOps(3, true); const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); changeMonth(); document.addEventListener('keydown', handleNav); startClock(); }
@@ -165,7 +164,7 @@
     function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
     function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
     function buildQR(r) { const t=document.getElementById('tbQR'); t.innerHTML=''; for(let i=1;i<=r;i++) addQrRowHTML(i); }
-    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=6;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}" style="width:12px;height:12px;"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
+    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=6;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
     function addQrRow() { qrRows++; addQrRowHTML(qrRows); }
     function delQrRow() { if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
@@ -173,17 +172,15 @@
     function calc() { 
         let m=0, e=0, q_all=0; 
         denoms.forEach(d => { 
-            let mv=num(`mv_${d}`); m+=mv; document.getElementById(`mq_${d}`).innerText = mv ? (mv/d) : '-'; // กู้คืนจำนวนใบ/เหรียญ
-            let ev=num(`ev_${d}`); e+=ev; document.getElementById(`eq_${d}`).innerText = ev ? (ev/d) : '-'; // กู้คืนจำนวนใบ/เหรียญ
+            let mv=num(`mv_${d}`); m+=mv; document.getElementById(`mq_${d}`).innerText = mv ? (mv/d) : '-'; // Fix: Restore count calculation
+            let ev=num(`ev_${d}`); e+=ev; document.getElementById(`eq_${d}`).innerText = ev ? (ev/d) : '-'; // Fix: Restore count calculation
         }); 
-        
         for(let c=1; c<=6; c++) {
             let col_sum = 0;
             for(let r=1; r<=qrRows; r++) col_sum += num(`q_${c}_${r}`);
             document.getElementById(`qr_col_sum_${c}`).innerText = fmt(col_sum);
             q_all += col_sum;
         }
-        
         let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); 
         document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q_all); 
         let grand = (e + ops + q_all) - m; document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q_all); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand); 
@@ -193,8 +190,20 @@
         else { box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
         triggerSave(); 
     }
-    function getForm() { let opsData = []; const rows = document.getElementById('tbOps').rows; for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); const d = { pos: document.getElementById('posVal').value, tp: document.getElementById('timePOS').value, tm: document.getElementById('timeMorn').value, te: document.getElementById('timeEve').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; for(let r=1; r<=qrRows; r++) for(let c=1; c<=6; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } return d; }
-    function setForm(d) { document.getElementById('posVal').value = d.pos||''; document.getElementById('timePOS').value = d.tp||''; document.getElementById('timeMorn').value = d.tm||''; document.getElementById('timeEve').value = d.te||''; document.getElementById('empName').value = d.emp||''; const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } calc(); }
+    function getForm() { 
+        let opsData = []; const rows = document.getElementById('tbOps').rows; for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
+        const d = { pos: document.getElementById('posVal').value, tp: document.getElementById('timePOS').value, tm: document.getElementById('timeMorn').value, te: document.getElementById('timeEve').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; 
+        denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); 
+        for(let r=1; r<=qrRows; r++) for(let c=1; c<=6; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } 
+        return d; 
+    }
+    function setForm(d) { 
+        document.getElementById('posVal').value = d.pos||''; document.getElementById('timePOS').value = d.tp||''; document.getElementById('timeMorn').value = d.tm||''; document.getElementById('timeEve').value = d.te||''; document.getElementById('empName').value = d.emp||''; 
+        const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
+        denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
+        if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } 
+        calc(); 
+    }
     function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LaemChabang_${getKey(curD)}.json`; a.click(); }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ ดึงข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     init();
