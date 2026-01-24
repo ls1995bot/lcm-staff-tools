@@ -49,7 +49,7 @@
 
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
         
-        /* --- Print Layout (Final Compact) --- */
+        /* --- Print Layout (A4 Landscape - No Borders) --- */
         .print-only { display: none; }
         @media print {
             @page { size: A4 landscape; margin: 0; }
@@ -59,37 +59,42 @@
             
             .print-page { 
                 width: 297mm; height: 210mm; 
-                display: grid; grid-template-columns: 1fr 1fr; gap: 6mm;
-                padding: 5mm; box-sizing: border-box; overflow: hidden;
+                display: flex; justify-content: space-between; 
+                padding: 10mm 12mm; box-sizing: border-box; overflow: hidden;
+                position: relative;
+            }
+            
+            /* เส้นประตัดแบ่งครึ่งแนวตั้ง */
+            .vertical-cut-line {
+                position: absolute; left: 50%; top: 5mm; bottom: 5mm;
+                border-left: 1.5px dashed #444; width: 1px; transform: translateX(-50%);
             }
             
             .bill-box { 
-                height: 185mm; border: 0.3mm solid #000; padding: 4mm 6mm; 
-                box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;
+                width: 46%; height: 100%; display: flex; flex-direction: column; overflow: hidden;
+                border: none !important; /* ถอดกรอบออกตามสั่ง */
             }
             
             .bill-header { 
-                border-bottom: 1.5px solid #000; padding-bottom: 2px; margin-bottom: 5px; 
+                border-bottom: 1.5px solid #000; padding-bottom: 2px; margin-bottom: 6px; 
                 display: flex; justify-content: space-between; align-items: flex-end; 
             }
-            .bill-title { font-size: 13.5pt; font-weight: 800; text-decoration: underline; margin: 0; flex-grow: 1; }
+            .bill-title { font-size: 13.5pt; font-weight: 800; margin: 0; flex-grow: 1; text-align: left; }
             .bill-date { font-size: 9pt; font-weight: bold; white-space: nowrap; }
             
-            .info-row { display: flex; margin-bottom: 1px; gap: 4px; align-items: flex-end; font-size: 9.5pt; }
+            .info-row { display: flex; margin-bottom: 2px; gap: 4px; align-items: flex-end; font-size: 10pt; }
             .label { font-weight: 700; white-space: nowrap; }
             .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; min-height: 12px; font-weight: bold; padding: 0 4px; }
 
             .shirt-print-container { 
                 position: relative; width: fit-content; max-width: 100%; 
-                margin: 2mm auto; border: 0.1mm solid #eee; height: auto;
+                margin: 4mm auto; border: 0.1mm solid #eee; height: auto;
             }
-            .shirt-print-img { max-height: 310px; width: auto; display: block; }
+            .shirt-print-img { max-height: 330px; width: auto; display: block; }
             
-            table.print-table { width: 100%; border-collapse: collapse; margin-top: 3px; }
+            table.print-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
             table.print-table th { border: 1px solid #000; padding: 2px; background: #f0f0f0 !important; font-weight: 800; font-size: 8.5pt; }
-            table.print-table td { border: 1px solid #000; padding: 2px; font-size: var(--table-font-size, 9pt); height: var(--row-height, 16px); }
-            
-            /* ลบคำอธิบาย POS ออกตามสั่ง */
+            table.print-table td { border: 1px solid #000; padding: 2px; font-size: var(--table-font-size, 9pt); height: var(--row-height, 18px); }
         }
 
         @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
@@ -100,7 +105,7 @@
 <div class="container no-print">
     <div class="app-header">
         <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:1.1rem; font-weight:bold;">ระบบใบงานปัก (V.66 - Ultra Compact)</div>
+            <div style="font-size:1.1rem; font-weight:bold;">ระบบใบงานปัก (V.67 - Borderless)</div>
         </div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
@@ -120,7 +125,7 @@
             </div>
 
             <div class="card">
-                <div class="card-head h-details">รายละเอียด (Auto-Fit Table)</div>
+                <div class="card-head h-details">รายละเอียดตำแหน่งปัก</div>
                 <div style="overflow-x:auto;">
                     <table id="detailsTable">
                         <thead><tr><th width="15%">ลบ</th><th width="12%">จุด</th><th>รายละเอียดปัก</th><th width="30%">สีด้าย</th></tr></thead>
@@ -152,7 +157,11 @@
 </div>
 
 <div class="print-only">
-    <div class="print-page" id="printArea"></div>
+    <div class="print-page">
+        <div class="vertical-cut-line"></div>
+        <div id="printArea-shop" class="bill-box"></div>
+        <div id="printArea-cust" class="bill-box"></div>
+    </div>
 </div>
 
 <script>
@@ -219,7 +228,7 @@
 
         const tbody = document.getElementById('detailsBody');
         if(pins.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" align="center" style="color:#94a3b8; padding:20px;">คลิกที่รูปเสื้อเพื่อวางหมุด</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" align="center" style="color:#94a3b8; padding:20px;">คลิกที่รูปเสื้อเพื่อเริ่ม</td></tr>';
             return;
         }
         tbody.innerHTML = '';
@@ -251,37 +260,34 @@
 
     function updatePrint(data) {
         const count = data.pins.length;
-        let rowH = 16; 
-        let fontS = 9; 
+        let rowH = 18; let fontS = 9; 
         if (count > 6) {
-            rowH = Math.max(10, 100 / count);
-            fontS = Math.max(7, 9 - ((count - 6) * 0.3));
+            rowH = Math.max(10, 110 / count);
+            fontS = Math.max(7.5, 9 - ((count - 6) * 0.25));
         }
 
         const pinLayer = (p) => `<div class="pin" style="left:${p.x}%; top:${p.y}%; position:absolute;">${p.id}</div>`;
         const billTemplate = (type) => `
-            <div class="bill-box" style="--row-height: ${rowH}px; --table-font-size: ${fontS}pt;">
+            <div style="--row-height: ${rowH}px; --table-font-size: ${fontS}pt; height:100%; display:flex; flex-direction:column;">
                 <div class="bill-header">
                     <div class="bill-title">ใบระบุตำแหน่งปัก (${type})</div>
                     <div class="bill-date">วันที่: ${data.date}</div>
                 </div>
                 <div class="info-row"><span class="label">ลูกค้า:</span><div class="fill-line">${data.cust}</div></div>
-                <div class="info-row"><span class="label">โทร:</span><div class="fill-line">${data.tel}</div><span class="label">บริษัท/รร.:</span><div class="fill-line">${data.school}</div></div>
-                
-                <div class="shirt-print-container">
-                    <img src="${selectedImg}" class="shirt-print-img">
-                    ${data.pins.map(pinLayer).join('')}
-                </div>
-                
+                <div class="info-row"><span class="label">โทร:</span><div class="fill-line">${data.tel}</div></div>
+                <div class="info-row"><span class="label">รร./บริษัท:</span><div class="fill-line">${data.school}</div></div>
+                <div class="shirt-print-container"><img src="${selectedImg}" class="shirt-print-img">${data.pins.map(pinLayer).join('')}</div>
                 <table class="print-table">
-                    <thead><tr><th width="10%">จุด</th><th>รายละเอียดงานปัก</th><th width="25%">สีด้าย</th></tr></thead>
+                    <thead><tr><th width="12%">จุด</th><th>รายละเอียดงานปัก</th><th width="30%">สีด้าย</th></tr></thead>
                     <tbody>
                         ${data.pins.map(p => `<tr><td align="center"><b>${p.id}</b></td><td>${p.txt}</td><td>${p.col}</td></tr>`).join('')}
                         ${data.pins.length < 2 ? '<tr><td></td><td></td><td></td></tr>'.repeat(2 - data.pins.length) : ''}
                     </tbody>
                 </table>
             </div>`;
-        document.getElementById('printArea').innerHTML = billTemplate("ฉบับร้าน") + billTemplate("ฉบับลูกค้า");
+        
+        document.getElementById('printArea-shop').innerHTML = billTemplate("ฉบับร้าน");
+        document.getElementById('printArea-cust').innerHTML = billTemplate("ฉบับลูกค้า");
     }
 
     function printBlank() {
@@ -295,17 +301,14 @@
     function forceSave() {
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1000);
         const summary = { 
-            type: "EMBROIDERY_POS", 
-            tab: "ใบปักชื่อตจว.", 
-            date: new Date().toISOString().slice(0,10), 
-            shop: "งานปัก (V.66)", 
+            type: "EMBROIDERY_POS", tab: "ใบปักชื่อตจว.", 
+            date: new Date().toISOString().slice(0,10), shop: "งานปัก (V.67)", 
             emp: document.getElementById('custName').value || "ลูกค้าทั่วไป", 
-            pos: pins.length, 
-            actual: selectedImg 
+            pos: pins.length, actual: selectedImg 
         };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summary) });
     }
-    function manualSave() { forceSave(); alert("💾 บันทึกข้อมูลและส่งคิวงานปักเข้าระบบเรียบร้อยแล้ว"); }
+    function manualSave() { forceSave(); alert("💾 บันทึกข้อมูลและคิวงานปักเข้าระบบเรียบร้อยแล้ว"); }
     function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if (['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('.no-print input')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowDown' ? idx + 1 : idx - 1; if(next >= 0 && next < all.length) all[next].focus(); } }
 
     init();
