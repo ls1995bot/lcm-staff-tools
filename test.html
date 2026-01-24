@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ใบระบุตำแหน่งปัก — แหลมฉบังเครื่องเขียน</title>
+    <title>ใบระบุตำแหน่งปัก — ระบบ Click-to-Mark</title>
     <link rel="icon" href="logo-ls.png.png">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -15,12 +15,11 @@
         
         /* Toolbar */
         .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } 
-        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 120px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
-        .btn-main span { font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
-        .btn-main small { font-size: 0.65rem; opacity: 0.9; }
+        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 110px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
+        .btn-main span { font-size: 0.9rem; font-weight: bold; margin-bottom: 2px; }
+        .btn-main small { font-size: 0.6rem; opacity: 0.9; }
 
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        .shop-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; object-fit: cover; background: #fff; }
 
         /* Card Styles */
         .card { background: #fff; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -34,47 +33,44 @@
 
         input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun'; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #f0f7ff; }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-        /* Shirt Interaction */
-        .shirt-display-area { position: relative; width: 100%; max-width: 500px; margin: 0 auto; background: #fff; border-radius: 8px; cursor: crosshair; user-select: none; }
+        /* Shirt Canvas */
+        .shirt-display-area { position: relative; width: 100%; max-width: 450px; margin: 0 auto; background: #fff; border-radius: 8px; cursor: crosshair; user-select: none; }
         .shirt-img-base { width: 100%; height: auto; display: block; }
-        .pin { position: absolute; width: 24px; height: 24px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 10pt; border: 2px solid white; transform: translate(-50%, -50%); box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .pin { position: absolute; width: 22px; height: 22px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 9pt; border: 1.5px solid white; transform: translate(-50%, -50%); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
 
-        /* Shirt Grid */
-        .shirt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; padding: 15px; border-top: 1px solid #eee; }
+        /* Selection Card */
+        .shirt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; padding: 10px; border-top: 1px solid #eee; }
         .shirt-card { border: 2px solid #eee; border-radius: 8px; padding: 5px; text-align: center; cursor: pointer; background: #fff; }
         .shirt-card.active { border-color: var(--primary); background: #eef3f8; }
-        .shirt-card img { width: 100%; height: 60px; object-fit: contain; }
-        .shirt-card span { font-size: 0.6rem; font-weight: bold; }
+        .shirt-card img { width: 100%; height: 55px; object-fit: contain; }
+        .shirt-card span { font-size: 0.55rem; font-weight: bold; display: block; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 8px; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 6px; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
 
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
         
-        /* Print Layout */
+        /* --- Print Layout (A4 Landscape) --- */
         .print-only { display: none; }
         @media print {
-            @page { size: A4 portrait; margin: 0; }
+            @page { size: A4 landscape; margin: 0; }
             body { background: white; padding: 0; -webkit-print-color-adjust: exact; }
             .no-print { display: none !important; }
             .print-only { display: block; }
-            .print-page { width: 210mm; height: 297mm; padding: 8mm 12mm; box-sizing: border-box; display: flex; flex-direction: column; gap: 2mm; }
-            .bill-box { height: 135mm; position: relative; padding-top: 5mm; }
-            .print-logo-watermark { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 70mm; opacity: 0.08; z-index: -1; }
-            .bill-header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-bottom: 8px; }
-            .bill-title { font-size: 20pt; font-weight: 800; color: var(--primary); }
-            .cut-line { border-top: 1.5px dashed #444; width: 100%; text-align: center; height: 10mm; display: flex; align-items: center; justify-content: center; color: #444; font-size: 9pt; font-weight: bold; }
+            .print-page { width: 297mm; height: 210mm; padding: 10mm; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 10mm; }
+            .bill-box { height: 190mm; border: 0.2mm solid #333; padding: 8mm; box-sizing: border-box; display: flex; flex-direction: column; position: relative; }
+            .bill-header { border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; text-align: center; }
+            .bill-title { font-size: 20pt; font-weight: 800; text-decoration: underline; }
             .info-row { display: flex; margin-bottom: 4px; gap: 5px; align-items: flex-end; font-size: 11pt; }
             .label { font-weight: 700; white-space: nowrap; }
             .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; min-height: 18px; font-weight: bold; padding: 0 5px; }
-            .shirt-print-container { position: relative; width: 100%; height: 260px; display: flex; justify-content: center; align-items: center; margin: 10px 0; border: 0.5px solid #eee; }
+            .shirt-print-container { position: relative; width: 100%; flex-grow: 1; display: flex; justify-content: center; align-items: center; margin: 10px 0; border: 0.2mm solid #eee; }
             .shirt-print-img { max-height: 100%; max-width: 100%; object-fit: contain; }
             table.print-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10pt; }
             table.print-table th, table.print-table td { border: 1px solid #000; padding: 4px; }
-            .sign-section { display: flex; justify-content: space-around; margin-top: 15px; text-align: center; font-size: 10pt; }
+            .sign-section { display: flex; justify-content: space-around; margin-top: auto; padding-top: 15px; text-align: center; font-size: 10pt; }
         }
 
         @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
@@ -84,18 +80,13 @@
 
 <div class="container no-print">
     <div class="app-header">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <img src="logo-ls.png.png" class="shop-logo">
-            <div>
-                <div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div>
-                <div style="font-size:0.75rem; opacity:0.9;">ระบบระบุตำแหน่งปักอิสระ (Click-to-Mark)</div>
-            </div>
-        </div>
+        <div style="display:flex; align-items:center; gap:12px;"><div style="font-size:1.1rem; font-weight:bold;">ระบบใบงานปัก (Landscape)</div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
-            <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
-            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ส่งข้อมูล</small></button>
-            <button class="btn-main" style="background:#dc3545;" onclick="resetPins()"><span>🔄 ล้างหมุด</span><small>เริ่มตำแหน่งใหม่</small></button>
+            <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าหลัก</small></a>
+            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึกข้อมูล</small></button>
+            <button class="btn-main" style="background:#dc3545;" onclick="deleteLastPin()"><span>🗑️ ลบหมุด</span><small>จุดล่าสุด</small></button>
+            <button class="btn-main" style="background:#023f88;" onclick="printBlank()"><span>📄 ใบเปล่า</span><small>พิมพ์สำรอง</small></button>
         </div>
     </div>
 
@@ -109,12 +100,12 @@
             </div>
 
             <div class="card">
-                <div class="card-head h-details">รายละเอียดตามจุดที่เลือก (1, 2, 3...)</div>
+                <div class="card-head h-details">รายละเอียดตำแหน่งปัก</div>
                 <div style="overflow-x:auto;">
                     <table id="detailsTable">
-                        <thead><tr><th width="12%">จุด</th><th>สิ่งที่ต้องการปัก (ชื่อ/ย่อ/ดาว)</th><th width="25%">สีด้าย</th></tr></thead>
+                        <thead><tr><th width="15%">จุด</th><th>ข้อความที่จะปัก</th><th width="25%">สีด้าย</th></tr></thead>
                         <tbody id="detailsBody">
-                            <tr><td colspan="3" align="center" style="color:#999; padding:20px;">คลิกที่รูปเสื้อด้านขวาเพื่อเริ่มระบุตำแหน่ง</td></tr>
+                            <tr><td colspan="3" align="center" style="color:#999; padding:20px;">คลิกที่รูปเสื้อด้านขวาเพื่อระบุตำแหน่ง</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -128,12 +119,11 @@
 
         <div class="col-right">
             <div class="card">
-                <div class="card-head h-shirt">จิ้มระบุตำแหน่งบนโครงเสื้อ</div>
+                <div class="card-head h-shirt">จิ้มตำแหน่งบนเสื้อ (1, 2, 3...)</div>
                 <div style="padding:20px; text-align:center;">
                     <div class="shirt-display-area" id="shirtCanvas" onclick="placePin(event)">
-                        <img src="เสื้อเชิ้ตนักเรียนชายแขนสั้น.png" id="mainShirtImg" class="shirt-img-base" onerror="this.src='https://via.placeholder.com/400?text=LOGO'">
-                        </div>
-                    <p style="font-size:0.8rem; color:#d63031; font-weight:bold; margin-top:10px;">* คลิก/แตะที่รูปเสื้อตรงจุดที่ต้องการปักเพื่อวางหมุด *</p>
+                        <img src="เสื้อเชิ้ตนักเรียนชายแขนสั้น.png" id="mainShirtImg" class="shirt-img-base">
+                    </div>
                 </div>
                 <div class="shirt-grid" id="shirtGrid"></div>
             </div>
@@ -153,6 +143,7 @@
         { n: "คอบัวกลม", img: "เสื้อนักเรียนหญิง ผ่าตลอด คอบัวกลม.png" },
         { n: "ฮาวายหญิง", img: "เสื้อนักเรียนหญิง ฮาวายแขนพอง.png" },
         { n: "เนตรนารี", img: "เสื้อเนตรนารี.png" },
+        { n: "ยุวกาชาด", img: "เสื้อยุวกาชาด.png" },
         { n: "ลูกเสือ", img: "เสื้อลูกเสือสีกากี.png" },
         { n: "อนุบาลคอบัว", img: "เสื้ออนุบาลคอบัว 4 หลัก.png" },
         { n: "อนุบาลฮาวาย", img: "เสื้ออนุบาลคอฮาวาย 4 หลัก.png" }
@@ -174,10 +165,9 @@
                 document.getElementById('mainShirtImg').src = s.img;
                 syncAll();
             };
-            card.innerHTML = `<img src="${s.img}" onerror="this.src='https://via.placeholder.com/80'"><span>${s.n}</span>`;
+            card.innerHTML = `<img src="${s.img}"><span>${s.n}</span>`;
             grid.appendChild(card);
         });
-        document.addEventListener('keydown', handleNav);
         syncAll();
     }
 
@@ -185,44 +175,43 @@
         const rect = e.currentTarget.getBoundingClientRect();
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
-        
         pins.push({ id: pins.length + 1, x, y, txt: "", col: "" });
         renderPins();
         syncAll();
     }
 
+    function deleteLastPin() {
+        if(pins.length > 0) {
+            pins.pop();
+            renderPins();
+            syncAll();
+        }
+    }
+
     function renderPins() {
         const canvas = document.getElementById('shirtCanvas');
         canvas.querySelectorAll('.pin').forEach(p => p.remove());
-        
         pins.forEach(p => {
             const div = document.createElement('div');
             div.className = 'pin';
-            div.style.left = p.x + '%';
-            div.style.top = p.y + '%';
+            div.style.left = p.x + '%'; div.style.top = p.y + '%';
             div.innerText = p.id;
             canvas.appendChild(div);
         });
-
         const tbody = document.getElementById('detailsBody');
         if(pins.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" align="center" style="color:#999; padding:20px;">คลิกที่รูปเสื้อด้านขวาเพื่อเริ่มระบุตำแหน่ง</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" align="center" style="color:#999; padding:20px;">คลิกที่รูปเสื้อด้านขวาเพื่อระบุตำแหน่ง</td></tr>';
             return;
         }
         tbody.innerHTML = '';
         pins.forEach((p, i) => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td align="center"><b>${p.id}</b></td>
-                <td><input type="text" value="${p.txt}" oninput="updatePinData(${i}, 'txt', this.value)" placeholder="ปักอะไร..."></td>
-                <td><input type="text" value="${p.col}" oninput="updatePinData(${i}, 'col', this.value)" placeholder="สี..."></td>
-            `;
+            tr.innerHTML = `<td align="center"><b>${p.id}</b></td><td><input type="text" value="${p.txt}" oninput="updatePinData(${i}, 'txt', this.value)" placeholder="..."></td><td><input type="text" value="${p.col}" oninput="updatePinData(${i}, 'col', this.value)" placeholder="..."></td>`;
             tbody.appendChild(tr);
         });
     }
 
     function updatePinData(idx, key, val) { pins[idx][key] = val; syncAll(); }
-    function resetPins() { pins = []; renderPins(); syncAll(); }
 
     function syncAll() {
         const dots = "........................................";
@@ -233,54 +222,48 @@
             date: new Date().toLocaleDateString('th-TH'),
             pins: pins
         };
+        updatePrint(formData, "ปกติ");
+    }
 
+    function updatePrint(data, mode) {
         const pinLayer = (p) => `<div class="pin" style="left:${p.x}%; top:${p.y}%; position:absolute;">${p.id}</div>`;
-
         const billTemplate = (type) => `
             <div class="bill-box">
-                <img src="logo-ls.png.png" class="print-logo-watermark">
                 <div class="bill-header">
-                    <div>
-                        <div style="font-size:12pt; font-weight:bold;">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div>
-                        <div style="font-size:8.5pt;">88/9-12 ม.9 ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี Tel: 038-330-262</div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div class="bill-title">ใบระบุตำแหน่งปัก</div>
-                        <div style="font-size:9.5pt; font-weight:bold;">(${type}) &nbsp; วันที่: ${formData.date}</div>
-                    </div>
+                    <div class="bill-title">ใบระบุตำแหน่งปัก</div>
+                    <div style="font-size:10pt; font-weight:bold;">(${type}) &nbsp; วันที่: ${data.date}</div>
                 </div>
-                <div class="info-row"><span class="label">ลูกค้า:</span><div class="fill-line">${formData.cust}</div><span class="label">โทร:</span><div class="fill-line">${formData.tel}</div></div>
-                <div class="info-row"><span class="label">บริษัท/โรงเรียน:</span><div class="fill-line">${formData.school}</div></div>
-                
-                <div class="shirt-print-container">
-                    <img src="${selectedImg}" class="shirt-print-img">
-                    ${formData.pins.map(pinLayer).join('')}
-                </div>
-
+                <div class="info-row"><span class="label">ลูกค้า:</span><div class="fill-line">${data.cust}</div></div>
+                <div class="info-row"><span class="label">เบอร์โทร:</span><div class="fill-line">${data.tel}</div></div>
+                <div class="info-row"><span class="label">บริษัท/โรงเรียน:</span><div class="fill-line">${data.school}</div></div>
+                <div class="shirt-print-container"><img src="${selectedImg}" class="shirt-print-img">${data.pins.map(pinLayer).join('')}</div>
                 <table class="print-table">
-                    <thead><tr><th width="10%">จุด</th><th>รายละเอียดงานปัก</th><th width="25%">สีด้าย</th></tr></thead>
+                    <thead><tr><th width="12%">จุด</th><th>รายละเอียดงานปัก</th><th width="25%">สีด้าย</th></tr></thead>
                     <tbody>
-                        ${formData.pins.map(p => `<tr><td align="center"><b>${p.id}</b></td><td>${p.txt}</td><td>${p.col}</td></tr>`).join('')}
-                        ${formData.pins.length === 0 ? '<tr><td colspan="3" height="60" align="center">ระบุตำแหน่งลงบนรูปเสื้อ</td></tr>' : ''}
+                        ${data.pins.map(p => `<tr><td align="center"><b>${p.id}</b></td><td>${p.txt}</td><td>${p.col}</td></tr>`).join('')}
+                        ${data.pins.length < 3 ? '<tr><td height="20"></td><td></td><td></td></tr>'.repeat(3 - data.pins.length) : ''}
                     </tbody>
                 </table>
                 <div class="sign-section"><div><br>(_______________________)<br>ลูกค้า</div><div><br>(_______________________)<br>พนักงานขาย</div></div>
-            </div>
-        `;
-        document.getElementById('printArea').innerHTML = billTemplate("ฉบับร้าน") + `<div class="cut-line">✂️ ตัดตามรอยประ ✂️</div>` + billTemplate("ฉบับลูกค้า");
-        triggerAutoSave();
+            </div>`;
+        document.getElementById('printArea').innerHTML = billTemplate("ฉบับร้าน") + billTemplate("ฉบับลูกค้า");
+    }
+
+    function printBlank() {
+        const dots = "........................................";
+        const blankData = { cust: dots, tel: dots, school: dots, date: "......../......../........", pins: [] };
+        updatePrint(blankData, "ใบเปล่า");
+        window.print();
+        syncAll(); // คืนค่าข้อมูลเดิมกลับมาหน้าพรีวิว
     }
 
     let saveT;
-    function triggerAutoSave() { clearTimeout(saveT); saveT = setTimeout(forceSave, 1000); }
     function forceSave() {
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1000);
         const summary = { type: "EMBROIDERY_POS", date: new Date().toISOString().slice(0,10), shop: "งานปัก (อิสระ)", emp: document.getElementById('custName').value || "ลูกค้าทั่วไป", pos: pins.length, actual: selectedImg };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summary) });
     }
-
-    function manualSave() { forceSave(); alert("💾 บันทึกข้อมูลตำแหน่งปักเข้าระบบแล้ว"); }
-    function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if (['ArrowUp', 'ArrowDown'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('.no-print input')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowDown' ? idx + 1 : idx - 1; if(next >= 0 && next < all.length) all[next].focus(); } }
+    function manualSave() { forceSave(); alert("💾 บันทึกข้อมูลเรียบร้อย"); }
 
     init();
 </script>
