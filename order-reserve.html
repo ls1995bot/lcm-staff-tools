@@ -53,26 +53,44 @@
             body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
             .print-only { display: block; }
-            .print-page { width: 210mm; height: 297mm; padding: 8mm 10mm; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+            .print-page { 
+                width: 210mm; height: 297mm; 
+                padding: 5mm 12mm; /* ปรับลด Padding ขอบกระดาษ */
+                box-sizing: border-box; display: flex; flex-direction: column; 
+                justify-content: flex-start; gap: 2mm; overflow: hidden; 
+            }
             .bill-box { 
-                height: 128mm; border: 0.3mm solid #000; padding: 6mm 8mm; 
+                height: 135mm; /* ขยายความสูงใบมัดจำหลังเอาเส้นกรอบออก */
                 position: relative; box-sizing: border-box; overflow: hidden;
+                padding-top: 5mm;
             }
             
-            /* ลายน้ำแบบภาพจริงเพื่อให้ติดออกมาตอนพิมพ์แน่นอน */
+            /* ลายน้ำ */
             .print-logo-watermark {
-                position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                width: 60mm; opacity: 0.08; z-index: -1;
+                position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
+                width: 70mm; opacity: 0.08; z-index: -1;
             }
             
-            .bill-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+            .bill-header { display: flex; justify-content: space-between; align-items: flex-start; }
             .bill-title { font-size: 22pt; font-weight: 800; color: #000; text-decoration: underline; margin: 0; }
-            .cut-line { border-top: 1px dashed #666; width: 100%; text-align: center; height: 10mm; display: flex; align-items: center; justify-content: center; color: #666; font-size: 9pt; }
             
-            table.print-table { width: 100%; border-collapse: collapse; margin: 5px 0; font-size: 10pt; }
-            table.print-table th { border: 1px solid #000; padding: 4px; background: #eee !important; }
-            table.print-table td { border: 1px solid #000; padding: 4px; height: 18px; }
+            /* รอยประตัดแบ่งครึ่ง */
+            .cut-line { 
+                border-top: 1.5px dashed #444; width: 100%; text-align: center; 
+                height: 8mm; display: flex; align-items: center; justify-content: center; 
+                color: #444; font-size: 9pt; font-weight: bold;
+            }
+            
+            table.print-table { width: 100%; border-collapse: collapse; margin: 5px 0; font-size: 10.5pt; }
+            table.print-table th { border: 1px solid #000; padding: 4px; background: #f0f0f0 !important; font-weight: bold; }
+            table.print-table td { border: 1px solid #000; padding: 4px; height: 20px; }
             .dotted-line { border-bottom: 1px dotted #000; display: inline-block; padding: 0 5px; font-weight: bold; }
+            
+            /* ส่วนล่าง ลงชื่อ */
+            .sign-section { 
+                display: flex; justify-content: space-around; 
+                margin-top: 25px; text-align: center; font-size: 10.5pt; 
+            }
         }
 
         @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
@@ -150,7 +168,7 @@
                 </div>
                 <div style="padding:10px 15px;">
                     <button class="btn-main" style="width:100%; background:#2c3e50; height:50px;" onclick="window.print()">
-                        <span>🖨️ พิมพ์ใบมัดจำ (A4)</span>
+                        <span>🖨️ พิมพ์ใบมัดจำ (A4 ไร้ขอบ)</span>
                     </button>
                 </div>
             </div>
@@ -180,7 +198,7 @@
 
 <script>
     let itemRows = 5;
-    const KEY = 'cashApp_OrderReserve_V58';
+    const KEY = 'cashApp_OrderReserve_V59';
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
@@ -274,33 +292,33 @@
         const billTemplate = (type) => `
             <div class="bill-box">
                 <img src="logo-ls.png.png" class="print-logo-watermark">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div class="bill-header">
                     <div style="width:65%;">
                         <div style="font-size:12pt; font-weight:bold;">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div>
                         <div style="font-size:8.5pt;">88/9-12 ม.9 ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี 20230 Tel: 038-330-262</div>
                     </div>
                     <div style="text-align:right;">
                         <div class="bill-title">ใบมัดจำสินค้า</div>
-                        <div style="font-size:9pt; font-weight:bold; margin-top:2px;">วันที่ <span class="dotted-line" style="min-width:80px;">${rDate}</span></div>
+                        <div style="font-size:9.5pt; font-weight:bold; margin-top:2px;">วันที่ <span class="dotted-line" style="min-width:90px;">${rDate}</span></div>
                     </div>
                 </div>
-                <div style="margin:10px 0; font-size:11pt; line-height:1.5;">
-                    ทางร้านได้รับเงินมัดจำค่าสินค้า จาก <span class="dotted-line" style="min-width:240px;">${name}</span> เบอร์ <span class="dotted-line" style="min-width:130px;">${tel}</span>
+                <div style="margin:8px 0; font-size:11pt; line-height:1.6;">
+                    ทางร้านได้รับเงินมัดจำค่าสินค้า จาก <span class="dotted-line" style="min-width:270px;">${name}</span> เบอร์ <span class="dotted-line" style="min-width:140px;">${tel}</span>
                     <br>เพื่อเป็นเงินมัดจำสินค้า ตามรายการต่อไปนี้:
                 </div>
                 <table class="print-table">
                     <thead><tr><th width="8%">ลำดับ</th><th>รายการสินค้า</th><th width="15%">ราคา/หน่วย</th><th width="10%">จำนวน</th><th width="18%">รวม</th></tr></thead>
                     <tbody>${rowsHTML || '<tr><td></td><td></td><td></td><td></td><td></td></tr>'.repeat(5)}</tbody>
                 </table>
-                <div style="display:flex; justify-content:flex-end; margin-top:3px;"><div style="font-size:11pt;"><b>รวมเป็นเงิน</b> &nbsp;&nbsp; <span class="dotted-line" style="min-width:100px; text-align:right;">${total}</span></div></div>
-                <div style="margin-top:5px; font-size:11pt; line-height:1.8;">
-                    ได้รับมัดจำไว้ เป็นจำนวนเงิน <span class="dotted-line" style="min-width:140px; text-align:right;">${deposit}</span> บาท<br>
-                    จากราคาเต็ม <span class="dotted-line" style="min-width:140px; text-align:right;">${total}</span> บาท<br>
-                    คงเหลือ <span class="dotted-line" style="min-width:140px; text-align:right;">${balance}</span> บาท &nbsp;&nbsp;&nbsp; กำหนดรับสินค้า <span class="dotted-line" style="min-width:160px;">${pickup}</span>
+                <div style="display:flex; justify-content:flex-end; margin-top:2px;"><div style="font-size:11.5pt;"><b>รวมเป็นเงิน</b> &nbsp;&nbsp; <span class="dotted-line" style="min-width:110px; text-align:right;">${total}</span></div></div>
+                <div style="margin-top:4px; font-size:11pt; line-height:1.9;">
+                    ได้รับมัดจำไว้ เป็นจำนวนเงิน <span class="dotted-line" style="min-width:150px; text-align:right;">${deposit}</span> บาท<br>
+                    จากราคาเต็ม <span class="dotted-line" style="min-width:150px; text-align:right;">${total}</span> บาท<br>
+                    คงเหลือ <span class="dotted-line" style="min-width:150px; text-align:right;">${balance}</span> บาท &nbsp;&nbsp;&nbsp; กำหนดรับสินค้า <span class="dotted-line" style="min-width:170px;">${pickup}</span>
                 </div>
-                <div style="display:flex; justify-content:space-around; margin-top:20px; text-align:center; font-size:10pt;">
-                    <div><br>(_______________________)<br>ลูกค้า</div>
-                    <div><br>(_______________________)<br>พนักงานขาย</div>
+                <div class="sign-section">
+                    <div><br>(_______________________)<br>ลงชื่อ (ลูกค้า)</div>
+                    <div><br>(_______________________)<br>ลงชื่อ (พนักงานขาย)</div>
                 </div>
             </div>
         `;
