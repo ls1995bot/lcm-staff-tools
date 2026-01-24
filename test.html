@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #023f88; --bg: #f8fafc; --border: #e2e8f0; --accent: #d35400; --soft-input: #f0f7ff; }
+        :root { --primary: #023f88; --bg: #f8fafc; --border: #e2e8f0; --accent: #d35400; --soft-input: #fcfdfe; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #2c3e50; }
         .container { max-width: 1350px; margin: 0 auto; }
         .main-layout { display: grid; grid-template-columns: 42% 56.5%; gap: 1.5%; align-items: start; }
@@ -20,7 +20,7 @@
 
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
 
-        .card { background: #fff; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .card { background: #fff; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; }
         .card-head { padding: 8px 15px; font-weight: bold; background: #fff; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
         .h-info { border-left: 5px solid #0ea5e9; color: #0369a1; }
         .h-details { border-left: 5px solid #8b5cf6; color: #6d28d9; }
@@ -29,11 +29,11 @@
         .form-row { display: flex; flex-direction: column; gap: 4px; padding: 6px 15px; }
         .form-label { font-size: 0.8rem; font-weight: bold; color: #64748b; }
 
-        input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: 'Sarabun'; box-sizing: border-box; background: var(--soft-input); font-size: 0.9rem; }
-        input:focus { outline: 2px solid var(--primary); background: #fff; border-color: var(--primary); }
+        input { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: 'Sarabun'; box-sizing: border-box; background: var(--soft-input); font-size: 0.9rem; }
+        input:focus { outline: 2px solid var(--primary); background: #fff; }
 
-        /* Shirt UI Area */
-        .shirt-display-area { position: relative; width: fit-content; margin: 0 auto; background: #fff; cursor: crosshair; user-select: none; border: 1px solid #f1f5f9; border-radius: 8px; }
+        /* Shirt UI */
+        .shirt-display-area { position: relative; width: fit-content; margin: 0 auto; background: #fff; cursor: crosshair; user-select: none; border-radius: 8px; }
         .shirt-img-base { max-width: 100%; max-height: 420px; display: block; height: auto; }
         .pin { position: absolute; width: 22px; height: 22px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 9pt; border: 1.5px solid white; transform: translate(-50%, -50%); box-shadow: 0 2px 4px rgba(0,0,0,0.2); pointer-events: none; }
 
@@ -43,7 +43,7 @@
         .shirt-card img { width: 100%; height: 50px; object-fit: contain; }
         .shirt-card span { font-size: 0.55rem; font-weight: bold; }
 
-        /* Compact Table UI */
+        /* Compact Table */
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th, td { padding: 4px 8px; border-bottom: 1px solid #f1f5f9; }
         th { background: #f8fafc; color: #64748b; font-weight: 800; }
@@ -51,44 +51,44 @@
 
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
         
-        /* --- Print Layout (A4 Landscape Precision) --- */
+        /* --- Print Layout (A4 Landscape Auto-Height) --- */
         .print-only { display: none; }
         @media print {
-            @page { size: A4 landscape; margin: 4mm; }
+            @page { size: A4 landscape; margin: 0; }
             body { background: white; padding: 0; -webkit-print-color-adjust: exact; }
             .no-print { display: none !important; }
             .print-only { display: block; }
             
             .print-page { 
-                width: 289mm; height: 202mm; 
-                display: grid; grid-template-columns: 1fr 1fr; gap: 8mm;
-                padding: 4mm; box-sizing: border-box;
+                width: 297mm; height: 210mm; 
+                display: grid; grid-template-columns: 1fr 1fr; gap: 10mm;
+                padding: 6mm 10mm; box-sizing: border-box;
             }
             
             .bill-box { 
-                height: 194mm; border: 0.2mm solid #000; padding: 5mm 8mm; 
+                height: 198mm; border: 0.2mm solid #333; padding: 5mm 8mm; 
                 box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden;
             }
             
-            .bill-header { border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 8px; text-align: center; }
-            .bill-title { font-size: 17pt; font-weight: 800; text-decoration: underline; margin: 0; }
+            .bill-header { border-bottom: 1.5px solid #000; padding-bottom: 3px; margin-bottom: 6px; text-align: center; }
+            .bill-title { font-size: 16pt; font-weight: 800; text-decoration: underline; margin: 0; }
             
-            .info-row { display: flex; margin-bottom: 2px; gap: 5px; align-items: flex-end; font-size: 10.5pt; }
+            .info-row { display: flex; margin-bottom: 1px; gap: 5px; align-items: flex-end; font-size: 10pt; }
             .label { font-weight: 700; white-space: nowrap; }
-            .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; min-height: 16px; font-weight: bold; padding: 0 4px; }
+            .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; min-height: 14px; font-weight: bold; padding: 0 4px; }
 
             .shirt-print-container { 
                 position: relative; width: fit-content; max-width: 100%; 
-                margin: 4mm auto; border: 0.15mm solid #eee; height: auto;
+                margin: 2mm auto; border: 0.15mm solid #eee; height: auto;
             }
-            .shirt-print-img { max-height: 340px; width: auto; display: block; }
+            .shirt-print-img { max-height: 320px; width: auto; display: block; }
             
-            /* Compact Print Table */
-            table.print-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 9pt; }
-            table.print-table th { border: 1px solid #000; padding: 3px; background: #f8f8f8 !important; font-weight: 800; }
-            table.print-table td { border: 1px solid #000; padding: 3px; height: 18px; }
+            /* --- Auto-scaling Table Style --- */
+            table.print-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+            table.print-table th { border: 1px solid #000; padding: 2px; background: #f0f0f0 !important; font-weight: 800; font-size: 9pt; }
+            table.print-table td { border: 1px solid #000; padding: 2px; font-size: var(--table-font-size, 9pt); height: var(--row-height, 18px); }
             
-            .footer-note { font-size: 8.5pt; color: #333; margin-top: auto; text-align: center; font-weight: bold; padding-top: 5px; }
+            .footer-note { font-size: 8pt; color: #000; margin-top: auto; text-align: center; font-weight: bold; padding-top: 4px; border-top: 1px solid #eee; }
         }
 
         @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
@@ -99,7 +99,7 @@
 <div class="container no-print">
     <div class="app-header">
         <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:1.1rem; font-weight:bold;">ระบบใบระบุตำแหน่งปัก (Compact UI)</div>
+            <div style="font-size:1.1rem; font-weight:bold;">ระบบใบงานปัก (V.64 - Auto Height)</div>
         </div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
@@ -119,12 +119,12 @@
             </div>
 
             <div class="card">
-                <div class="card-head h-details">รายละเอียด (Compact Table)</div>
+                <div class="card-head h-details">รายละเอียด (เพิ่มจุดเพื่อ Auto-scale)</div>
                 <div style="overflow-x:auto;">
                     <table id="detailsTable">
-                        <thead><tr><th width="15%">ลบ</th><th width="12%">จุด</th><th>ข้อความ/รายละเอียด</th><th width="30%">สีด้าย</th></tr></thead>
+                        <thead><tr><th width="15%">ลบ</th><th width="12%">จุด</th><th>รายละเอียดปัก</th><th width="30%">สีด้าย</th></tr></thead>
                         <tbody id="detailsBody">
-                            <tr><td colspan="4" align="center" style="color:#94a3b8; padding:20px;">คลิกที่รูปเสื้อเพื่อระบุตำแหน่ง</td></tr>
+                            <tr><td colspan="4" align="center" style="color:#94a3b8; padding:20px;">คลิกที่รูปเสื้อด้านขวาเพื่อเริ่ม</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -138,7 +138,7 @@
 
         <div class="col-right">
             <div class="card">
-                <div class="card-head h-shirt">จิ้มตำแหน่งปัก (1, 2, 3...)</div>
+                <div class="card-head h-shirt">จิ้มตำแหน่ง (1, 2, 3...)</div>
                 <div style="padding:15px; text-align:center;">
                     <div class="shirt-display-area" id="shirtCanvas" onclick="placePin(event)">
                         <img src="เสื้อเชิ้ตนักเรียนชายแขนสั้น.png" id="mainShirtImg" class="shirt-img-base" onload="syncAll()">
@@ -245,20 +245,30 @@
             date: new Date().toLocaleDateString('th-TH'),
             pins: pins
         };
-        updatePrint(formData, "ฉบับ");
+        updatePrint(formData);
     }
 
-    function updatePrint(data, mode) {
+    function updatePrint(data) {
+        // คำนวณความสูงแถวและขนาดฟอนต์แบบ Auto
+        const count = data.pins.length;
+        let rowH = 18; // ค่าเริ่มต้น
+        let fontS = 9.5; // ค่าเริ่มต้น (pt)
+        
+        if (count > 6) {
+            rowH = Math.max(10, 110 / count); // บีบไม่ให้ต่ำกว่า 10px
+            fontS = Math.max(7, 9.5 - ((count - 6) * 0.3)); // ลดฟอนต์ลงทีละนิด
+        }
+
         const pinLayer = (p) => `<div class="pin" style="left:${p.x}%; top:${p.y}%; position:absolute;">${p.id}</div>`;
         const billTemplate = (type) => `
-            <div class="bill-box">
+            <div class="bill-box" style="--row-height: ${rowH}px; --table-font-size: ${fontS}pt;">
                 <div class="bill-header">
                     <div class="bill-title">ใบระบุตำแหน่งปัก</div>
-                    <div style="font-size:9.5pt; font-weight:bold;">${type} &nbsp; วันที่: ${data.date}</div>
+                    <div style="font-size:9pt; font-weight:bold;">${type} &nbsp; วันที่: ${data.date}</div>
                 </div>
                 <div class="info-row"><span class="label">ลูกค้า:</span><div class="fill-line">${data.cust}</div></div>
                 <div class="info-row"><span class="label">โทร:</span><div class="fill-line">${data.tel}</div></div>
-                <div class="info-row"><span class="label">บริษัท/โรงเรียน:</span><div class="fill-line">${data.school}</div></div>
+                <div class="info-row"><span class="label">บริษัท/รร.:</span><div class="fill-line">${data.school}</div></div>
                 
                 <div class="shirt-print-container">
                     <img src="${selectedImg}" class="shirt-print-img">
@@ -269,17 +279,17 @@
                     <thead><tr><th width="10%">จุด</th><th>รายละเอียดงานปัก</th><th width="25%">สีด้าย</th></tr></thead>
                     <tbody>
                         ${data.pins.map(p => `<tr><td align="center"><b>${p.id}</b></td><td>${p.txt}</td><td>${p.col}</td></tr>`).join('')}
-                        ${data.pins.length < 3 ? '<tr><td height="16"></td><td></td><td></td></tr>'.repeat(3 - data.pins.length) : ''}
+                        ${data.pins.length < 3 ? '<tr><td></td><td></td><td></td></tr>'.repeat(3 - data.pins.length) : ''}
                     </tbody>
                 </table>
-                <div class="footer-note">** ใบระบุตำแหน่งงานปัก สำหรับใช้เย็บประกอบบิล POS **</div>
+                <div class="footer-note">** ใบระบุตำแหน่งปัก สำหรับเย็บติดบิล POS **</div>
             </div>`;
         document.getElementById('printArea').innerHTML = billTemplate("ฉบับร้าน") + billTemplate("ฉบับลูกค้า");
     }
 
     function printBlank() {
         const dots = "........................................";
-        updatePrint({ cust: dots, tel: dots, school: dots, date: "..../..../....", pins: [] }, "ใบเปล่า");
+        updatePrint({ cust: dots, tel: dots, school: dots, date: "..../..../....", pins: [] });
         window.print();
         syncAll();
     }
@@ -287,7 +297,7 @@
     let saveT;
     function forceSave() {
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1000);
-        const summary = { type: "EMBROIDERY_POS", date: new Date().toISOString().slice(0,10), shop: "งานปัก (Compact)", emp: document.getElementById('custName').value || "ลูกค้าทั่วไป", pos: pins.length, actual: selectedImg };
+        const summary = { type: "EMBROIDERY_POS", date: new Date().toISOString().slice(0,10), shop: "งานปัก (AutoHeight)", emp: document.getElementById('custName').value || "ลูกค้าทั่วไป", pos: pins.length, actual: selectedImg };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summary) });
     }
     function manualSave() { forceSave(); alert("💾 บันทึกข้อมูลเรียบร้อย"); }
