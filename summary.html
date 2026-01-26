@@ -2,108 +2,58 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สรุปยอดขายรายเดือน — LCM Group</title>
+    <title>รายงานสรุปยอดขายประจำเดือน</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2c3e50; }
-        body { font-family: 'Sarabun', sans-serif; padding: 20px; background: #f4f7f6; }
-        .no-print { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; gap: 15px; align-items: flex-end; }
-        .report-page { background: white; width: 210mm; min-height: 297mm; padding: 15mm; margin: 0 auto; box-sizing: border-box; }
-        h2 { text-align: center; color: var(--primary); margin-bottom: 5px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #eee; border: 1px solid #333; padding: 8px; font-size: 11pt; }
-        td { border: 1px solid #333; padding: 8px; text-align: center; font-size: 10pt; }
-        .text-left { text-align: left; }
-        .text-right { text-align: right; }
-        .sum-row { font-weight: bold; background: #f9f9f9; }
-        .diff-red { color: red; font-weight: bold; }
-        @media print { .no-print { display: none; } .report-page { box-shadow: none; padding: 0; } }
+        body { font-family: 'Sarabun', sans-serif; padding: 30px; background: #f0f2f5; }
+        .control-panel { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-end; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .report-table { width: 100%; background: white; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+        .report-table th, .report-table td { padding: 12px; border: 1px solid #ddd; text-align: center; }
+        .report-table th { background: #023f88; color: white; }
+        .total-row { font-weight: bold; background: #eee; }
+        .red { color: red; font-weight: bold; }
+        @media print { .control-panel { display: none; } }
     </style>
 </head>
 <body>
-
-<div class="no-print">
-    <div>
-        <label style="display:block; font-weight:bold;">เลือกสาขา:</label>
-        <select id="shopSelect" style="padding:10px; border-radius:5px; width:150px;">
-            <option value="ใบส่งเงิน LS">แหลมฉบัง (LS)</option>
-            <option value="ใบส่งเงิน SK">สมาร์ทคิดส์ (SK)</option>
-            <option value="ใบส่งเงิน SB">สคูลบัส (SB)</option>
-        </select>
+    <div class="control-panel no-print">
+        <div><label>เลือกสาขา:</label><br>
+            <select id="shopSel" style="padding:8px;"><option value="ใบส่งเงิน LS">แหลมฉบัง (LS)</option><option value="ใบส่งเงิน SK">สมาร์ทคิดส์ (SK)</option><option value="ใบส่งเงิน SB">สคูลบัส (SB)</option></select>
+        </div>
+        <div><label>เดือน/ปี:</label><br><input type="month" id="monthInput" style="padding:7px;"></div>
+        <button onclick="fetchSummary()" style="padding:8px 20px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;">ดึงข้อมูล</button>
+        <button onclick="window.print()" style="padding:8px 20px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer;">พิมพ์รายงาน</button>
     </div>
-    <div>
-        <label style="display:block; font-weight:bold;">เลือกเดือน:</label>
-        <input type="month" id="monthInput" style="padding:8px; border-radius:5px;">
+
+    <div id="reportArea">
+        <h2 style="text-align:center;">รายงานสรุปยอดขายรายวัน</h2>
+        <table class="report-table">
+            <thead><tr><th>วันที่</th><th>พนักงาน</th><th>ยอด POS</th><th>ยอดขายจริง</th><th>ขาด/เกิน</th></tr></thead>
+            <tbody id="resultBody"></tbody>
+            <tfoot><tr class="total-row"><td colspan="2">รวมทั้งหมด</td><td id="sPos">0.00</td><td id="sAct">0.00</td><td id="sDiff">0.00</td></tr></tfoot>
+        </table>
     </div>
-    <button onclick="loadSummary()" style="padding:10px 20px; background:#023f88; color:white; border:none; border-radius:5px; cursor:pointer;">🔍 ดูสรุป</button>
-    <button onclick="window.print()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;">🖨️ พิมพ์ส่งเฮีย</button>
-</div>
 
-<div class="report-page">
-    <h2>รายงานสรุปยอดขายรายเดือน</h2>
-    <p style="text-align:center; font-weight:bold;">สาขา: <span id="txtShop">--</span> | ประจำเดือน: <span id="txtMonth">--</span></p>
-    
-    <table>
-        <thead>
-            <tr>
-                <th width="15%">วันที่</th>
-                <th>พนักงาน</th>
-                <th width="20%">ยอด POS</th>
-                <th width="20%">ยอดขายจริง</th>
-                <th width="15%">ขาด/เกิน</th>
-            </tr>
-        </thead>
-        <tbody id="summaryBody">
-            </tbody>
-        <tfoot>
-            <tr class="sum-row">
-                <td colspan="2">รวมทั้งสิ้น</td>
-                <td id="totalPos" class="text-right">0.00</td>
-                <td id="totalActual" class="text-right">0.00</td>
-                <td id="totalDiff" class="text-right">0.00</td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
-
-<script>
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
-
-    async function loadSummary() {
-        const shop = document.getElementById('shopSelect').value;
-        const month = document.getElementById('monthInput').value;
-        if(!month) return alert('กรุณาเลือกเดือน');
-
-        document.getElementById('txtShop').innerText = shop.split(' ')[2];
-        document.getElementById('txtMonth').innerText = month;
-
-        const resp = await fetch(`${CLOUD_URL}?shop=${encodeURIComponent(shop)}&month=${month}`);
-        const data = await resp.json();
-        
-        let html = '', tPos = 0, tAct = 0, tDiff = 0;
-        data.sort((a,b) => a.date.localeCompare(b.date)); // เรียงวันที่
-
-        data.forEach(item => {
-            const diff = parseFloat(item.diff) || 0;
-            const pos = parseFloat(item.pos) || 0;
-            const act = parseFloat(item.actual) || 0;
-            tPos += pos; tAct += act; tDiff += diff;
-
-            html += `<tr>
-                <td>${item.date.split('-')[2]}</td>
-                <td class="text-left">${item.staff || '-'}</td>
-                <td class="text-right">${pos.toLocaleString()}</td>
-                <td class="text-right">${act.toLocaleString()}</td>
-                <td class="text-right ${diff < 0 ? 'diff-red' : ''}">${diff.toLocaleString()}</td>
-            </tr>`;
-        });
-
-        document.getElementById('summaryBody').innerHTML = html;
-        document.getElementById('totalPos').innerText = tPos.toLocaleString(undefined,{minimumFractionDigits:2});
-        document.getElementById('totalActual').innerText = tAct.toLocaleString(undefined,{minimumFractionDigits:2});
-        document.getElementById('totalDiff').innerText = tDiff.toLocaleString(undefined,{minimumFractionDigits:2});
-    }
-</script>
+    <script>
+        const CLOUD_URL = 'ใส่_URL_ที่ได้จาก_Deploy_ใหม่ตรงนี้';
+        async function fetchSummary() {
+            const shop = document.getElementById('shopSel').value;
+            const month = document.getElementById('monthInput').value;
+            const resp = await fetch(`${CLOUD_URL}?shop=${encodeURIComponent(shop)}&month=${month}`);
+            const data = await resp.json();
+            let html = '', tPos=0, tAct=0, tDiff=0;
+            data.sort((a,b) => a.date.localeCompare(b.date)).forEach(item => {
+                const d = parseFloat(item.diff) || 0;
+                const p = parseFloat(item.pos) || 0;
+                const a = parseFloat(item.actual) || 0;
+                tPos+=p; tAct+=a; tDiff+=d;
+                html += `<tr><td>${item.date}</td><td>${item.staff}</td><td>${p.toLocaleString()}</td><td>${a.toLocaleString()}</td><td class="${d<0?'red':''}">${d.toLocaleString()}</td></tr>`;
+            });
+            document.getElementById('resultBody').innerHTML = html;
+            document.getElementById('sPos').innerText = tPos.toLocaleString();
+            document.getElementById('sAct').innerText = tAct.toLocaleString();
+            document.getElementById('sDiff').innerText = tDiff.toLocaleString();
+        }
+    </script>
 </body>
 </html>
