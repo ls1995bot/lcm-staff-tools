@@ -13,9 +13,9 @@
         .container { max-width: 1350px; margin: 0 auto; }
         .main-layout { display: grid; grid-template-columns: 33% 65.5%; gap: 1.5%; align-items: start; }
         .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } 
-        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 125px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
-        .btn-main span { font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
-        .btn-main small { font-size: 0.65rem; opacity: 0.9; white-space: nowrap; }
+        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 110px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
+        .btn-main span { font-size: 0.85rem; font-weight: bold; margin-bottom: 2px; }
+        .btn-main small { font-size: 0.6rem; opacity: 0.9; }
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .card { background: #fff; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; overflow: hidden; }
         .card-head { padding: 6px 10px; font-weight: bold; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
@@ -41,27 +41,22 @@
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
-            body { background: white; padding: 0; position: relative; overflow: hidden; }
+            body { background: white; padding: 0; overflow: hidden; }
             .no-print, .app-header, .btn-main, .toolbar { display: none !important; }
             .main-layout { display: grid; grid-template-columns: 33% 66%; gap: 1%; }
             .card { border: 1px solid #000; border-radius: 0; margin-bottom: 5px; }
-            .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; margin-bottom: 5px; padding-bottom: 2px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="print-header no-print" id="printH" style="display:none;"><h1>แหลมฉบังเครื่องเขียน (1995)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
-    
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.2rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.75rem; opacity:0.9;">ระบบส่งเงิน (V.Cloud Recovery)</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
-            <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
-            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button>
-            <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองลงคอม</small></button>
-            <button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()"><span>📥 เปิด</span><small>ดูข้อมูลเก่า</small></button>
-            <input type="file" id="fileInput" style="display:none;" onchange="importFile(this)">
+            <button class="btn-main" style="background:#8b5cf6;" onclick="recoverFromCloud()"><span>🔄 ดึงข้อมูล</span><small>กู้คืนรายละเอียด</small></button>
+            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึกทันที</small></button>
+            <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
         </div>
     </div>
 
@@ -131,44 +126,46 @@
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null;
-    const SAVE_DELAY = 30000; // หน่วงเวลา 30 วินาที
+    const SAVE_DELAY = 30000; 
     const KEY = 'cashApp_LaemChabang_V2026';
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxGFW2Y2r_H3lvCo4sQC5gWVIRt51T5mrQcPbJqnH7Q/exec';
+    const CLOUD_URL = 'ใส่_URL_ที่ได้จาก_Deploy_ใหม่ตรงนี้';
 
     function init() {
-        buildTable('tableMorn', 'm'); 
-        buildTable('tableEve', 'e'); 
-        buildQR(qrRows); 
-        buildOps(3, true); 
-        const saved = localStorage.getItem(KEY); 
-        if(saved) db = JSON.parse(saved); 
-        const now = new Date(); 
-        document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
-        
-        // --- ออโต้เลือกวันที่ปัจจุบันทันที ---
+        buildTable('tableMorn', 'm'); buildTable('tableEve', 'e'); buildQR(qrRows); buildOps(3, true); 
+        const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); 
+        const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
         [curY, curM] = document.getElementById('monthPicker').value.split('-').map(Number);
-        curD = now.getDate(); 
-        renderTabs();
-        loadDay(curD);
-        
+        curD = now.getDate(); renderTabs(); loadDay(curD);
         document.addEventListener('keydown', handleNav);
     }
 
     function loadDay(d) { 
-        curD = d; // ป้องกัน undefined ทันที
+        curD = d; 
         document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') i.value=''; }); 
-        document.getElementById('tbOps').innerHTML = ''; 
-        buildQR(qrRows); 
+        document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); 
         const k = getKey(d); 
         if(db[k]) { 
             if(db[k].ops) buildOps(db[k].ops.length, false); 
             if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
             setForm(db[k]); 
-        } else { 
-            buildOps(3, true); 
-            calc(); 
-        } 
+        } else { buildOps(3, true); calc(); } 
         updatePrintInfo(); 
+    }
+
+    async function recoverFromCloud() {
+        if (!confirm("ต้องการดึงรายละเอียดจากคลาวด์มาเขียนทับข้อมูลปัจจุบันหรือไม่?")) return;
+        const k = getKey(curD);
+        const shop = "ใบส่งเงิน LS";
+        try {
+            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shop)}&date=${k}`);
+            const text = await resp.text();
+            if (text === "Not Found") return alert("❌ ไม่พบข้อมูลสำรองของวันนี้ในระบบ");
+            const cloudData = JSON.parse(text);
+            setForm(cloudData);
+            db[k] = cloudData;
+            localStorage.setItem(KEY, JSON.stringify(db));
+            alert("✅ กู้คืนรายละเอียดทุกช่องเรียบร้อยแล้ว");
+        } catch (e) { alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ"); }
     }
 
     function silentCloudSync() { 
@@ -182,19 +179,10 @@
             emp: form.emp || "ไม่ระบุ", 
             pos: form.pos || 0, 
             actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
-            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
+            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, ''),
+            raw: JSON.stringify(form) // <--- ส่งข้อมูลทุกช่องไปเก็บในคอลัมน์ H
         }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); 
-    }
-
-    function forceSave() { 
-        if(!curD) return; 
-        db[getKey(curD)] = getForm(); 
-        localStorage.setItem(KEY, JSON.stringify(db)); 
-        const el = document.getElementById('saveStatus'); 
-        el.style.opacity = 1; 
-        setTimeout(() => { el.style.opacity = 0; }, 1000); 
-        silentCloudSync(); 
     }
 
     function calc() { 
@@ -204,24 +192,18 @@
             let ev=num(`ev_${d}`); e+=ev; document.getElementById(`eq_${d}`).innerText = ev ? (ev/d) : '-';
         }); 
         for(let c=1; c<=6; c++) {
-            let col_sum = 0;
-            for(let r=1; r<=qrRows; r++) col_sum += num(`q_${c}_${r}`);
-            document.getElementById(`qr_col_sum_${c}`).innerText = fmt(col_sum);
-            q_all += col_sum;
+            let col_sum = 0; for(let r=1; r<=qrRows; r++) col_sum += num(`q_${c}_${r}`);
+            document.getElementById(`qr_col_sum_${c}`).innerText = fmt(col_sum); q_all += col_sum;
         }
         let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); 
         document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q_all); 
         let grand = (e + ops + q_all) - m; 
         document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q_all); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand); 
-        let diff = grand - num('posVal'); 
-        const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal'); 
+        let diff = grand - num('posVal'); const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal'); 
         if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
         else if(diff<0) { box.style.background='#f8d7da'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
-        
-        // --- หน่วงเวลา Auto-save 30 วินาที ---
-        if(saveTimer) clearTimeout(saveTimer); 
-        saveTimer = setTimeout(forceSave, SAVE_DELAY);
+        if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, SAVE_DELAY);
     }
 
     function buildTable(id, p) {
@@ -231,12 +213,10 @@
         tb.innerHTML = html + '</tbody>';
     }
     function buildQR(r) { 
-        const t=document.getElementById('tbQR'), h=document.getElementById('qrHeadSum'); 
-        t.innerHTML=''; h.innerHTML='';
+        const t=document.getElementById('tbQR'), h=document.getElementById('qrHeadSum'); t.innerHTML=''; h.innerHTML='';
         for(let c=1;c<=6;c++) h.insertAdjacentHTML('beforeend', `<th id="qr_col_sum_${c}">0.00</th>`);
         for(let i=1;i<=r;i++) {
-            let row=`<tr>`;
-            for(let c=1;c<=6;c++) row+=`<td><input type="number" id="q_${c}_${i}" oninput="calc()"></td>`;
+            let row=`<tr>`; for(let c=1;c<=6;c++) row+=`<td><input type="number" id="q_${c}_${i}" oninput="calc()"></td>`;
             t.insertAdjacentHTML('beforeend', row+'</tr>');
         }
     }
@@ -245,13 +225,14 @@
     function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
     function addQrRow() { qrRows++; buildQR(qrRows); calc(); }
     function delQrRow() { if(qrRows > 1) { qrRows--; buildQR(qrRows); calc(); } }
-    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(curD || 1); }
+    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(1); }
     function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { if(saveTimer) clearTimeout(saveTimer); forceSave(); loadDay(i); renderTabs(); }; c.appendChild(d); } }
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
     function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; }
-    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เข้าระบบเรียบร้อย`); }
+    function forceSave() { if(!curD) return; db[getKey(curD)] = getForm(); localStorage.setItem(KEY, JSON.stringify(db)); const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); silentCloudSync(); }
+    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); alert(`💾 บันทึกและซิงค์ข้อมูลเรียบร้อย`); }
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
@@ -267,8 +248,8 @@
         if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) el.value=d.qr[k]||''; } 
         calc(); 
     }
-    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LaemChabang_${getKey(curD)}.json`; a.click(); }
-    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ ดึงข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
+    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_Backup_${getKey(curD)}.json`; a.click(); }
+    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ นำเข้าข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if(['ArrowUp','ArrowDown','Enter'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('input:not([type="hidden"])')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if(next >= 0 && next < all.length) all[next].focus(); } }
     init();
 </script>
