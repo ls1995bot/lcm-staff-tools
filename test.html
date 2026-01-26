@@ -39,7 +39,6 @@
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
-        
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; position: relative; overflow: hidden; }
@@ -76,7 +75,7 @@
             <div class="col-left">
                 <div class="card">
                     <div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div>
-                    <tbody id="tbMorn"></tbody><table id="tableMorn"></table>
+                    <table id="tableMorn"></table>
                 </div>
                 <div class="card">
                     <div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><span id="totalEve">0.00</span></div>
@@ -132,9 +131,9 @@
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null;
-    const KEY = 'cashApp_LaemChabang_V55';
-    // *** สำคัญ: เปลี่ยนเป็น URL /exec ที่ได้จากการ Deploy ใหม่ ***
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
+    const SAVE_DELAY = 30000; // หน่วงเวลา 30 วินาที
+    const KEY = 'cashApp_LaemChabang_V2026';
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxGFW2Y2r_H3lvCo4sQC5gWVIRt51T5mrQcPbJqnH7Q/exec';
 
     function init() {
         buildTable('tableMorn', 'm'); 
@@ -145,21 +144,18 @@
         if(saved) db = JSON.parse(saved); 
         const now = new Date(); 
         document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
-        changeMonth(); 
+        
+        // --- ออโต้เลือกวันที่ปัจจุบันทันที ---
+        [curY, curM] = document.getElementById('monthPicker').value.split('-').map(Number);
+        curD = now.getDate(); 
+        renderTabs();
+        loadDay(curD);
+        
         document.addEventListener('keydown', handleNav);
     }
 
-    function buildTable(id, p) {
-        const tb = document.getElementById(id);
-        let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
-        denoms.forEach(d => {
-            html += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`;
-        });
-        tb.innerHTML = html + '</tbody>';
-    }
-
     function loadDay(d) { 
-        curD = d; // <--- แก้ไขจุดนี้: บังคับจำวันที่ทันที
+        curD = d; // ป้องกัน undefined ทันที
         document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') i.value=''; }); 
         document.getElementById('tbOps').innerHTML = ''; 
         buildQR(qrRows); 
@@ -180,7 +176,7 @@
         const k = getKey(curD); 
         const form = getForm(); 
         const summaryData = { 
-            targetTab: "ใบส่งเงิน LS", // <--- ระบุแท็บเป้าหมายให้ GAS
+            targetTab: "ใบส่งเงิน LS", 
             date: k, 
             shop: "แหลมฉบังเครื่องเขียน", 
             emp: form.emp || "ไม่ระบุ", 
@@ -222,10 +218,18 @@
         if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
         else if(diff<0) { box.style.background='#f8d7da'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
-        if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, 500);
+        
+        // --- หน่วงเวลา Auto-save 30 วินาที ---
+        if(saveTimer) clearTimeout(saveTimer); 
+        saveTimer = setTimeout(forceSave, SAVE_DELAY);
     }
 
-    // --- Helper Functions ---
+    function buildTable(id, p) {
+        const tb = document.getElementById(id);
+        let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
+        denoms.forEach(d => { html += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`; });
+        tb.innerHTML = html + '</tbody>';
+    }
     function buildQR(r) { 
         const t=document.getElementById('tbQR'), h=document.getElementById('qrHeadSum'); 
         t.innerHTML=''; h.innerHTML='';
@@ -241,13 +245,13 @@
     function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
     function addQrRow() { qrRows++; buildQR(qrRows); calc(); }
     function delQrRow() { if(qrRows > 1) { qrRows--; buildQR(qrRows); calc(); } }
-    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(new Date().getDate()); }
-    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { forceSave(); loadDay(i); renderTabs(); }; c.appendChild(d); } }
+    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(curD || 1); }
+    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { if(saveTimer) clearTimeout(saveTimer); forceSave(); loadDay(i); renderTabs(); }; c.appendChild(d); } }
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
     function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; }
-    function manualSave() { forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และซิงค์เข้าระบบเรียบร้อย`); }
+    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เข้าระบบเรียบร้อย`); }
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
@@ -266,7 +270,6 @@
     function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LaemChabang_${getKey(curD)}.json`; a.click(); }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ ดึงข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if(['ArrowUp','ArrowDown','Enter'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('input:not([type="hidden"])')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if(next >= 0 && next < all.length) all[next].focus(); } }
-
     init();
 </script>
 </body>
