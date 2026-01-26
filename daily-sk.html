@@ -30,10 +30,7 @@
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #fff0f6; }
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
-        
-        /* Highlight ช่องพนักงานถ้าลืมใส่ */
         .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
-
         .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; align-items: center; }
         .sum-final { background: var(--primary); color: white; padding: 10px; border-radius: 4px; margin-top: 5px; font-weight: 800; }
         .status-box { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 1.1rem; font-weight: bold; flex-direction: column; }
@@ -42,14 +39,12 @@
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
-        
         .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--primary); }
         .guide-step { margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 15px; }
         .guide-step h5 { margin: 0 0 5px 0; font-size: 1rem; color: #333; }
         .guide-step p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
         .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
-
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; overflow: hidden; }
@@ -63,9 +58,8 @@
 <body>
 <div class="container">
     <div class="print-header no-print" id="printH" style="display:none;"><h1>สมาร์ทคิดส์ สหพัฒน์ (SMART KIDS)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
-    
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-sk.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน (Master Safe V.2)</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-sk.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน (V.Final)</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
@@ -75,13 +69,11 @@
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
         </div>
     </div>
-
     <div id="dailyPage">
         <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
             <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold;">
             <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" placeholder="ระบุชื่อ..." style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
-
         <div class="main-layout">
             <div class="col-left">
                 <div class="card"><div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div><table id="tableMorn"></table></div>
@@ -92,14 +84,12 @@
                     <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button></div>
                 </div>
             </div>
-
             <div class="col-right">
                 <div class="card">
                     <div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div>
                     <table id="qrTable"><thead><tr id="qrHeadSum"></tr></thead><tbody id="tbQR"></tbody></table>
                     <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button></div>
                 </div>
-
                 <div class="card">
                     <div class="card-head h-sum">5. สรุปยอดขายจริง</div>
                     <div style="padding:5px 10px;">
@@ -117,7 +107,6 @@
                 <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
         </div>
-
         <div class="guide-box no-print">
             <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
             <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
@@ -129,14 +118,14 @@
         </div>
     </div>
 </div>
-
 <div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
 
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null, isDirty = false;
     const SAVE_DELAY = 30000; 
-    const KEY = 'cashApp_SK'; // ชื่อตัวแปรสำหรับ Smart Kids
+    const KEY = 'cashApp_SK'; 
+    // ** ใส่ URL ใหม่ที่ได้จากการ Deploy ล่าสุดตรงนี้ **
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
@@ -150,10 +139,9 @@
 
     function switchDay(newD) {
         if (newD === curD) return; 
-        
         if (isDirty) {
             if(confirm(`⚠️ คุณยังไม่ได้บันทึกยอดของวันที่ ${curD}\nต้องการบันทึกก่อนเปลี่ยนวันหรือไม่?`)) {
-                if(!validateName()) return; // ถ้าชื่อว่าง ให้หยุดเปลี่ยนวัน
+                if(!validateName()) return; 
                 forceSave(); 
             } else {
                 if(saveTimer) clearTimeout(saveTimer);
@@ -161,10 +149,7 @@
         } else {
             if(saveTimer) clearTimeout(saveTimer);
         }
-        
-        isDirty = false;
-        loadDay(newD);
-        renderTabs();
+        isDirty = false; loadDay(newD); renderTabs();
     }
 
     function validateName() {
@@ -172,9 +157,7 @@
         const name = empInput.value.trim();
         if (!name) {
             alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึกหรือส่งออกข้อมูล");
-            empInput.classList.add('input-error');
-            empInput.focus();
-            // ลบสีแดงออกเมื่อเริ่มพิมพ์
+            empInput.classList.add('input-error'); empInput.focus();
             empInput.addEventListener('input', function() { this.classList.remove('input-error'); }, {once:true});
             return false;
         }
@@ -191,10 +174,7 @@
             if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
             setForm(db[k]); 
         } else { buildOps(3, true); calc(false); }
-        
-        checkReadOnlyMode(); 
-        updatePrintInfo(); 
-        isDirty = false; 
+        checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
     }
 
     function checkReadOnlyMode() {
@@ -204,14 +184,11 @@
         const isPast = (selectedMonth < thisMonth) || (selectedMonth === thisMonth && curD < today);
         const isFuture = (selectedMonth > thisMonth) || (selectedMonth === thisMonth && curD > today);
         const lock = isPast || isFuture; 
-        
         const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
         inputs.forEach(i => i.disabled = lock);
-        
         document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
         document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
         document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
-        
         if(lock && saveTimer) clearTimeout(saveTimer);
     }
 
@@ -225,66 +202,86 @@
     }
 
     async function recoverFromCloud() {
-        if (!confirm("ต้องการดึงรายละเอียดจากคลาวด์มาเขียนทับเครื่องนี้หรือไม่?")) return;
         const k = getKey(curD);
+        const shopName = "ใบส่งเงิน SK"; // ** แก้ชื่อร้านให้ตรงแต่ละไฟล์ (SK/LS/SB) **
+
         try {
-            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=ใบส่งเงิน%20SK&date=${k}`);
-            const text = await resp.text();
-            if (text === "Not Found") return alert("❌ ไม่พบข้อมูลสำรองของวันนี้ในระบบ");
-            const cloudData = JSON.parse(text);
-            setForm(cloudData);
-            db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db));
-            alert("✅ กู้คืนรายละเอียดเรียบร้อย");
-        } catch (e) { alert("❌ การเชื่อมต่อผิดพลาด"); }
+            const btn = document.getElementById('recoverBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>⏳ ค้นหา...</span>';
+            btn.disabled = true;
+
+            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}`);
+            const data = await resp.json();
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            if (data.status === "error") {
+                alert("❌ " + data.msg); return;
+            }
+
+            let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ (ล่าสุดอยู่บนสุด):\n--------------------------------\n`;
+            data.list.forEach((item, index) => {
+                msg += `[ ${index + 1} ]  👤 ${item.user}  🕒 ${item.time}\n`;
+            });
+            msg += `--------------------------------\nกรุณาพิมพ์ "ตัวเลข" ที่ต้องการดึงข้อมูล (หรือกด Cancel เพื่อยกเลิก)`;
+
+            const choice = prompt(msg);
+            if (choice !== null) {
+                const idx = parseInt(choice) - 1;
+                if (!isNaN(idx) && data.list[idx]) {
+                    const selected = data.list[idx];
+                    if(confirm(`ยืนยันดึงข้อมูลของ "${selected.user}" (เวลา ${selected.time}) มาทับหน้าจอนี้?`)) {
+                         const cloudData = JSON.parse(selected.raw);
+                         setForm(cloudData);
+                         db[k] = cloudData; 
+                         localStorage.setItem(KEY, JSON.stringify(db));
+                         alert("✅ ดึงข้อมูลเรียบร้อย!");
+                    }
+                } else {
+                    alert("❌ ใส่ตัวเลขไม่ถูกต้อง");
+                }
+            }
+        } catch (e) { 
+            alert("❌ เกิดข้อผิดพลาด: " + e.message);
+            document.getElementById('recoverBtn').disabled = false;
+        }
     }
 
     function silentCloudSync() { 
         if(!curD) return;
         if(document.getElementById('posVal').disabled) return;
-        
-        // Auto-save ไม่ต้องบังคับชื่อ (เผื่อเพิ่งเริ่มพิมพ์) แต่ถ้ามีชื่อก็ส่งไปด้วย
-        const k = getKey(curD); 
-        const form = getForm(); 
+        const k = getKey(curD); const form = getForm(); 
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
     }
 
     function forceSave() { 
         if(!curD) return; 
-        
-        // บังคับชื่อก่อนส่ง
         if(!validateName()) return;
-
-        const k = getKey(curD); 
-        const form = getForm(); 
-        
+        const k = getKey(curD); const form = getForm(); 
         const finalData = { 
             targetTab: "ใบส่งเงิน SK", 
             date: k, 
             shop: "สมาร์ทคิดส์ สหพัฒน์", 
-            emp: form.emp, // ส่งชื่อจริงไปเลย เพราะ validate แล้ว
+            emp: form.emp, 
             pos: form.pos || 0, 
             actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
             diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
         }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
-
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp, raw: JSON.stringify(form) };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
-
         db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
-        
         isDirty = false; 
     }
 
     function manualSave() { 
         if(saveTimer) clearTimeout(saveTimer); 
         forceSave(); 
-        // ถ้า forceSave ผ่าน (ไม่ติด validate) ถึงจะขึ้น alert
-        if(document.getElementById('empName').value.trim()) {
-             alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); 
-        }
+        if(document.getElementById('empName').value.trim()) { alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); }
     }
 
     function calc(triggerAutoSave = true) { 
@@ -342,8 +339,6 @@
     function updatePrintInfo() { 
         document.getElementById('pDate').innerText = getKey(curD); 
         document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; 
-        
-        // ถ้ามีการแก้ชื่อ ก็ถือว่า dirty เหมือนกัน
         isDirty = true; 
     }
     function getForm() { 
@@ -362,7 +357,7 @@
         calc(false); 
     }
     function exportFile() { 
-        if(!validateName()) return; // บังคับชื่อก่อนส่งออก
+        if(!validateName()) return; 
         forceSave(); 
         const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SK_Backup_${getKey(curD)}.json`; a.click(); 
     }
