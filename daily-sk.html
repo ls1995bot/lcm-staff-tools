@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ธีมสีชมพู (SK Style) */
         :root { --primary: #ff0588; --bg: #fff0f5; --border: #ffcae0; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #2c3e50; }
         .container { max-width: 1350px; margin: 0 auto; }
@@ -19,32 +20,44 @@
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .card { background: #fff; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; overflow: hidden; }
         .card-head { padding: 6px 10px; font-weight: bold; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        
+        /* Header Colors (SK Specific) */
         .h-morn { border-left: 5px solid #f39c12; background: #fffdf5; color: #d35400; }
         .h-eve { border-left: 5px solid #27ae60; background: #f3fff6; color: #27ae60; }
         .h-ops { border-left: 5px solid #17a2b8; background: #f0fbff; color: #138496; }
         .h-qr { border-left: 5px solid #8e44ad; background: #fcfaff; color: #8e44ad; }
         .h-sum { border-left: 5px solid var(--primary); background: #fff5f9; color: var(--primary); }
+        
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; table-layout: fixed; }
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
+        
+        /* CSS Input แบบ Clean (Type Text เพื่อคุม Cursor) */
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #fff0f6; }
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
         .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
+
         .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; align-items: center; }
         .sum-final { background: var(--primary); color: white; padding: 10px; border-radius: 4px; margin-top: 5px; font-weight: 800; }
         .status-box { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 1.1rem; font-weight: bold; flex-direction: column; }
         .shop-logo { width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; object-fit: cover; background: #fff; }
+        
+        /* ปุ่มเล็ก */
         .btn-sm { padding: 4px 12px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-size: 0.8rem; margin: 0 2px; }
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
+        
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        
+        /* Guide Box */
         .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--primary); }
         .guide-step { margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 15px; }
         .guide-step h5 { margin: 0 0 5px 0; font-size: 1rem; color: #333; }
         .guide-step p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
         .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
+
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; overflow: hidden; }
@@ -58,8 +71,9 @@
 <body>
 <div class="container">
     <div class="print-header no-print" id="printH" style="display:none;"><h1>สมาร์ทคิดส์ สหพัฒน์ (SMART KIDS)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
+    
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-sk.jpg" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-sk.jpg" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน (V.Final Complete)</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
@@ -69,27 +83,43 @@
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
         </div>
     </div>
+
     <div id="dailyPage">
         <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
             <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold;">
             <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" placeholder="ระบุชื่อ..." style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
+
         <div class="main-layout">
             <div class="col-left">
-                <div class="card"><div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div><table id="tableMorn"></table></div>
-                <div class="card"><div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><span id="totalEve">0.00</span></div><table id="tableEve"></table></div>
+                <div class="card">
+                    <div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div>
+                    <table id="tableMorn"></table>
+                </div>
+                <div class="card">
+                    <div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><span id="totalEve">0.00</span></div>
+                    <table id="tableEve"></table>
+                </div>
                 <div class="card">
                     <div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span id="totalOps">0.00</span></div>
                     <table id="tableOps"><tbody id="tbOps"></tbody></table>
-                    <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button></div>
+                    <div class="no-print" style="padding:5px; text-align:center;">
+                        <button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button>
+                        <button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button>
+                    </div>
                 </div>
             </div>
+
             <div class="col-right">
                 <div class="card">
                     <div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div>
                     <table id="qrTable"><thead><tr id="qrHeadSum"></tr></thead><tbody id="tbQR"></tbody></table>
-                    <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button></div>
+                    <div class="no-print" style="padding:5px; text-align:center;">
+                        <button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button>
+                        <button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button>
+                    </div>
                 </div>
+
                 <div class="card">
                     <div class="card-head h-sum">5. สรุปยอดขายจริง</div>
                     <div style="padding:5px 10px;">
@@ -99,7 +129,7 @@
                         <div class="sum-row" style="color:#d35400;"><span>(1) (-) หักเงินทอนเช้า:</span><span id="sumFloat">- 0.00</span></div>
                         <div class="sum-final"><div class="sum-row" style="border:none;"><span>ยอดขายจริงสุทธิ:</span><span id="grandTotal" style="font-size:1.2rem;">0.00</span></div></div>
                         <div style="margin-top:5px; border-top:2px solid #eee; padding-top:5px;">
-                            <div class="sum-row"><span>ยอดขาย POS:</span><input type="number" id="posVal" style="font-size:1.1rem; width:120px; font-weight:bold;" oninput="calc()"></div>
+                            <div class="sum-row"><span>ยอดขาย POS:</span><input type="text" inputmode="decimal" id="posVal" class="num-input" style="font-size:1.1rem; width:120px; font-weight:bold;" oninput="validateNumber(this)"></div>
                         </div>
                     </div>
                 </div>
@@ -107,6 +137,7 @@
                 <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
         </div>
+
         <div class="guide-box no-print">
             <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
             <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
@@ -118,25 +149,167 @@
         </div>
     </div>
 </div>
+
 <div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
 
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null, isDirty = false;
     const SAVE_DELAY = 30000; 
-    const KEY = 'cashApp_SK'; 
-    // ** ใส่ URL ใหม่ที่ได้จากการ Deploy ล่าสุดตรงนี้ **
+    const KEY = 'cashApp_SK'; // ** KEY สำหรับ SK **
+    
+    // ** URL เดียวกับทุกร้าน **
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
-        buildTable('tableMorn', 'm'); buildTable('tableEve', 'e'); buildQR(qrRows); buildOps(3, true); 
+        buildTable('tableMorn', 'm'); 
+        buildTable('tableEve', 'e'); 
+        buildQR(qrRows); 
+        buildOps(3, true); 
+        
         const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); 
         const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
         [curY, curM] = document.getElementById('monthPicker').value.split('-').map(Number);
+        
         curD = now.getDate(); renderTabs(); loadDay(curD);
+        
+        // Listener การนำทาง (Smart Navigation)
         document.addEventListener('keydown', handleNav);
+        // ป้องกัน Scroll Mouse เปลี่ยนค่า
+        document.addEventListener('wheel', (e) => { 
+            if (document.activeElement.classList.contains('num-input')) {
+                e.target.blur(); 
+            }
+        }, {passive: false});
     }
 
+    // --- Logic การตรวจสอบข้อมูล Input (Clean Input) ---
+    function validateNumber(input) {
+        const start = input.selectionStart;
+        const clean = input.value.replace(/[^0-9.]/g, ''); // ยอมให้พิมพ์แค่ 0-9 และ .
+        
+        if (clean !== input.value) {
+            input.value = clean;
+            if(start !== null) input.setSelectionRange(start - 1, start - 1); 
+        }
+        calc();
+    }
+
+    // --- Logic การเดินช่อง (Smart Navigation) ---
+    function handleNav(e) { 
+        // ทำงานเฉพาะกับช่องที่มีคลาส num-input
+        if(!e.target.classList.contains('num-input')) return;
+        
+        // 1. Enter หรือ ลง = ลงล่าง (เสมอ)
+        if(e.key === 'Enter' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            moveFocusVertical(e.target, 1);
+        } 
+        // 2. ขึ้น = ขึ้นบน (เสมอ)
+        else if(e.key === 'ArrowUp') {
+            e.preventDefault();
+            moveFocusVertical(e.target, -1);
+        }
+        // 3. ซ้าย
+        else if(e.key === 'ArrowLeft') {
+            // ถ้าว่างเปล่า OR เคอร์เซอร์อยู่หน้าสุด (index 0) -> กระโดดไปช่องซ้าย
+            if(e.target.value === '' || e.target.selectionStart === 0) {
+                e.preventDefault();
+                moveFocusHorizontal(e.target, -1);
+            }
+            // ถ้าอยู่ตรงกลาง -> ปล่อยให้มันเลื่อนตัวอักษรเอง (Default Behavior)
+        }
+        // 4. ขวา
+        else if(e.key === 'ArrowRight') {
+            // ถ้าว่างเปล่า OR เคอร์เซอร์อยู่หลังสุด -> กระโดดไปช่องขวา
+            if(e.target.value === '' || e.target.selectionStart === e.target.value.length) {
+                e.preventDefault();
+                moveFocusHorizontal(e.target, 1);
+            }
+            // ถ้าอยู่ตรงกลาง -> ปล่อยให้มันเลื่อนตัวอักษรเอง (Default Behavior)
+        }
+        // 5. Tab -> ไปขวา (Default Browser Behavior)
+    }
+
+    // เดินช่องแนวตั้ง (คอลัมน์เดิม)
+    function moveFocusVertical(currentInput, direction) {
+        const currentTd = currentInput.closest('td');
+        const currentTr = currentInput.closest('tr');
+        const currentTable = currentInput.closest('table');
+        
+        if (!currentTable || !currentTr || !currentTd) return;
+
+        const colIndex = Array.from(currentTr.children).indexOf(currentTd);
+        const rows = Array.from(currentTable.rows);
+        const currentRowIndex = rows.indexOf(currentTr);
+        const targetRow = rows[currentRowIndex + direction];
+        
+        if (targetRow) {
+            const targetTd = targetRow.children[colIndex];
+            if (targetTd) {
+                const targetInput = targetTd.querySelector('input');
+                if (targetInput) {
+                    targetInput.focus();
+                    targetInput.select(); // ไฮไลท์ตัวเลขให้พร้อมแก้
+                }
+            }
+        }
+    }
+
+    // เดินช่องแนวนอน (ซ้าย/ขวา) - วิ่งไล่ตามลำดับใน DOM
+    function moveFocusHorizontal(currentInput, direction) {
+        const allInputs = Array.from(document.querySelectorAll('.num-input:not([disabled])'));
+        const currentIndex = allInputs.indexOf(currentInput);
+        const targetIndex = currentIndex + direction;
+        
+        if(targetIndex >= 0 && targetIndex < allInputs.length) {
+            const target = allInputs[targetIndex];
+            target.focus();
+            target.select();
+        }
+    }
+
+    // --- ฟังก์ชันสร้างตาราง (Input type=text class=num-input) ---
+    function buildTable(id, p) {
+        const tb = document.getElementById(id);
+        if(!tb) return;
+        let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
+        denoms.forEach(d => { 
+            html += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="text" inputmode="decimal" class="num-input" id="${p}v_${d}" oninput="validateNumber(this)"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`; 
+        });
+        tb.innerHTML = html + '</tbody>';
+    }
+
+    function buildQR(r) { 
+        const t=document.getElementById('tbQR'), h=document.getElementById('qrHeadSum'); 
+        if(!t || !h) return;
+        t.innerHTML=''; h.innerHTML='';
+        for(let c=1;c<=6;c++) h.insertAdjacentHTML('beforeend', `<th id="qr_col_sum_${c}">0.00</th>`);
+        for(let i=1;i<=r;i++) {
+            let row=`<tr>`; 
+            for(let c=1;c<=6;c++) row+=`<td><input type="text" inputmode="decimal" class="num-input" id="q_${c}_${i}" oninput="validateNumber(this)"></td>`;
+            t.insertAdjacentHTML('beforeend', row+'</tr>');
+        }
+    }
+
+    function buildOps(n, def) { 
+        const tb = document.getElementById('tbOps'); if(!tb) return;
+        tb.innerHTML = ''; 
+        for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); 
+    }
+
+    function addOpsRow(val) { 
+        const tb = document.getElementById('tbOps'); if(!tb) return;
+        const r = document.createElement('tr'); 
+        r.innerHTML = `<td><input type="time" class="op-time"></td><td><input type="text" class="op-name" value="${val}"></td><td><input type="text" inputmode="decimal" class="num-input op-val" oninput="validateNumber(this)"></td>`; 
+        tb.appendChild(r); 
+    }
+
+    function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
+    function addQrRow() { qrRows++; buildQR(qrRows); calc(); }
+    function delQrRow() { if(qrRows > 1) { qrRows--; buildQR(qrRows); calc(); } }
+    
+    // --- System Functions ---
     function switchDay(newD) {
         if (newD === curD) return; 
         if (isDirty) {
@@ -152,136 +325,31 @@
         isDirty = false; loadDay(newD); renderTabs();
     }
 
+    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(1); }
+    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { switchDay(i); }; c.appendChild(d); } }
+    function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+    function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
+    function num(id) { 
+        const e = document.getElementById(id); 
+        if(!e) return 0;
+        return parseFloat(e.value.replace(/,/g, '')) || 0; 
+    }
+    
+    function updatePrintInfo() { 
+        document.getElementById('pDate').innerText = getKey(curD); 
+        document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; 
+        isDirty = true; 
+    }
+    
     function validateName() {
         const empInput = document.getElementById('empName');
-        const name = empInput.value.trim();
-        if (!name) {
-            alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึกหรือส่งออกข้อมูล");
+        if (!empInput.value.trim()) {
+            alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึก");
             empInput.classList.add('input-error'); empInput.focus();
             empInput.addEventListener('input', function() { this.classList.remove('input-error'); }, {once:true});
             return false;
         }
         return true;
-    }
-
-    function loadDay(d) { 
-        curD = d; 
-        document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') i.value=''; }); 
-        document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); 
-        const k = getKey(d); 
-        if(db[k]) { 
-            if(db[k].ops) buildOps(db[k].ops.length, false); 
-            if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
-            setForm(db[k]); 
-        } else { buildOps(3, true); calc(false); }
-        checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
-    }
-
-    function checkReadOnlyMode() {
-        const today = new Date().getDate();
-        const thisMonth = new Date().getMonth() + 1;
-        const selectedMonth = curM;
-        const isPast = (selectedMonth < thisMonth) || (selectedMonth === thisMonth && curD < today);
-        const isFuture = (selectedMonth > thisMonth) || (selectedMonth === thisMonth && curD > today);
-        const lock = isPast || isFuture; 
-        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
-        inputs.forEach(i => i.disabled = lock);
-        document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
-        document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
-        document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
-        if(lock && saveTimer) clearTimeout(saveTimer);
-    }
-
-    function unlockEditing() {
-        if(!confirm("⚠️ คำเตือน: การแก้ไขข้อมูลย้อนหลังอาจทำให้ยอดสต็อกหรือบัญชีคลาดเคลื่อน\n\nคุณยืนยันที่จะแก้ไขหรือไม่?")) return;
-        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
-        inputs.forEach(i => i.disabled = false);
-        document.getElementById('saveBtn').style.display = 'inline-flex';
-        document.getElementById('recoverBtn').style.display = 'inline-flex';
-        document.getElementById('unlockBtn').style.display = 'none';
-    }
-
-    async function recoverFromCloud() {
-        const k = getKey(curD);
-        const shopName = "ใบส่งเงิน SK"; // ** แก้ชื่อร้านให้ตรงแต่ละไฟล์ (SK/LS/SB) **
-
-        try {
-            const btn = document.getElementById('recoverBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span>⏳ ค้นหา...</span>';
-            btn.disabled = true;
-
-            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}`);
-            const data = await resp.json();
-
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-
-            if (data.status === "error") {
-                alert("❌ " + data.msg); return;
-            }
-
-            let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ (ล่าสุดอยู่บนสุด):\n--------------------------------\n`;
-            data.list.forEach((item, index) => {
-                msg += `[ ${index + 1} ]  👤 ${item.user}  🕒 ${item.time}\n`;
-            });
-            msg += `--------------------------------\nกรุณาพิมพ์ "ตัวเลข" ที่ต้องการดึงข้อมูล (หรือกด Cancel เพื่อยกเลิก)`;
-
-            const choice = prompt(msg);
-            if (choice !== null) {
-                const idx = parseInt(choice) - 1;
-                if (!isNaN(idx) && data.list[idx]) {
-                    const selected = data.list[idx];
-                    if(confirm(`ยืนยันดึงข้อมูลของ "${selected.user}" (เวลา ${selected.time}) มาทับหน้าจอนี้?`)) {
-                         const cloudData = JSON.parse(selected.raw);
-                         setForm(cloudData);
-                         db[k] = cloudData; 
-                         localStorage.setItem(KEY, JSON.stringify(db));
-                         alert("✅ ดึงข้อมูลเรียบร้อย!");
-                    }
-                } else {
-                    alert("❌ ใส่ตัวเลขไม่ถูกต้อง");
-                }
-            }
-        } catch (e) { 
-            alert("❌ เกิดข้อผิดพลาด: " + e.message);
-            document.getElementById('recoverBtn').disabled = false;
-        }
-    }
-
-    function silentCloudSync() { 
-        if(!curD) return;
-        if(document.getElementById('posVal').disabled) return;
-        const k = getKey(curD); const form = getForm(); 
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) }; 
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
-    }
-
-    function forceSave() { 
-        if(!curD) return; 
-        if(!validateName()) return;
-        const k = getKey(curD); const form = getForm(); 
-        const finalData = { 
-            targetTab: "ใบส่งเงิน SK", 
-            date: k, 
-            shop: "สมาร์ทคิดส์ สหพัฒน์", 
-            emp: form.emp, 
-            pos: form.pos || 0, 
-            actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
-            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
-        }; 
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp, raw: JSON.stringify(form) };
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
-        db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
-        const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
-        isDirty = false; 
-    }
-
-    function manualSave() { 
-        if(saveTimer) clearTimeout(saveTimer); 
-        forceSave(); 
-        if(document.getElementById('empName').value.trim()) { alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); }
     }
 
     function calc(triggerAutoSave = true) { 
@@ -294,7 +362,7 @@
             let col_sum = 0; for(let r=1; r<=qrRows; r++) col_sum += num(`q_${c}_${r}`);
             document.getElementById(`qr_col_sum_${c}`).innerText = fmt(col_sum); q_all += col_sum;
         }
-        let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); 
+        let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value.replace(/,/g,''))||0)); 
         document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q_all); 
         let grand = (e + ops + q_all) - m; 
         document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q_all); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand); 
@@ -304,43 +372,12 @@
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
         
         isDirty = true; 
-        if(triggerAutoSave) {
+        if(triggerAutoSave && !document.getElementById('posVal').disabled) {
             if(saveTimer) clearTimeout(saveTimer); 
-            if(!document.getElementById('posVal').disabled) {
-                saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
-            }
+            saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
         }
     }
 
-    function buildTable(id, p) {
-        const tb = document.getElementById(id);
-        let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
-        denoms.forEach(d => { html += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`; });
-        tb.innerHTML = html + '</tbody>';
-    }
-    function buildQR(r) { 
-        const t=document.getElementById('tbQR'), h=document.getElementById('qrHeadSum'); t.innerHTML=''; h.innerHTML='';
-        for(let c=1;c<=6;c++) h.insertAdjacentHTML('beforeend', `<th id="qr_col_sum_${c}">0.00</th>`);
-        for(let i=1;i<=r;i++) {
-            let row=`<tr>`; for(let c=1;c<=6;c++) row+=`<td><input type="number" id="q_${c}_${i}" oninput="calc()"></td>`;
-            t.insertAdjacentHTML('beforeend', row+'</tr>');
-        }
-    }
-    function buildOps(n, def) { document.getElementById('tbOps').innerHTML = ''; for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
-    function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time"></td><td><input type="text" class="op-name" value="${val}"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
-    function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
-    function addQrRow() { qrRows++; buildQR(qrRows); calc(); }
-    function delQrRow() { if(qrRows > 1) { qrRows--; buildQR(qrRows); calc(); } }
-    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(1); }
-    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { switchDay(i); }; c.appendChild(d); } }
-    function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
-    function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
-    function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
-    function updatePrintInfo() { 
-        document.getElementById('pDate').innerText = getKey(curD); 
-        document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; 
-        isDirty = true; 
-    }
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
@@ -356,13 +393,94 @@
         if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) el.value=d.qr[k]||''; } 
         calc(false); 
     }
-    function exportFile() { 
-        if(!validateName()) return; 
-        forceSave(); 
-        const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SK_Backup_${getKey(curD)}.json`; a.click(); 
+
+    // --- Cloud Functions (Save to Sheet / Recover from Sheet) ---
+    async function recoverFromCloud() {
+        const k = getKey(curD); const shopName = "ใบส่งเงิน SK"; // ** Target for SK **
+        try {
+            const btn = document.getElementById('recoverBtn'); const oldTxt = btn.innerHTML; btn.innerHTML = '<span>⏳...</span>'; btn.disabled = true;
+            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}`);
+            const data = await resp.json();
+            btn.innerHTML = oldTxt; btn.disabled = false;
+
+            if (data.status === "error") { alert("❌ " + data.msg); return; }
+            
+            let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ:\n----------------\n`;
+            data.list.forEach((item, i) => { msg += `[ ${i + 1} ] 👤 ${item.user} 🕒 ${item.time}\n`; });
+            msg += `----------------\nใส่ตัวเลขเพื่อเลือก:`;
+            
+            const choice = prompt(msg);
+            if(choice) {
+                const idx = parseInt(choice)-1;
+                if(data.list[idx] && confirm(`ดึงข้อมูลของ ${data.list[idx].user}?`)) {
+                    const cloudData = JSON.parse(data.list[idx].raw);
+                    setForm(cloudData); db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db));
+                    alert("✅ เรียบร้อย");
+                }
+            }
+        } catch (e) { alert("❌ Error: " + e.message); document.getElementById('recoverBtn').disabled = false; }
     }
-    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ นำเข้าเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
-    function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if(['ArrowUp','ArrowDown','Enter'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('input:not([type="hidden"])')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if(next >= 0 && next < all.length) all[next].focus(); } }
+
+    function silentCloudSync() { 
+        if(!curD || document.getElementById('posVal').disabled) return;
+        const k = getKey(curD); const form = getForm(); 
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
+    }
+
+    function forceSave() { 
+        if(!curD || !validateName()) return;
+        const k = getKey(curD); const form = getForm(); 
+        
+        // 1. Send Summary to "ใบส่งเงิน SK"
+        const finalData = { targetTab: "ใบส่งเงิน SK", date: k, shop: "สมาร์ทคิดส์ สหพัฒน์", emp: form.emp, pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; 
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
+        
+        // 2. Send Raw Data to "System_Backup"
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp, raw: JSON.stringify(form) };
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
+        
+        db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
+        const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
+        isDirty = false; 
+    }
+
+    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); if(document.getElementById('empName').value.trim()) alert("💾 บันทึกเรียบร้อย"); }
+    
+    function loadDay(d) { 
+        curD = d; document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') i.value=''; }); 
+        document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); 
+        const k = getKey(d); 
+        if(db[k]) { 
+            if(db[k].ops) buildOps(db[k].ops.length, false); 
+            if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
+            setForm(db[k]); 
+        } else { buildOps(3, true); calc(false); }
+        checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
+    }
+
+    function checkReadOnlyMode() {
+        const today = new Date().getDate(); const thisMonth = new Date().getMonth() + 1; const selMonth = curM;
+        const lock = (selMonth < thisMonth) || (selMonth === thisMonth && curD < today) || (selMonth > thisMonth) || (selMonth === thisMonth && curD > today);
+        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
+        inputs.forEach(i => i.disabled = lock);
+        document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
+        document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
+        document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
+        if(lock && saveTimer) clearTimeout(saveTimer);
+    }
+
+    function unlockEditing() {
+        if(!confirm("⚠️ ต้องการแก้ไขข้อมูลย้อนหลัง?")) return;
+        document.querySelectorAll('input').forEach(i => i.disabled = false);
+        document.getElementById('saveBtn').style.display = 'inline-flex';
+        document.getElementById('recoverBtn').style.display = 'inline-flex';
+        document.getElementById('unlockBtn').style.display = 'none';
+    }
+
+    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SK_Backup_${getKey(curD)}.json`; a.click(); }
+    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ เรียบร้อย"); } catch(e){ alert("❌ ไฟล์ผิดพลาด"); } }; r.readAsText(e.files[0]); }
+
     init();
 </script>
 </body>
