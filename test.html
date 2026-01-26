@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ธีมสีน้ำเงิน (LS Style) */
         :root { --primary: #023f88; --bg: #f4f6f9; --border: #ccdceb; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #2c3e50; }
         .container { max-width: 1350px; margin: 0 auto; }
@@ -29,6 +30,11 @@
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #f0f7ff; }
+        
+        /* สไตล์สำหรับโหมดล็อก */
+        input:disabled { background: #eee; color: #999; cursor: not-allowed; }
+        .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
+
         .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; align-items: center; }
         .sum-final { background: var(--primary); color: white; padding: 10px; border-radius: 4px; margin-top: 5px; font-weight: 800; }
         .status-box { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 1.1rem; font-weight: bold; flex-direction: column; }
@@ -60,12 +66,13 @@
     <div class="print-header no-print" id="printH" style="display:none;"><h1>แหลมฉบังเครื่องเขียน (1995)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
     
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
-            <button class="btn-main" style="background:#8b5cf6;" onclick="recoverFromCloud()"><span>🔄 ดึงข้อมูล</span><small>กู้คืนรายละเอียด</small></button>
-            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึกทันที</small></button>
+            <button id="unlockBtn" class="btn-main" style="background:#ff9800; display:none;" onclick="unlockEditing()"><span>🔓 แก้ไข</span><small>ปลดล็อกวันเก่า</small></button>
+            <button id="recoverBtn" class="btn-main" style="background:#8b5cf6;" onclick="recoverFromCloud()"><span>🔄 ดึงข้อมูล</span><small>กู้คืนรายละเอียด</small></button>
+            <button id="saveBtn" class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึกทันที</small></button>
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
         </div>
     </div>
@@ -73,7 +80,7 @@
     <div id="dailyPage">
         <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
             <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold;">
-            <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
+            <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" placeholder="ระบุชื่อ..." style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
 
         <div class="main-layout">
@@ -127,11 +134,12 @@
 <div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
 
 <script>
+    // ** ตรวจสอบตัวแปรนี้: ถ้าขาดบรรทัดนี้ ตารางจะหาย **
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
-    let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null;
+    
+    let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null, isDirty = false;
     const SAVE_DELAY = 30000; 
-    const KEY = 'cashApp_LS';
-    // *** ใช้ลิงก์ /exec ที่คุณแก้ถูกต้องแล้ว ***
+    const KEY = 'cashApp_LS'; // Key สำหรับ LS
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
@@ -143,6 +151,40 @@
         document.addEventListener('keydown', handleNav);
     }
 
+    // ฟังก์ชันเปลี่ยนวัน (ปลอดภัย)
+    function switchDay(newD) {
+        if (newD === curD) return; 
+        
+        if (isDirty) {
+            if(confirm(`⚠️ คุณยังไม่ได้บันทึกยอดของวันที่ ${curD}\nต้องการบันทึกก่อนเปลี่ยนวันหรือไม่?`)) {
+                if(!validateName()) return; 
+                forceSave(); 
+            } else {
+                if(saveTimer) clearTimeout(saveTimer);
+            }
+        } else {
+            if(saveTimer) clearTimeout(saveTimer);
+        }
+        
+        isDirty = false;
+        loadDay(newD);
+        renderTabs();
+    }
+
+    // ตรวจสอบชื่อพนักงาน
+    function validateName() {
+        const empInput = document.getElementById('empName');
+        const name = empInput.value.trim();
+        if (!name) {
+            alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึกหรือส่งออกข้อมูล");
+            empInput.classList.add('input-error');
+            empInput.focus();
+            empInput.addEventListener('input', function() { this.classList.remove('input-error'); }, {once:true});
+            return false;
+        }
+        return true;
+    }
+
     function loadDay(d) { 
         curD = d; 
         document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') i.value=''; }); 
@@ -152,66 +194,134 @@
             if(db[k].ops) buildOps(db[k].ops.length, false); 
             if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
             setForm(db[k]); 
-        } else { buildOps(3, true); calc(); } 
+        } else { buildOps(3, true); calc(false); }
+        
+        checkReadOnlyMode(); 
         updatePrintInfo(); 
+        isDirty = false; 
+    }
+
+    function checkReadOnlyMode() {
+        const today = new Date().getDate();
+        const thisMonth = new Date().getMonth() + 1;
+        const selectedMonth = curM;
+        const isPast = (selectedMonth < thisMonth) || (selectedMonth === thisMonth && curD < today);
+        const isFuture = (selectedMonth > thisMonth) || (selectedMonth === thisMonth && curD > today);
+        const lock = isPast || isFuture; 
+        
+        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
+        inputs.forEach(i => i.disabled = lock);
+        
+        document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
+        document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
+        document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
+        
+        if(lock && saveTimer) clearTimeout(saveTimer);
+    }
+
+    function unlockEditing() {
+        if(!confirm("⚠️ คำเตือน: การแก้ไขข้อมูลย้อนหลังอาจทำให้ยอดสต็อกหรือบัญชีคลาดเคลื่อน\n\nคุณยืนยันที่จะแก้ไขหรือไม่?")) return;
+        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
+        inputs.forEach(i => i.disabled = false);
+        document.getElementById('saveBtn').style.display = 'inline-flex';
+        document.getElementById('recoverBtn').style.display = 'inline-flex';
+        document.getElementById('unlockBtn').style.display = 'none';
     }
 
     async function recoverFromCloud() {
-        if (!confirm("ต้องการดึงรายละเอียดจากคลาวด์มาเขียนทับเครื่องนี้หรือไม่?")) return;
         const k = getKey(curD);
+        const shopName = "ใบส่งเงิน LS"; // ** ตั้งค่าสำหรับ LS **
+
         try {
-            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=ใบส่งเงิน%20LS&date=${k}`);
-            const text = await resp.text();
-            if (text === "Not Found") return alert("❌ ไม่พบข้อมูลสำรองของวันนี้ในระบบ (ลองกด 'จำไว้' เพื่อสร้างข้อมูลก่อน)");
-            const cloudData = JSON.parse(text);
-            setForm(cloudData);
-            db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db));
-            alert("✅ กู้คืนรายละเอียดเรียบร้อย");
-        } catch (e) { alert("❌ การเชื่อมต่อผิดพลาด"); }
+            const btn = document.getElementById('recoverBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>⏳ ค้นหา...</span>';
+            btn.disabled = true;
+
+            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}`);
+            const data = await resp.json();
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            if (data.status === "error") {
+                alert("❌ " + data.msg);
+                return;
+            }
+
+            let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ (ล่าสุดอยู่บนสุด):\n--------------------------------\n`;
+            data.list.forEach((item, index) => {
+                msg += `[ ${index + 1} ]  👤 ${item.user}  🕒 ${item.time}\n`;
+            });
+            msg += `--------------------------------\nกรุณาพิมพ์ "ตัวเลข" ที่ต้องการดึงข้อมูล (หรือกด Cancel เพื่อยกเลิก)`;
+
+            const choice = prompt(msg);
+
+            if (choice !== null) {
+                const idx = parseInt(choice) - 1;
+                if (!isNaN(idx) && data.list[idx]) {
+                    const selected = data.list[idx];
+                    
+                    if(confirm(`ยืนยันดึงข้อมูลของ "${selected.user}" (เวลา ${selected.time}) มาทับหน้าจอนี้?`)) {
+                         const cloudData = JSON.parse(selected.raw);
+                         setForm(cloudData);
+                         db[k] = cloudData; 
+                         localStorage.setItem(KEY, JSON.stringify(db));
+                         alert("✅ ดึงข้อมูลเรียบร้อย!");
+                    }
+                } else {
+                    alert("❌ ใส่ตัวเลขไม่ถูกต้อง");
+                }
+            }
+
+        } catch (e) { 
+            alert("❌ เกิดข้อผิดพลาด: " + e.message);
+            document.getElementById('recoverBtn').disabled = false;
+        }
     }
 
-    // ฟังก์ชันนี้ทำงานอัตโนมัติทุก 30 วินาที
     function silentCloudSync() { 
         if(!curD) return;
-        const k = getKey(curD); 
-        const form = getForm(); 
+        if(document.getElementById('posVal').disabled) return;
+        const k = getKey(curD); const form = getForm(); 
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
     }
 
-    // แก้ไข: กดปุ่ม "จำไว้" ให้ส่ง Backup ทันทีด้วย (ไม่ต้องรอ 30 วิ)
     function forceSave() { 
         if(!curD) return; 
-        const k = getKey(curD); 
-        const form = getForm(); 
+        if(!validateName()) return;
+
+        const k = getKey(curD); const form = getForm(); 
         
-        // 1. ส่งข้อมูลยอดสรุปเข้า Main Sheet
         const finalData = { 
             targetTab: "ใบส่งเงิน LS", 
             date: k, 
             shop: "แหลมฉบังเครื่องเขียน", 
-            emp: form.emp || "ไม่ระบุ", 
+            emp: form.emp, 
             pos: form.pos || 0, 
             actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
             diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
         }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
 
-        // 2. ส่งข้อมูลดิบเข้า System_Backup ทันที! (แก้ปัญหาข้อมูลว่าง)
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) };
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp, raw: JSON.stringify(form) };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
 
         db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
+        isDirty = false; 
     }
 
     function manualSave() { 
         if(saveTimer) clearTimeout(saveTimer); 
-        forceSave(); // เรียก forceSave ที่แก้ใหม่แล้ว
-        alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); 
+        forceSave(); 
+        if(document.getElementById('empName').value.trim()) {
+             alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); 
+        }
     }
 
-    function calc() { 
+    function calc(triggerAutoSave = true) { 
         let m=0, e=0, q_all=0; 
         denoms.forEach(d => { 
             let mv=num(`mv_${d}`); m+=mv; document.getElementById(`mq_${d}`).innerText = mv ? (mv/d) : '-';
@@ -229,7 +339,14 @@
         if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
         else if(diff<0) { box.style.background='#f8d7da'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
-        if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
+        
+        isDirty = true; 
+        if(triggerAutoSave) {
+            if(saveTimer) clearTimeout(saveTimer); 
+            if(!document.getElementById('posVal').disabled) {
+                saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
+            }
+        }
     }
 
     function buildTable(id, p) {
@@ -252,11 +369,15 @@
     function addQrRow() { qrRows++; buildQR(qrRows); calc(); }
     function delQrRow() { if(qrRows > 1) { qrRows--; buildQR(qrRows); calc(); } }
     function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(1); }
-    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { if(saveTimer) clearTimeout(saveTimer); forceSave(); loadDay(i); renderTabs(); }; c.appendChild(d); } }
+    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { switchDay(i); }; c.appendChild(d); } }
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
-    function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; }
+    function updatePrintInfo() { 
+        document.getElementById('pDate').innerText = getKey(curD); 
+        document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; 
+        isDirty = true; 
+    }
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
@@ -270,11 +391,17 @@
         const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
         denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
         if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) el.value=d.qr[k]||''; } 
-        calc(); 
+        calc(false); 
     }
-    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_Backup_${getKey(curD)}.json`; a.click(); }
+    function exportFile() { 
+        if(!validateName()) return; 
+        forceSave(); 
+        const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_Backup_${getKey(curD)}.json`; a.click(); 
+    }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ นำเข้าเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if(['ArrowUp','ArrowDown','Enter'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('input:not([type="hidden"])')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if(next >= 0 && next < all.length) all[next].focus(); } }
+    
+    // เรียกใช้ฟังก์ชันเริ่มต้น
     init();
 </script>
 </body>
