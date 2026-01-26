@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard — แหลมฉบังเครื่องเขียน (1995)</title>
-    <link rel="icon" href="logo-ls.png.png">
+    <link rel="icon" href="logo-ls.jpg">
     
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -18,6 +18,7 @@
             --ls-blue: #0071e3; 
             --sk-pink: #ff3b30; 
             --sb-yellow: #ff9f0a; 
+            --sum-purple: #af52de;
             --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -51,8 +52,9 @@
             max-width: 900px; margin: 0 auto;
         }
         .hero img { 
-            width: 80px; height: 80px; border-radius: 20px; 
-            margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+            width: 100px; height: 100px; border-radius: 25px; 
+            margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
+            object-fit: cover;
         }
         .hero h1 { 
             font-size: 40px; font-weight: 700; margin: 0; 
@@ -125,6 +127,7 @@
         .icon-ls { color: var(--ls-blue); }
         .icon-sk { color: var(--sk-pink); }
         .icon-sb { color: var(--sb-yellow); }
+        .icon-sum { color: var(--sum-purple); }
         .icon-gen { color: var(--ls-blue); }
 
         .card-content h3 { font-size: 20px; font-weight: 700; margin: 0; }
@@ -158,7 +161,7 @@
     </nav>
 
     <div class="hero">
-        <img src="https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F" alt="Store Logo">
+        <img src="logo-ls.jpg" alt="Store Logo">
         <h1>ระบบจัดการภายใน</h1>
         <p>เครื่องมือจัดการร้านค้าและอำนวยความสะดวกพนักงาน</p>
         <div class="green-divider"></div>
@@ -187,6 +190,13 @@
                 <div class="card-content">
                     <h3>ส่งเงิน สคูลบัส</h3>
                     <p>บันทึกยอดขายและสรุปเงินสด (ชุดนักเรียน)</p>
+                </div>
+            </a>
+            <a href="summary.html" class="menu-card">
+                <div class="card-icon icon-sum"><i class="fas fa-chart-pie"></i></div>
+                <div class="card-content">
+                    <h3>ดูรายงานสรุป (Dashboard)</h3>
+                    <p>ตรวจสอบยอดขายรายเดือน/ปี ทั้ง 3 สาขา</p>
                 </div>
             </a>
         </div>
