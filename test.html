@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ระบบส่งเงินขาย แหลมฉบังเครื่องเขียน</title>
-    <link rel="icon" href="logo-ls.png.png">
+    <link rel="icon" href="logo-ls.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -21,7 +21,7 @@
         .card { background: #fff; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; overflow: hidden; }
         .card-head { padding: 6px 10px; font-weight: bold; background: #fff; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
         
-        /* Header Colors (LS Specific) */
+        /* Header Colors */
         .h-morn { border-left: 5px solid #f39c12; background: #fffdf5; color: #d35400; }
         .h-eve { border-left: 5px solid #27ae60; background: #f3fff6; color: #27ae60; }
         .h-ops { border-left: 5px solid #17a2b8; background: #f0fbff; color: #138496; }
@@ -32,7 +32,7 @@
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         
-        /* CSS Input แบบ Clean (Type Text เพื่อคุม Cursor) */
+        /* CSS Input แบบ Clean (ใช้ type=text เพื่อคุม Cursor) */
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #f0f7ff; }
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
@@ -50,6 +50,7 @@
         
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
         
+        /* Guide Box */
         .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--primary); }
         .guide-step { margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 15px; }
@@ -72,7 +73,7 @@
     <div class="print-header no-print" id="printH" style="display:none;"><h1>แหลมฉบังเครื่องเขียน (1995)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
     
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.jpg" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
@@ -157,7 +158,7 @@
     const SAVE_DELAY = 30000; 
     const KEY = 'cashApp_LS'; // ** KEY สำหรับ LS **
     
-    // ** URL เดียวกับ SK (ใช้ร่วมกันได้เลย) **
+    // ** URL เดียวกับทุกร้าน **
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
