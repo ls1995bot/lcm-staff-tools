@@ -2,58 +2,290 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>รายงานสรุปยอดขายประจำเดือน</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard สรุปยอดขายรวม</title>
+    <link rel="icon" href="logo-ls.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
-        body { font-family: 'Sarabun', sans-serif; padding: 30px; background: #f0f2f5; }
-        .control-panel { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 20px; align-items: flex-end; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .report-table { width: 100%; background: white; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
-        .report-table th, .report-table td { padding: 12px; border: 1px solid #ddd; text-align: center; }
-        .report-table th { background: #023f88; color: white; }
-        .total-row { font-weight: bold; background: #eee; }
-        .red { color: red; font-weight: bold; }
-        @media print { .control-panel { display: none; } }
+        :root { 
+            --bg: #f4f6f9; 
+            --ls: #023f88; --ls-light: #e6f0ff;
+            --sk: #ff0588; --sk-light: #fff0f6;
+            --sb: #e67e22; --sb-light: #fff5eb;
+        }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--bg); /* พื้นหลังต้องชัดเวลาแคป */ }
+        
+        /* Header & Controls */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header h1 { margin: 0; font-size: 1.5rem; color: #2c3e50; }
+        
+        .controls-group { display: flex; gap: 10px; align-items: center; }
+        input[type="month"] { padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Sarabun'; font-size: 1rem; }
+        
+        .btn-home {
+            text-decoration: none; background: #6c757d; color: white; padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px;
+        }
+        
+        /* ปุ่มแชร์และพิมพ์ */
+        .btn-action {
+            border: none; padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: 'Sarabun'; color: white;
+        }
+        .btn-print { background: #34495e; }
+        .btn-share { background: #06c755; /* สี LINE */ }
+
+        /* Summary Cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid #ccc; position: relative; overflow: hidden; }
+        .card h3 { margin: 0 0 5px 0; font-size: 1rem; opacity: 0.8; }
+        .card .amount { font-size: 1.8rem; font-weight: 800; margin: 10px 0; }
+        .card .diff-sum { font-size: 0.9rem; font-weight: 600; }
+        .card-icon { position: absolute; right: 15px; top: 15px; font-size: 2.5rem; opacity: 0.1; }
+
+        .c-ls { border-color: var(--ls); color: var(--ls); }
+        .c-ls .amount { color: var(--ls); }
+        
+        .c-sk { border-color: var(--sk); color: var(--sk); }
+        .c-sk .amount { color: var(--sk); }
+        
+        .c-sb { border-color: var(--sb); color: var(--sb); }
+        .c-sb .amount { color: var(--sb); }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { 
+            padding: 10px 20px; border: none; background: #ddd; border-radius: 20px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; white-space: nowrap; flex: 1;
+            transition: 0.2s;
+        }
+        .tab-btn.active { background: #333; color: white; }
+        .tab-btn.t-ls.active { background: var(--ls); }
+        .tab-btn.t-sk.active { background: var(--sk); }
+        .tab-btn.t-sb.active { background: var(--sb); }
+
+        /* Data Table */
+        .data-table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; margin-bottom: 20px;}
+        .data-table-container.active { display: block; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { background: #f8f9fa; padding: 12px 8px; text-align: left; font-weight: 600; color: #666; border-bottom: 2px solid #eee; }
+        td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        
+        .badge { padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+        .bg-ok { background: #d1e7dd; color: #0f5132; }
+        .bg-err { background: #f8d7da; color: #842029; }
+        .bg-warn { background: #fff3cd; color: #664d03; }
+
+        .loading { text-align: center; padding: 40px; font-size: 1.2rem; color: #999; }
+
+        /* ซ่อนส่วนที่ไม่ต้องการเมื่อแคปรูป หรือ พิมพ์ */
+        @media print {
+            .no-print, .btn-home, .tabs { display: none !important; }
+            body { background: white; -webkit-print-color-adjust: exact; }
+            .data-table-container { display: block !important; break-inside: avoid; margin-bottom: 20px; border: 1px solid #ccc; }
+            .card { border: 1px solid #ccc; }
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.2rem; }
+            .summary-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <div class="control-panel no-print">
-        <div><label>เลือกสาขา:</label><br>
-            <select id="shopSel" style="padding:8px;"><option value="ใบส่งเงิน LS">แหลมฉบัง (LS)</option><option value="ใบส่งเงิน SK">สมาร์ทคิดส์ (SK)</option><option value="ใบส่งเงิน SB">สคูลบัส (SB)</option></select>
+
+<div class="container" id="captureArea">
+    <div class="header">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <a href="index.html" class="btn-home no-capture"><i class="fas fa-arrow-left"></i> กลับ</a>
+            <h1>📊 สรุปยอดขายรวม</h1>
         </div>
-        <div><label>เดือน/ปี:</label><br><input type="month" id="monthInput" style="padding:7px;"></div>
-        <button onclick="fetchSummary()" style="padding:8px 20px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer;">ดึงข้อมูล</button>
-        <button onclick="window.print()" style="padding:8px 20px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer;">พิมพ์รายงาน</button>
+        
+        <div class="controls-group">
+            <input type="month" id="monthPicker" onchange="loadDashboard()">
+            <button class="btn-action btn-share no-capture" onclick="shareImage()"><i class="fas fa-share-alt"></i> แชร์รูป</button>
+            <button class="btn-action btn-print no-capture" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์</button>
+        </div>
     </div>
 
-    <div id="reportArea">
-        <h2 style="text-align:center;">รายงานสรุปยอดขายรายวัน</h2>
-        <table class="report-table">
-            <thead><tr><th>วันที่</th><th>พนักงาน</th><th>ยอด POS</th><th>ยอดขายจริง</th><th>ขาด/เกิน</th></tr></thead>
-            <tbody id="resultBody"></tbody>
-            <tfoot><tr class="total-row"><td colspan="2">รวมทั้งหมด</td><td id="sPos">0.00</td><td id="sAct">0.00</td><td id="sDiff">0.00</td></tr></tfoot>
-        </table>
+    <div class="summary-grid">
+        <div class="card c-ls">
+            <i class="fas fa-store card-icon"></i>
+            <h3>แหลมฉบัง (LS)</h3>
+            <div class="amount" id="sum-ls">0.00</div>
+            <div class="diff-sum">ผลต่าง: <span id="diff-ls">0.00</span></div>
+        </div>
+        <div class="card c-sk">
+            <i class="fas fa-heart card-icon"></i>
+            <h3>สมาร์ทคิดส์ (SK)</h3>
+            <div class="amount" id="sum-sk">0.00</div>
+            <div class="diff-sum">ผลต่าง: <span id="diff-sk">0.00</span></div>
+        </div>
+        <div class="card c-sb">
+            <i class="fas fa-bus card-icon"></i>
+            <h3>สคูลบัส (SB)</h3>
+            <div class="amount" id="sum-sb">0.00</div>
+            <div class="diff-sum">ผลต่าง: <span id="diff-sb">0.00</span></div>
+        </div>
     </div>
 
-    <script>
-        const CLOUD_URL = 'ใส่_URL_ที่ได้จาก_Deploy_ใหม่ตรงนี้';
-        async function fetchSummary() {
-            const shop = document.getElementById('shopSel').value;
-            const month = document.getElementById('monthInput').value;
-            const resp = await fetch(`${CLOUD_URL}?shop=${encodeURIComponent(shop)}&month=${month}`);
+    <div class="tabs no-capture">
+        <button class="tab-btn t-ls active" onclick="showTab('ls')">🔵 LS</button>
+        <button class="tab-btn t-sk" onclick="showTab('sk')">💖 SK</button>
+        <button class="tab-btn t-sb" onclick="showTab('sb')">🟠 SB</button>
+    </div>
+
+    <div id="tab-ls" class="data-table-container active"><div class="loading">กำลังโหลด...</div></div>
+    <div id="tab-sk" class="data-table-container"><div class="loading">กำลังโหลด...</div></div>
+    <div id="tab-sb" class="data-table-container"><div class="loading">กำลังโหลด...</div></div>
+    
+    <div style="text-align: center; color: #999; font-size: 0.8rem; margin-top: 20px;">
+        ข้อมูล ณ วันที่: <span id="printDate"></span>
+    </div>
+
+</div>
+
+<script>
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
+
+    const now = new Date();
+    document.getElementById('monthPicker').value = now.toISOString().slice(0, 7);
+    document.getElementById('printDate').innerText = now.toLocaleDateString('th-TH');
+
+    function init() { loadDashboard(); }
+
+    async function loadDashboard() {
+        const month = document.getElementById('monthPicker').value;
+        if(!month) return;
+
+        ['ls', 'sk', 'sb'].forEach(shop => {
+            document.getElementById(`sum-${shop}`).innerText = '...';
+            document.getElementById(`tab-${shop}`).innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> กำลังดึงข้อมูล...</div>';
+        });
+
+        Promise.all([
+            fetchData("ใบส่งเงิน LS", "ls", month),
+            fetchData("ใบส่งเงิน SK", "sk", month),
+            fetchData("ใบส่งเงิน SB", "sb", month)
+        ]);
+    }
+
+    async function fetchData(shopName, shopId, month) {
+        try {
+            const url = `${CLOUD_URL}?mode=summary&shop=${encodeURIComponent(shopName)}&month=${month}`;
+            const resp = await fetch(url);
             const data = await resp.json();
-            let html = '', tPos=0, tAct=0, tDiff=0;
-            data.sort((a,b) => a.date.localeCompare(b.date)).forEach(item => {
-                const d = parseFloat(item.diff) || 0;
-                const p = parseFloat(item.pos) || 0;
-                const a = parseFloat(item.actual) || 0;
-                tPos+=p; tAct+=a; tDiff+=d;
-                html += `<tr><td>${item.date}</td><td>${item.staff}</td><td>${p.toLocaleString()}</td><td>${a.toLocaleString()}</td><td class="${d<0?'red':''}">${d.toLocaleString()}</td></tr>`;
-            });
-            document.getElementById('resultBody').innerHTML = html;
-            document.getElementById('sPos').innerText = tPos.toLocaleString();
-            document.getElementById('sAct').innerText = tAct.toLocaleString();
-            document.getElementById('sDiff').innerText = tDiff.toLocaleString();
+            renderShop(shopId, data);
+        } catch (e) {
+            document.getElementById(`tab-${shopId}`).innerHTML = `<div class="loading" style="color:red">❌ ผิดพลาด</div>`;
         }
-    </script>
+    }
+
+    function renderShop(id, data) {
+        let totalSales = 0, totalDiff = 0;
+        let html = `<table><thead><tr><th width="15%">วันที่</th><th width="25%">พนักงาน</th><th width="20%" style="text-align:right">POS</th><th width="20%" style="text-align:right">ยอดจริง</th><th width="20%" style="text-align:center">ผลต่าง</th></tr></thead><tbody>`;
+
+        if(data.length === 0) {
+            html = '<div class="loading">📭 ไม่มีข้อมูล</div>';
+        } else {
+            data.sort((a,b) => new Date(b.date) - new Date(a.date));
+            data.forEach(row => {
+                const dateObj = new Date(row.date);
+                const dateStr = dateObj.toLocaleDateString('th-TH', {day: 'numeric', month: 'short'});
+                const actual = parseFloat(row.actual) || 0;
+                const pos = parseFloat(row.pos) || 0;
+                const diff = parseFloat(row.diff) || 0;
+
+                totalSales += actual; totalDiff += diff;
+
+                let badgeClass = 'bg-ok', diffText = '0.00';
+                if(diff < -1) { badgeClass = 'bg-err'; diffText = diff.toLocaleString(); }
+                else if(diff > 1) { badgeClass = 'bg-warn'; diffText = '+' + diff.toLocaleString(); }
+
+                html += `<tr>
+                    <td>${dateStr}</td>
+                    <td>${row.staff}</td>
+                    <td style="text-align:right">${pos.toLocaleString()}</td>
+                    <td style="text-align:right; font-weight:bold;">${actual.toLocaleString()}</td>
+                    <td style="text-align:center"><span class="badge ${badgeClass}">${diffText}</span></td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+        }
+
+        document.getElementById(`sum-${id}`).innerText = totalSales.toLocaleString('en-US', {minimumFractionDigits:2});
+        const diffEl = document.getElementById(`diff-${id}`);
+        diffEl.innerText = totalDiff.toLocaleString('en-US', {minimumFractionDigits:2});
+        diffEl.style.color = totalDiff < 0 ? 'red' : (totalDiff > 0 ? '#e67e22' : 'green');
+        document.getElementById(`tab-${id}`).innerHTML = html;
+    }
+
+    function showTab(id) {
+        document.querySelectorAll('.data-table-container').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${id}`).classList.add('active');
+        document.querySelector(`.t-${id}`).classList.add('active');
+    }
+
+    // --- ฟังก์ชันแคปหน้าจอเป็นรูปภาพ ---
+    async function shareImage() {
+        const btn = document.querySelector('.btn-share');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> สร้างรูป...';
+        
+        // ซ่อนปุ่มต่างๆ ชั่วคราว
+        const toHide = document.querySelectorAll('.no-capture');
+        toHide.forEach(el => el.style.display = 'none');
+
+        try {
+            // แคปเจอร์ส่วน container
+            const canvas = await html2canvas(document.querySelector("#captureArea"), {
+                scale: 2, // เพิ่มความชัด 2 เท่า
+                useCORS: true, // รองรับรูปข้ามโดเมน
+                backgroundColor: "#f4f6f9"
+            });
+
+            // แปลงเป็นไฟล์ภาพ
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], "dashboard_summary.png", { type: "image/png" });
+
+                // ถ้าเป็นมือถือและรองรับการแชร์
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'สรุปยอดขาย',
+                            text: 'สรุปยอดขายประจำเดือน'
+                        });
+                    } catch (err) {
+                        console.log('Share canceled');
+                    }
+                } else {
+                    // ถ้าแชร์ไม่ได้ (เช่น บน PC) ให้โหลดไฟล์แทน
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = "dashboard_summary.png";
+                    a.click();
+                    alert("⬇️ ดาวน์โหลดรูปภาพเรียบร้อย (ลากส่งใน LINE ได้เลย)");
+                }
+
+                // คืนค่าปุ่ม
+                toHide.forEach(el => el.style.display = '');
+                btn.innerHTML = originalText;
+            }, 'image/png');
+
+        } catch (err) {
+            alert("❌ สร้างรูปภาพล้มเหลว: " + err.message);
+            toHide.forEach(el => el.style.display = '');
+            btn.innerHTML = originalText;
+        }
+    }
+
+    init();
+</script>
+
 </body>
 </html>
