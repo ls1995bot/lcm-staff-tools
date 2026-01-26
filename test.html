@@ -28,8 +28,6 @@
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
         input:focus { outline: 2px solid var(--primary); background: #f0f7ff; }
         .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; align-items: center; }
         .sum-final { background: var(--primary); color: white; padding: 10px; border-radius: 4px; margin-top: 5px; font-weight: 800; }
@@ -39,21 +37,34 @@
         .btn-add { background: #e8f5e9; color: #27ae60; }
         .btn-del { background: #fbe9e7; color: #c0392b; }
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        
+        /* CSS สำหรับคู่มือการใช้งาน */
+        .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; margin-top: 30px; margin-bottom: 60px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--primary); }
+        .guide-step { margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 15px; }
+        .guide-step h5 { margin: 0 0 5px 0; font-size: 1rem; color: #333; }
+        .guide-step p { margin: 0; font-size: 0.85rem; color: #666; line-height: 1.4; }
+        .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
+
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; overflow: hidden; }
-            .no-print, .app-header, .btn-main, .toolbar { display: none !important; }
+            .no-print, .app-header, .btn-main, .toolbar, .guide-box { display: none !important; }
             .main-layout { display: grid; grid-template-columns: 33% 66%; gap: 1%; }
             .card { border: 1px solid #000; border-radius: 0; margin-bottom: 5px; }
+            .print-header { display: flex !important; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; margin-bottom: 5px; padding-bottom: 2px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <div class="print-header no-print" id="printH" style="display:none;"><h1>แหลมฉบังเครื่องเขียน (1995)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
+    
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.75rem; opacity:0.9;">ระบบส่งเงิน (V.Cloud Recovery)</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">แหลมฉบังเครื่องเขียน</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขายประจำวัน</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
+            <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
             <button class="btn-main" style="background:#8b5cf6;" onclick="recoverFromCloud()"><span>🔄 ดึงข้อมูล</span><small>กู้คืนรายละเอียด</small></button>
             <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึกทันที</small></button>
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
@@ -68,35 +79,20 @@
 
         <div class="main-layout">
             <div class="col-left">
-                <div class="card">
-                    <div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div>
-                    <table id="tableMorn"></table>
-                </div>
-                <div class="card">
-                    <div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><span id="totalEve">0.00</span></div>
-                    <table id="tableEve"></table>
-                </div>
+                <div class="card"><div class="card-head h-morn"><span>1. เงินทอนเช้า</span><span id="totalMorn">0.00</span></div><table id="tableMorn"></table></div>
+                <div class="card"><div class="card-head h-eve"><span>2. ปิดร้าน (นับได้)</span><span id="totalEve">0.00</span></div><table id="tableEve"></table></div>
                 <div class="card">
                     <div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span id="totalOps">0.00</span></div>
                     <table id="tableOps"><tbody id="tbOps"></tbody></table>
-                    <div class="no-print" style="padding:5px; text-align:center;">
-                        <button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button>
-                        <button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button>
-                    </div>
+                    <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่ม</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบ</button></div>
                 </div>
             </div>
 
             <div class="col-right">
                 <div class="card">
                     <div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div>
-                    <table id="qrTable">
-                        <thead><tr id="qrHeadSum"></tr></thead>
-                        <tbody id="tbQR"></tbody>
-                    </table>
-                    <div class="no-print" style="padding:5px; text-align:center;">
-                        <button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button>
-                        <button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button>
-                    </div>
+                    <table id="qrTable"><thead><tr id="qrHeadSum"></tr></thead><tbody id="tbQR"></tbody></table>
+                    <div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button></div>
                 </div>
 
                 <div class="card">
@@ -112,11 +108,19 @@
                         </div>
                     </div>
                 </div>
-                <div id="statusBox" class="status-box">
-                    <div style="display:flex; gap:10px;"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div>
-                </div>
+                <div id="statusBox" class="status-box"><div style="display:flex; gap:10px;"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div></div>
                 <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
+        </div>
+
+        <div class="guide-box no-print">
+            <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
+            <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
+            <div class="guide-step"><h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5><p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมทั้งหมดให้ทันที</p></div>
+            <div class="guide-step"><h5>3. การบันทึกยอดโอน (QR Code)</h5><p>กรอกยอดเงินที่ลูกค้าโอนแต่ละรายการในตาราง หมวดที่ 4 และอย่าลืม <b>"ติ๊กถูก"</b> เมื่อตรวจสอบยอดในแอปธนาคารเรียบร้อยแล้ว</p></div>
+            <div class="guide-step"><h5>4. สรุปผลต่างยอดขาย</h5><p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ในช่องสุดท้าย ระบบจะเปรียบเทียบกับยอดขายจริง หากยอดตรงกันผลต่างจะเป็นสีเขียว (0.00)</p></div>
+            <div class="guide-step"><h5>5. บันทึกลงเครื่อง</h5><p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อให้ระบบจำข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> ทุกครั้งก่อนปิดเครื่องเพื่อสำรองข้อมูล กันข้อมูลหาย</p></div>
+            <div class="guide-step"><h5>6. การเรียกดูข้อมูลเก่า</h5><p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลังได้ทุกเมื่อ</p></div>
         </div>
     </div>
 </div>
@@ -127,8 +131,8 @@
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null;
     const SAVE_DELAY = 30000; 
-    const KEY = 'cashApp_LaemChabang_V2026';
-    const CLOUD_URL = 'ใส่_URL_ที่ได้จาก_Deploy_ใหม่ตรงนี้';
+    const KEY = 'cashApp_LS'; // เปลี่ยนชื่อให้สั้นลง
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxGFW2Y2r_H3lvCo4sQC5gWVIRt51T5mrQcPbJqnH7Q/exec';
 
     function init() {
         buildTable('tableMorn', 'm'); buildTable('tableEve', 'e'); buildQR(qrRows); buildOps(3, true); 
@@ -153,36 +157,43 @@
     }
 
     async function recoverFromCloud() {
-        if (!confirm("ต้องการดึงรายละเอียดจากคลาวด์มาเขียนทับข้อมูลปัจจุบันหรือไม่?")) return;
+        if (!confirm("ต้องการดึงรายละเอียดจากคลาวด์มาเขียนทับเครื่องนี้หรือไม่?")) return;
         const k = getKey(curD);
-        const shop = "ใบส่งเงิน LS";
         try {
-            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shop)}&date=${k}`);
+            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=ใบส่งเงิน%20LS&date=${k}`);
             const text = await resp.text();
             if (text === "Not Found") return alert("❌ ไม่พบข้อมูลสำรองของวันนี้ในระบบ");
             const cloudData = JSON.parse(text);
             setForm(cloudData);
-            db[k] = cloudData;
-            localStorage.setItem(KEY, JSON.stringify(db));
-            alert("✅ กู้คืนรายละเอียดทุกช่องเรียบร้อยแล้ว");
-        } catch (e) { alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ"); }
+            db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db));
+            alert("✅ กู้คืนรายละเอียดเรียบร้อย");
+        } catch (e) { alert("❌ การเชื่อมต่อผิดพลาด"); }
     }
 
     function silentCloudSync() { 
         if(!curD) return;
         const k = getKey(curD); 
         const form = getForm(); 
-        const summaryData = { 
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) }; 
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
+    }
+
+    function forceSave() { 
+        if(!curD) return; 
+        const k = getKey(curD); 
+        const form = getForm(); 
+        const finalData = { 
             targetTab: "ใบส่งเงิน LS", 
             date: k, 
             shop: "แหลมฉบังเครื่องเขียน", 
             emp: form.emp || "ไม่ระบุ", 
             pos: form.pos || 0, 
             actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
-            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, ''),
-            raw: JSON.stringify(form) // <--- ส่งข้อมูลทุกช่องไปเก็บในคอลัมน์ H
+            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
         }; 
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); 
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
+        db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
+        const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
     }
 
     function calc() { 
@@ -203,7 +214,7 @@
         if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
         else if(diff<0) { box.style.background='#f8d7da'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
-        if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, SAVE_DELAY);
+        if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
     }
 
     function buildTable(id, p) {
@@ -231,8 +242,7 @@
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
     function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; }
-    function forceSave() { if(!curD) return; db[getKey(curD)] = getForm(); localStorage.setItem(KEY, JSON.stringify(db)); const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); silentCloudSync(); }
-    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); alert(`💾 บันทึกและซิงค์ข้อมูลเรียบร้อย`); }
+    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); }
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
@@ -248,8 +258,8 @@
         if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) el.value=d.qr[k]||''; } 
         calc(); 
     }
-    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_Backup_${getKey(curD)}.json`; a.click(); }
-    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ นำเข้าข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
+    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_${getKey(curD)}.json`; a.click(); }
+    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ นำเข้าเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if(['ArrowUp','ArrowDown','Enter'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('input:not([type="hidden"])')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if(next >= 0 && next < all.length) all[next].focus(); } }
     init();
 </script>
