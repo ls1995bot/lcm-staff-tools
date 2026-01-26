@@ -29,10 +29,11 @@
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #fff0f6; }
-        /* Style สำหรับโหมดล็อกวันเก่า */
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
-        .locked-mode { opacity: 0.7; pointer-events: none; }
         
+        /* Highlight ช่องพนักงานถ้าลืมใส่ */
+        .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
+
         .sum-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 0.9rem; align-items: center; }
         .sum-final { background: var(--primary); color: white; padding: 10px; border-radius: 4px; margin-top: 5px; font-weight: 800; }
         .status-box { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 1.1rem; font-weight: bold; flex-direction: column; }
@@ -64,12 +65,11 @@
     <div class="print-header no-print" id="printH" style="display:none;"><h1>สมาร์ทคิดส์ สหพัฒน์ (SMART KIDS)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
     
     <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-sk.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน (Master Safe)</div></div></div>
+        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-sk.png.png" class="shop-logo"><div><div style="font-size:1.1rem; font-weight:bold;">สมาร์ทคิดส์ สหพัฒน์</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงิน (Master Safe V.2)</div></div></div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
             <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
             <button id="unlockBtn" class="btn-main" style="background:#ff9800; display:none;" onclick="unlockEditing()"><span>🔓 แก้ไข</span><small>ปลดล็อกวันเก่า</small></button>
-            
             <button id="recoverBtn" class="btn-main" style="background:#8b5cf6;" onclick="recoverFromCloud()"><span>🔄 ดึงข้อมูล</span><small>กู้คืนรายละเอียด</small></button>
             <button id="saveBtn" class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึกทันที</small></button>
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองไฟล์</small></button>
@@ -79,7 +79,7 @@
     <div id="dailyPage">
         <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
             <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold;">
-            <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
+            <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" placeholder="ระบุชื่อ..." style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
 
         <div class="main-layout">
@@ -148,27 +148,37 @@
         document.addEventListener('keydown', handleNav);
     }
 
-    // ฟังก์ชันเปลี่ยนวันที่แบบปลอดภัย (Safe Switch)
     function switchDay(newD) {
-        if (newD === curD) return; // กดวันเดิมไม่ทำอะไร
+        if (newD === curD) return; 
         
-        // ถ้ามีการแก้ไขค้างอยู่ ให้ถามก่อน
         if (isDirty) {
             if(confirm(`⚠️ คุณยังไม่ได้บันทึกยอดของวันที่ ${curD}\nต้องการบันทึกก่อนเปลี่ยนวันหรือไม่?`)) {
-                forceSave(); // บันทึกวันเก่าให้จบ
+                if(!validateName()) return; // ถ้าชื่อว่าง ให้หยุดเปลี่ยนวัน
+                forceSave(); 
             } else {
-                // ถ้าไม่บันทึก ก็ปล่อยผ่าน (ทิ้งข้อมูลที่เพิ่งพิมพ์)
                 if(saveTimer) clearTimeout(saveTimer);
             }
         } else {
-            // ถ้าไม่มีการแก้ไข แต่มี Timer ค้างอยู่ (กรณี Auto-save) ให้เคลียร์ทิ้งป้องกัน Save ผิดวัน
             if(saveTimer) clearTimeout(saveTimer);
         }
         
-        // รีเซ็ตค่าและโหลดวันใหม่
         isDirty = false;
         loadDay(newD);
         renderTabs();
+    }
+
+    function validateName() {
+        const empInput = document.getElementById('empName');
+        const name = empInput.value.trim();
+        if (!name) {
+            alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึกหรือส่งออกข้อมูล");
+            empInput.classList.add('input-error');
+            empInput.focus();
+            // ลบสีแดงออกเมื่อเริ่มพิมพ์
+            empInput.addEventListener('input', function() { this.classList.remove('input-error'); }, {once:true});
+            return false;
+        }
+        return true;
     }
 
     function loadDay(d) { 
@@ -180,34 +190,28 @@
             if(db[k].ops) buildOps(db[k].ops.length, false); 
             if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
             setForm(db[k]); 
-        } else { buildOps(3, true); calc(false); } // false = ไม่ต้อง trigger auto-save ตอนโหลด
+        } else { buildOps(3, true); calc(false); }
         
-        checkReadOnlyMode(); // เช็คว่าต้องล็อกวันไหม
+        checkReadOnlyMode(); 
         updatePrintInfo(); 
-        isDirty = false; // โหลดเสร็จถือว่ายังไม่มีการแก้ไขใหม่
+        isDirty = false; 
     }
 
-    // ระบบล็อกวันเก่า (Read-Only)
     function checkReadOnlyMode() {
         const today = new Date().getDate();
         const thisMonth = new Date().getMonth() + 1;
         const selectedMonth = curM;
-        
-        // ถ้าไม่ใช่วันนี้ (ดูย้อนหลัง)
         const isPast = (selectedMonth < thisMonth) || (selectedMonth === thisMonth && curD < today);
         const isFuture = (selectedMonth > thisMonth) || (selectedMonth === thisMonth && curD > today);
-        
-        const lock = isPast || isFuture; // ล็อกหมดถ้าไม่ใช่วันนี้
+        const lock = isPast || isFuture; 
         
         const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
         inputs.forEach(i => i.disabled = lock);
         
-        // จัดการปุ่ม
         document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
         document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
         document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
         
-        // ถ้าล็อกอยู่ ให้ปิด Auto-save
         if(lock && saveTimer) clearTimeout(saveTimer);
     }
 
@@ -226,7 +230,7 @@
         try {
             const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=ใบส่งเงิน%20SK&date=${k}`);
             const text = await resp.text();
-            if (text === "Not Found") return alert("❌ ไม่พบข้อมูลสำรองของวันนี้ในระบบ (ลองกด 'จำไว้' เพื่อสร้างข้อมูลก่อน)");
+            if (text === "Not Found") return alert("❌ ไม่พบข้อมูลสำรองของวันนี้ในระบบ");
             const cloudData = JSON.parse(text);
             setForm(cloudData);
             db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db));
@@ -236,9 +240,9 @@
 
     function silentCloudSync() { 
         if(!curD) return;
-        // ป้องกันการเซฟผิดวัน: เช็คอีกทีว่าวันที่ปัจจุบันตรงกับ input ไหม (ถ้า Disabled อยู่ แสดงว่าดูวันเก่า ห้ามเซฟ)
         if(document.getElementById('posVal').disabled) return;
-
+        
+        // Auto-save ไม่ต้องบังคับชื่อ (เผื่อเพิ่งเริ่มพิมพ์) แต่ถ้ามีชื่อก็ส่งไปด้วย
         const k = getKey(curD); 
         const form = getForm(); 
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) }; 
@@ -247,35 +251,40 @@
 
     function forceSave() { 
         if(!curD) return; 
+        
+        // บังคับชื่อก่อนส่ง
+        if(!validateName()) return;
+
         const k = getKey(curD); 
         const form = getForm(); 
         
-        // 1. ส่งข้อมูลยอดสรุปเข้า Main Sheet
         const finalData = { 
             targetTab: "ใบส่งเงิน SK", 
             date: k, 
             shop: "สมาร์ทคิดส์ สหพัฒน์", 
-            emp: form.emp || "ไม่ระบุ", 
+            emp: form.emp, // ส่งชื่อจริงไปเลย เพราะ validate แล้ว
             pos: form.pos || 0, 
             actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
             diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
         }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
 
-        // 2. ส่งข้อมูลดิบเข้า System_Backup ทันที
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp || "ไม่ระบุ", raw: JSON.stringify(form) };
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp, raw: JSON.stringify(form) };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
 
         db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
         
-        isDirty = false; // บันทึกแล้ว ล้างสถานะแก้ไข
+        isDirty = false; 
     }
 
     function manualSave() { 
         if(saveTimer) clearTimeout(saveTimer); 
         forceSave(); 
-        alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); 
+        // ถ้า forceSave ผ่าน (ไม่ติด validate) ถึงจะขึ้น alert
+        if(document.getElementById('empName').value.trim()) {
+             alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} และสำรองข้อมูลเรียบร้อย`); 
+        }
     }
 
     function calc(triggerAutoSave = true) { 
@@ -297,10 +306,9 @@
         else if(diff<0) { box.style.background='#f8d7da'; txt.innerText='❌ ขาด'; val.innerText=fmt(diff); } 
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
         
-        isDirty = true; // มีการคำนวณ = มีการแก้ไข
+        isDirty = true; 
         if(triggerAutoSave) {
             if(saveTimer) clearTimeout(saveTimer); 
-            // เช็คอีกทีว่าไม่ได้อยู่ในโหมดล็อก ก่อนตั้งเวลาเซฟ
             if(!document.getElementById('posVal').disabled) {
                 saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
             }
@@ -327,12 +335,17 @@
     function addQrRow() { qrRows++; buildQR(qrRows); calc(); }
     function delQrRow() { if(qrRows > 1) { qrRows--; buildQR(qrRows); calc(); } }
     function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(1); }
-    // แก้ไข: ใช้ switchDay แทน loadDay ตรงๆ ในปุ่มวันที่
     function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { switchDay(i); }; c.appendChild(d); } }
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
-    function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; }
+    function updatePrintInfo() { 
+        document.getElementById('pDate').innerText = getKey(curD); 
+        document.getElementById('pStaff').innerText = document.getElementById('empName').value || '...'; 
+        
+        // ถ้ามีการแก้ชื่อ ก็ถือว่า dirty เหมือนกัน
+        isDirty = true; 
+    }
     function getForm() { 
         let opsData = []; const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
@@ -346,9 +359,13 @@
         const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
         denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
         if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) el.value=d.qr[k]||''; } 
-        calc(false); // โหลดค่าไม่ต้อง Auto-save
+        calc(false); 
     }
-    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SK_Backup_${getKey(curD)}.json`; a.click(); }
+    function exportFile() { 
+        if(!validateName()) return; // บังคับชื่อก่อนส่งออก
+        forceSave(); 
+        const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SK_Backup_${getKey(curD)}.json`; a.click(); 
+    }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ นำเข้าเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
     function handleNav(e) { if(e.target.tagName !== 'INPUT') return; if(['ArrowUp','ArrowDown','Enter'].includes(e.key)) { e.preventDefault(); const all = Array.from(document.querySelectorAll('input:not([type="hidden"])')); const idx = all.indexOf(e.target); const next = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if(next >= 0 && next < all.length) all[next].focus(); } }
     init();
