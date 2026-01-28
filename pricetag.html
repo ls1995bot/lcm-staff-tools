@@ -22,7 +22,8 @@
 
         /* --- ส่วนจัดการข้อมูล (ซ้าย) --- */
         #control-panel {
-            width: 400px; padding: 20px;
+            width: 450px; /* เพิ่มความกว้างนิดนึงให้ข้อความพอดี */
+            padding: 20px;
             background: white; border-right: 1px solid #ccc;
             overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
             box-sizing: border-box;
@@ -38,15 +39,30 @@
             background: #fff; position: relative; transition: all 0.2s;
         }
         .input-group:hover { border-color: var(--theme-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .input-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; }
+        
+        /* Flex Row จัดเรียงแนวนอน */
+        .input-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
         
         input, select {
-            width: 100%; padding: 8px; border: 1px solid #ccc;
+            padding: 8px; border: 1px solid #ccc;
             border-radius: 4px; font-family: 'Sarabun'; font-size: 14px;
         }
         
-        .type-selector { font-weight: bold; color: var(--theme-color); border: 2px solid var(--theme-color); }
-        .label { font-size: 14px; color: #333; width: 85px; flex-shrink: 0; text-align: right; margin-right: 5px; }
+        /* Input หลัก (ชื่อ/ราคา) ให้ยืดเต็มที่ */
+        .main-input { flex-grow: 1; width: auto; min-width: 0; }
+
+        /* ช่องใส่ขนาดฟอนต์ */
+        .font-size-input { 
+            width: 50px; text-align: center; 
+            background: #fff8e1; border-color: #ffc107; 
+            font-weight: bold; font-size: 12px;
+        }
+        
+        /* ป้ายกำกับขนาดตัวเล็กๆ */
+        .size-label { font-size: 10px; color: #666; white-space: nowrap; }
+
+        .type-selector { font-weight: bold; color: var(--theme-color); border: 2px solid var(--theme-color); width: 100%; }
+        .label { font-size: 14px; color: #333; width: 70px; flex-shrink: 0; text-align: right; margin-right: 5px; }
 
         button { cursor: pointer; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-family: 'Sarabun'; transition: 0.2s; }
         .btn-add { background: var(--theme-color); color: white; width: 100%; padding: 12px; font-size: 16px; }
@@ -79,40 +95,45 @@
         /* --- ดีไซน์ป้ายราคา --- */
         .price-tag {
             width: var(--tag-width); height: var(--tag-height);
-            border: 1px dashed #ddd; box-sizing: border-box; padding: 5px 8px;
+            border: 1px dashed #ddd; box-sizing: border-box; padding: 3px 6px;
             position: relative; display: flex; flex-direction: column;
             background: white; overflow: hidden;
         }
 
-        .top-section { display: flex; justify-content: space-between; align-items: flex-start; height: 35%; margin-bottom: 2px; }
-        .header-left { display: flex; flex-direction: column; width: 75%; }
-        .product-name { font-size: 12px; font-weight: bold; color: #333; line-height: 1.35; overflow: hidden; max-height: 2.8em; margin-bottom: 2px; }
-        .product-code { font-size: 9px; color: #777; font-family: monospace; }
-        .header-right { width: 25%; display: flex; justify-content: flex-end; align-items: flex-start; }
-        .tag-logo { width: 30px; height: 30px; object-fit: contain; }
+        .top-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1px; }
+        .header-left { display: flex; flex-direction: column; width: 80%; }
+        
+        .product-name { 
+            font-weight: bold; color: #333; line-height: 1.1; 
+            margin-bottom: 2px; overflow: hidden; 
+        }
+        
+        .product-code { font-size: 8px; color: #777; font-family: monospace; }
+        .header-right { width: 20%; display: flex; justify-content: flex-end; align-items: flex-start; }
+        .tag-logo { width: 25px; height: 25px; object-fit: contain; }
 
-        .mid-section { height: 12%; display: flex; align-items: center; }
-        .product-detail { font-size: 11px; font-weight: 400; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .mid-section { margin-bottom: 2px; }
+        .product-detail { font-size: 10px; font-weight: 400; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 
         .bottom-section { flex-grow: 1; display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 1px; }
-        .bottom-left { width: 25%; display: flex; align-items: flex-end; justify-content: flex-start; height: 100%; }
-        .qr-code-img { width: 100%; max-width: 40px; height: auto; border: 1px solid #eee; }
-        .bottom-right { width: 75%; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; height: 100%; }
+        .bottom-left { width: 20%; display: flex; align-items: flex-end; justify-content: flex-start; height: 100%; }
+        .qr-code-img { width: 100%; max-width: 35px; height: auto; border: 1px solid #eee; }
+        
+        .bottom-right { width: 80%; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; height: 100%; }
 
-        .price-normal { font-size: 42px; font-weight: 800; color: var(--theme-color); line-height: 1; letter-spacing: -1px; text-align: right; }
+        .price-normal { font-weight: 900; color: var(--theme-color); line-height: 0.9; letter-spacing: -1px; text-align: right; }
         .price-sale-group { text-align: right; width: 100%; position: relative; }
         .price-old { font-size: 10px; color: #999; text-decoration: line-through; display: block; line-height: 1;}
-        .price-sale { font-size: 42px; font-weight: 800; color: var(--sale-color); line-height: 0.9; letter-spacing: -1px; }
-        .sale-badge { position: absolute; top: 0; left: 0; background: var(--sale-color); color: white; font-size: 9px; padding: 2px 4px; border-radius: 2px; transform: rotate(-5deg); }
+        .price-sale { font-weight: 900; color: var(--sale-color); line-height: 0.85; letter-spacing: -1px; }
+        .sale-badge { position: absolute; top: -5px; left: 0; background: var(--sale-color); color: white; font-size: 8px; padding: 1px 3px; border-radius: 2px; transform: rotate(-5deg); }
 
-        /* การจัดรูปแบบราคาส่งใหม่ */
-        .bulk-container { width: 100%; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
-        .bulk-line { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted #eee; padding: 1px 0; }
-        .bulk-label { font-size: 9px; font-weight: normal; color: #777; background: transparent; padding: 0; }
+        .bulk-container { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 0px; }
+        .bulk-line { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px dotted #eee; padding: 0; }
+        .bulk-label { font-size: 9px; font-weight: normal; color: #555; white-space: nowrap; margin-bottom: 2px; }
         .bulk-price { font-weight: 800; color: var(--theme-color); text-align: right; line-height: 1; }
 
-        .shop-footer { font-size: 9px; color: #888; text-align: center; border-top: 1px dotted #ccc; padding-top: 2px; margin-top: 2px; white-space: nowrap; overflow: hidden; font-weight: 400; }
-        .currency { font-size: 0.5em; margin-right: 1px; vertical-align: middle; }
+        .shop-footer { font-size: 8px; color: #888; text-align: center; border-top: 1px dotted #ccc; padding-top: 1px; margin-top: 1px; white-space: nowrap; overflow: hidden; font-weight: 400; }
+        .currency { font-size: 0.4em; margin-right: 1px; vertical-align: top; position: relative; top: 5px; font-weight: normal; }
 
         @media print {
             body { display: block; background: white; }
@@ -141,9 +162,9 @@
         <div class="settings-box">
             <small style="font-weight: bold; color: var(--theme-color);">ขนาดป้าย (ซม.)</small>
             <div class="input-row" style="margin-top:5px;">
-                <input type="number" id="set-width" value="4.9" step="0.1" onchange="updateSize()">
+                <input type="number" id="set-width" value="4.9" step="0.1" onchange="updateSize()" style="width:100%;">
                 <span style="font-size:12px;">x</span>
-                <input type="number" id="set-height" value="4.3" step="0.1" onchange="updateSize()">
+                <input type="number" id="set-height" value="4.3" step="0.1" onchange="updateSize()" style="width:100%;">
             </div>
         </div>
 
@@ -159,8 +180,8 @@
 
     <script>
         let tagsData = [
-            { id: 1, type: 'normal', name: "สีไม้มาสเตอร์อาร์ต 12 สี PREMIUM", detail: "", price1: "49", price2: "", code: "8851907273156", qr: "" },
-            { id: 2, type: 'bulk', name: "บิลเงินสด คาร์บอนPS 2 ชั้น #1", detail: "", price1: "", price2: "", code: "8850893000470", qr: "",
+            { id: 1, type: 'normal', name: "สีไม้มาสเตอร์อาร์ต 12 สี PREMIUM", nameSize: "14", detail: "", price1: "49", priceSize: "52", code: "8851907273156", qr: "" },
+            { id: 2, type: 'bulk', name: "บิลเงินสด คาร์บอนPS 2 ชั้น #1", nameSize: "14", detail: "", price1: "", priceSize: "24", code: "8850893000470", qr: "",
                 tiers: [
                     { qty: "เล่มละ", price: "45" },
                     { qty: "ยกลัง (100)", price: "3200" }
@@ -180,12 +201,24 @@
                 div.className = 'input-group';
                 let dynamicInputs = '';
 
+                // Input สำหรับราคา (ตามประเภท)
                 if(tag.type === 'normal') {
-                    dynamicInputs = `<div class="input-row"><span class="label">ราคา:</span><input type="text" value="${tag.price1}" oninput="upd(${idx}, 'price1', this.value)"></div>`;
+                    dynamicInputs = `
+                        <div class="input-row">
+                            <span class="label">ราคา:</span>
+                            <input type="text" class="main-input" value="${tag.price1}" oninput="upd(${idx}, 'price1', this.value)">
+                            <span class="size-label">ขนาดตัวอักษร:</span>
+                            <input type="number" class="font-size-input" value="${tag.priceSize || 42}" onchange="upd(${idx}, 'priceSize', this.value)">
+                        </div>`;
                 } else if(tag.type === 'sale') {
                     dynamicInputs = `
-                        <div class="input-row"><span class="label">ราคาปกติ:</span><input type="text" value="${tag.price1}" oninput="upd(${idx}, 'price1', this.value)"></div>
-                        <div class="input-row"><span class="label" style="color:red;">ราคาลด:</span><input type="text" value="${tag.price2}" oninput="upd(${idx}, 'price2', this.value)"></div>
+                        <div class="input-row"><span class="label">ราคาปกติ:</span><input type="text" class="main-input" value="${tag.price1}" oninput="upd(${idx}, 'price1', this.value)"></div>
+                        <div class="input-row">
+                            <span class="label" style="color:red;">ราคาลด:</span>
+                            <input type="text" class="main-input" value="${tag.price2}" oninput="upd(${idx}, 'price2', this.value)">
+                            <span class="size-label">ขนาดตัวอักษร:</span>
+                            <input type="number" class="font-size-input" value="${tag.priceSize || 48}" onchange="upd(${idx}, 'priceSize', this.value)">
+                        </div>
                     `;
                 } else if(tag.type === 'bulk') {
                     if(!tag.tiers) tag.tiers = [{qty: "1 ชิ้น", price: ""}, {qty: "ยกลัง", price: ""}];
@@ -196,7 +229,19 @@
                             <button class="btn-delete" onclick="removeTier(${idx}, ${tIdx})" style="padding:4px;">ลบ</button>
                         </div>
                     `).join('');
-                    dynamicInputs = `<div class="input-row"><span class="label">ราคาส่ง:</span><div style="width:100%;"><div class="bulk-inputs-container">${tiersHTML}<button class="btn-small" onclick="addTier(${idx})" style="margin-top:5px;">+ เพิ่มระดับ</button></div></div></div>`;
+                    dynamicInputs = `
+                        <div class="input-row">
+                            <span class="label">ราคาส่ง:</span>
+                            <div style="width:100%;">
+                                <div class="bulk-inputs-container">${tiersHTML}<button class="btn-small" onclick="addTier(${idx})" style="margin-top:5px;">+ เพิ่มระดับ</button></div>
+                            </div>
+                        </div>
+                        <div class="input-row">
+                            <span class="label"></span>
+                            <span class="size-label" style="margin-left:auto;">ขนาดตัวอักษร:</span>
+                            <input type="number" class="font-size-input" value="${tag.priceSize || 20}" onchange="upd(${idx}, 'priceSize', this.value)">
+                        </div>
+                    `;
                 }
 
                 div.innerHTML = `
@@ -209,9 +254,22 @@
                         <button class="btn-copy" onclick="dup(${idx})">ก๊อป</button>
                         <button class="btn-delete" onclick="del(${idx})">ลบ</button>
                     </div>
-                    <div class="input-row"><input type="text" placeholder="ชื่อสินค้า" value="${tag.name}" oninput="upd(${idx}, 'name', this.value)" style="font-weight:bold;"></div>
-                    <div class="input-row"><input type="text" placeholder="Barcode" value="${tag.code}" oninput="upd(${idx}, 'code', this.value)"></div>
-                    <div class="input-row"><input type="text" placeholder="ลิงก์ QR (ถ้ามี)" value="${tag.qr || ''}" oninput="upd(${idx}, 'qr', this.value)"></div>
+                    
+                    <div class="input-row">
+                        <span class="label">ชื่อสินค้า:</span>
+                        <input type="text" class="main-input" placeholder="ชื่อสินค้า" value="${tag.name}" oninput="upd(${idx}, 'name', this.value)" style="font-weight:bold;">
+                        <span class="size-label">ขนาดตัวอักษร:</span>
+                        <input type="number" class="font-size-input" value="${tag.nameSize || 12}" onchange="upd(${idx}, 'nameSize', this.value)">
+                    </div>
+
+                    <div class="input-row">
+                        <span class="label">Barcode:</span>
+                        <input type="text" class="main-input" placeholder="รหัสบาร์โค้ด" value="${tag.code}" oninput="upd(${idx}, 'code', this.value)">
+                    </div>
+                    <div class="input-row">
+                        <span class="label">Link QR:</span>
+                        <input type="text" class="main-input" placeholder="ใส่ลิงก์หรือข้อความ" value="${tag.qr || ''}" oninput="upd(${idx}, 'qr', this.value)">
+                    </div>
                     ${dynamicInputs}
                 `;
                 list.appendChild(div);
@@ -226,23 +284,38 @@
                 pTag.className = 'price-tag';
                 let qrHTML = tag.qr ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(tag.qr)}" class="qr-code-img">` : '';
                 let priceHTML = '';
-                if(tag.type === 'normal') priceHTML = `<div class="price-normal"><span class="currency">฿</span>${tag.price1}</div>`;
-                else if(tag.type === 'sale') priceHTML = `<div class="price-sale-group"><div class="sale-badge">SALE</div><span class="price-old">ปกติ ${tag.price1}</span><div class="price-sale"><span class="currency">฿</span>${tag.price2}</div></div>`;
+                
+                // ใช้ค่า fontSize ที่ user ตั้ง หรือค่า default
+                let pSize = tag.priceSize ? tag.priceSize + 'px' : '42px';
+                let nSize = tag.nameSize ? tag.nameSize + 'px' : '12px';
+
+                if(tag.type === 'normal') {
+                    priceHTML = `<div class="price-normal" style="font-size:${pSize};"><span class="currency">฿</span>${tag.price1}</div>`;
+                } 
+                else if(tag.type === 'sale') {
+                    priceHTML = `<div class="price-sale-group"><div class="sale-badge">SALE</div><span class="price-old">ปกติ ${tag.price1}</span><div class="price-sale" style="font-size:${pSize};"><span class="currency">฿</span>${tag.price2}</div></div>`;
+                } 
                 else if(tag.type === 'bulk') {
                     let tiers = tag.tiers || [];
-                    // ปรับขนาดตัวเลขราคาอัตโนมัติ (ถ้ามีหลายบรรทัดมากให้ลดขนาดลงเล็กน้อยกันล้น)
-                    let priceSize = tiers.length > 3 ? "16px" : "20px";
+                    let bulkSize = tag.priceSize ? tag.priceSize + 'px' : "20px";
                     
                     let rowsHTML = tiers.map(t => `
                         <div class="bulk-line">
                             <span class="bulk-label">${t.qty}</span>
-                            <span class="bulk-price" style="font-size:${priceSize}"><span class="currency">฿</span>${t.price}</span>
+                            <span class="bulk-price" style="font-size:${bulkSize};"><span class="currency">฿</span>${t.price}</span>
                         </div>
                     `).join('');
                     priceHTML = `<div class="bulk-container">${rowsHTML}</div>`;
                 }
+                
                 pTag.innerHTML = `
-                    <div class="top-section"><div class="header-left"><div class="product-name">${tag.name}</div><div class="product-code">${tag.code}</div></div><div class="header-right"><img src="logo-ls.jpg" class="tag-logo"></div></div>
+                    <div class="top-section">
+                        <div class="header-left">
+                            <div class="product-name" style="font-size:${nSize};">${tag.name}</div>
+                            <div class="product-code">${tag.code}</div>
+                        </div>
+                        <div class="header-right"><img src="logo-ls.jpg" class="tag-logo"></div>
+                    </div>
                     <div class="mid-section"><div class="product-detail">${tag.detail || ''}</div></div>
                     <div class="bottom-section"><div class="bottom-left">${qrHTML}</div><div class="bottom-right">${priceHTML}</div></div>
                     <div class="shop-footer">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div>
@@ -254,10 +327,16 @@
         function addTier(idx) { tagsData[idx].tiers.push({qty: "", price: ""}); renderInputs(); renderPreview(); }
         function removeTier(idx, tIdx) { tagsData[idx].tiers.splice(tIdx, 1); renderInputs(); renderPreview(); }
         function updTier(idx, tIdx, f, v) { tagsData[idx].tiers[tIdx][f] = v; renderPreview(); }
-        function addTag() { tagsData.push({ id: Date.now(), type: 'normal', name: "", price1: "", code: "", qr: "", tiers:[] }); renderInputs(); renderPreview(); }
+        
+        function addTag() { 
+            tagsData.push({ id: Date.now(), type: 'normal', name: "", nameSize: "14", price1: "", priceSize: "52", code: "", qr: "", tiers:[] }); 
+            renderInputs(); renderPreview(); 
+        }
+        
         function dup(i) { let n = JSON.parse(JSON.stringify(tagsData[i])); n.id = Date.now(); tagsData.splice(i+1, 0, n); renderInputs(); renderPreview(); }
         function del(i) { if(confirm('ลบป้ายนี้?')) { tagsData.splice(i, 1); renderInputs(); renderPreview(); } }
         function upd(i, k, v) { tagsData[i][k] = v; if(k === 'type') renderInputs(); renderPreview(); }
+        
         function updateSize() {
             document.documentElement.style.setProperty('--tag-width', document.getElementById('set-width').value + 'cm');
             document.documentElement.style.setProperty('--tag-height', document.getElementById('set-height').value + 'cm');
