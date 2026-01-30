@@ -19,6 +19,8 @@
             --sk-pink: #ff3b30; 
             --sb-yellow: #ff9f0a; 
             --sum-purple: #af52de;
+            --stock-teal: #008080;
+            --tool-gray: #555555;
             --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -31,7 +33,7 @@
             overflow-x: hidden;
         }
 
-        /* --- Apple Global Nav --- */
+        /* --- Global Nav --- */
         nav {
             position: sticky; top: 0; z-index: 9999;
             background: rgba(0, 0, 0, 0.82);
@@ -73,14 +75,15 @@
         .container { max-width: 1024px; margin: 0 auto; padding: 0 20px 80px; }
         
         .section-header {
-            margin: 50px 0 20px; font-size: 28px; font-weight: 700;
+            margin: 50px 0 20px; font-size: 24px; font-weight: 700;
             letter-spacing: -0.02em; display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid #eee; padding-bottom: 10px;
         }
-        .section-header i { color: #424245; font-size: 22px; }
+        .section-header i { color: #424245; font-size: 20px; }
 
         .grid-menu { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
             gap: 16px; 
         }
 
@@ -88,8 +91,8 @@
         .menu-card {
             position: relative;
             background: var(--apple-gray);
-            border-radius: 20px;
-            padding: 30px 25px;
+            border-radius: 18px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -99,9 +102,9 @@
             overflow: hidden;
             transition: all 0.3s var(--ease);
             -webkit-tap-highlight-color: transparent;
+            min-height: 140px;
         }
 
-        /* Effect สำหรับคอมพิวเตอร์ (Hover) */
         @media (hover: hover) {
             .menu-card::before {
                 content: "";
@@ -111,43 +114,41 @@
                 z-index: -1;
                 transition: width 0.4s var(--ease);
             }
-            .menu-card:hover { transform: scale(1.02); color: #ffffff; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+            .menu-card:hover { transform: translateY(-3px); color: #ffffff; box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
             .menu-card:hover::before { width: 100%; }
-            .menu-card:hover .card-icon { color: #ffffff !important; }
+            .menu-card:hover .card-icon { color: #ffffff !important; transform: scale(1.1); }
             .menu-card:hover .card-content p { color: #a1a1a6; }
         }
 
-        /* Effect สำหรับมือถือ (Active/Touch) */
-        .menu-card:active {
-            transform: scale(0.97);
-            background-color: #e8e8ed;
-        }
+        .menu-card:active { transform: scale(0.97); background-color: #e8e8ed; }
 
-        .card-icon { font-size: 28px; margin-bottom: 20px; transition: color 0.3s; }
+        .card-icon { font-size: 28px; margin-bottom: 15px; transition: all 0.3s; }
+        
+        /* Icon Colors */
         .icon-ls { color: var(--ls-blue); }
         .icon-sk { color: var(--sk-pink); }
         .icon-sb { color: var(--sb-yellow); }
         .icon-sum { color: var(--sum-purple); }
-        .icon-gen { color: var(--ls-blue); }
+        .icon-stock { color: var(--stock-teal); }
+        .icon-tool { color: var(--tool-gray); }
+        .icon-hotline { color: #ff3b30; } /* สีแดงสำหรับ Hotline */
 
-        .card-content h3 { font-size: 20px; font-weight: 700; margin: 0; }
-        .card-content p { font-size: 15px; color: var(--apple-sub); margin: 6px 0 0; line-height: 1.4; }
+        .card-content h3 { font-size: 18px; font-weight: 700; margin: 0; }
+        .card-content p { font-size: 14px; color: var(--apple-sub); margin: 5px 0 0; line-height: 1.4; }
 
         footer {
             background: var(--apple-gray);
-            padding: 60px 22px; text-align: left;
-            color: var(--apple-sub); font-size: 13px;
+            padding: 40px 22px; text-align: center;
+            color: var(--apple-sub); font-size: 12px; margin-top: 40px;
         }
-        .footer-content { max-width: 1024px; margin: 0 auto; line-height: 1.8; }
-        .footer-bottom { margin-top: 20px; padding-top: 20px; border-top: 1px solid #d2d2d7; }
 
-        /* --- Mobile Breakpoints --- */
+        /* --- Mobile --- */
         @media (max-width: 734px) {
             .hero h1 { font-size: 32px; }
-            .hero p { font-size: 17px; }
-            .section-header { font-size: 24px; margin: 40px 0 15px; }
+            .section-header { font-size: 22px; margin: 40px 0 15px; }
             .grid-menu { grid-template-columns: 1fr; }
-            .menu-card { padding: 25px 20px; }
+            .menu-card { padding: 20px; min-height: auto; flex-direction: row; align-items: center; gap: 15px; }
+            .card-icon { margin-bottom: 0; font-size: 24px; width: 40px; text-align: center; }
         }
     </style>
 </head>
@@ -163,72 +164,40 @@
     <div class="hero">
         <img src="logo-ls.jpg" alt="Store Logo">
         <h1>ระบบจัดการภายใน</h1>
-        <p>เครื่องมือจัดการร้านค้าและอำนวยความสะดวกพนักงาน</p>
+        <p>ศูนย์รวมเครื่องมือสำหรับพนักงานและผู้บริหาร</p>
         <div class="green-divider"></div>
     </div>
 
     <div class="container">
 
-        <div class="section-header"><i class="fas fa-coins"></i> การเงินประจำวัน</div>
+        <div class="section-header"><i class="fas fa-wallet"></i> การเงินประจำวัน</div>
         <div class="grid-menu">
             <a href="daily-ls.html" class="menu-card">
-                <div class="card-icon icon-ls"><i class="fas fa-store"></i></div>
+                <div class="card-icon icon-ls"><i class="fas fa-building"></i></div>
                 <div class="card-content">
-                    <h3>ส่งเงิน แหลมฉบังเครื่องเขียน</h3>
-                    <p>บันทึกยอดขายและสรุปเงินสด สำนักงานใหญ่</p>
+                    <h3>ส่งเงิน สนง.ใหญ่ (LS)</h3>
+                    <p>บันทึกยอดขายประจำวันสาขาแหลมฉบัง</p>
                 </div>
             </a>
             <a href="daily-sk.html" class="menu-card">
-                <div class="card-icon icon-sk"><i class="fas fa-heart"></i></div>
+                <div class="card-icon icon-sk"><i class="fas fa-store-alt"></i></div>
                 <div class="card-content">
-                    <h3>ส่งเงิน สมาร์ทคิดส์</h3>
-                    <p>บันทึกยอดขายและสรุปเงินสด สาขาสหพัฒน์</p>
+                    <h3>ส่งเงิน สมาร์ทคิดส์ (SK)</h3>
+                    <p>บันทึกยอดขายประจำวันสาขาสหพัฒน์</p>
                 </div>
             </a>
             <a href="daily-sb.html" class="menu-card">
-                <div class="card-icon icon-sb"><i class="fas fa-bus-alt"></i></div>
+                <div class="card-icon icon-sb"><i class="fas fa-bus"></i></div>
                 <div class="card-content">
-                    <h3>ส่งเงิน สคูลบัส</h3>
-                    <p>บันทึกยอดขายและสรุปเงินสด (ชุดนักเรียน)</p>
+                    <h3>ส่งเงิน สคูลบัส (SB)</h3>
+                    <p>บันทึกยอดขายชุดนักเรียน</p>
                 </div>
             </a>
             <a href="summary.html" class="menu-card">
                 <div class="card-icon icon-sum"><i class="fas fa-chart-pie"></i></div>
                 <div class="card-content">
-                    <h3>ดูรายงานสรุป (Dashboard)</h3>
-                    <p>ตรวจสอบยอดขายรายเดือน/ปี ทั้ง 3 สาขา</p>
-                </div>
-            </a>
-        </div>
-
-        <div class="section-header"><i class="fas fa-sliders-h"></i> การจัดการ</div>
-        <div class="grid-menu">
-            <a href="order-reserve.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-hand-holding-usd"></i></div>
-                <div class="card-content">
-                    <h3>ใบมัดจำสินค้า</h3>
-                    <p>ระบบบันทึกเงินจองและมัดจำล่วงหน้า</p>
-                </div>
-            </a>
-            <a href="bill-school.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-file-invoice"></i></div>
-                <div class="card-content">
-                    <h3>แบบฟอร์มขอออกบิล</h3>
-                    <p>สำหรับนักเรียนเขียนข้อมูลเบิกโรงเรียน</p>
-                </div>
-            </a>
-            <a href="pricetag.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-tags"></i></div>
-                <div class="card-content">
-                    <h3>พิมพ์ป้ายราคา</h3>
-                    <p>สร้างป้ายราคาพร้อมรายละเอียดสินค้า</p>
-                </div>
-            </a>
-            <a href="barcode-quickscan.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-barcode"></i></div>
-                <div class="card-content">
-                    <h3>ทำบาร์โค้ด / ป้ายสแกนด่วน</h3>
-                    <p>สร้างบาร์โค้ดชั่วคราว สำหรับสินค้าใหม่หรือของขายดี</p>
+                    <h3>รายงานสรุป (Dashboard)</h3>
+                    <p>ดูภาพรวมยอดขายทั้ง 3 สาขา</p>
                 </div>
             </a>
         </div>
@@ -236,70 +205,120 @@
         <div class="section-header"><i class="fas fa-boxes"></i> เช็คสต็อกสินค้า</div>
         <div class="grid-menu">
             <a href="stock-ink.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-tint"></i></div>
+                <div class="card-icon icon-stock"><i class="fas fa-tint"></i></div>
                 <div class="card-content">
                     <h3>สต็อกหมึกพิมพ์</h3>
-                    <p>เช็คหมึก Brother / Epson / HP คงเหลือ</p>
-                </div>
-            </a>
-            <a href="stock-paper.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-copy"></i></div>
-                <div class="card-content">
-                    <h3>สต็อกกระดาษ</h3>
-                    <p>นับจำนวนกระดาษถ่ายเอกสารประจำวัน</p>
-                </div>
-            </a>
-            <a href="stock-books.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-book"></i></div>
-                <div class="card-content">
-                    <h3>สต็อกหนังสือ</h3>
-                    <p>ระบายสี นิทาน แบบฝึกหัด ภาพประกอบการศึกษา</p>
+                    <p>Brother / Epson / HP</p>
                 </div>
             </a>
             <a href="stock-others.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-archive"></i></div>
+                <div class="card-icon icon-stock"><i class="fas fa-palette"></i></div>
                 <div class="card-content">
-                    <h3>สต็อกสินค้าอื่นๆ</h3>
-                    <p>เช็คสต็อกสินค้าทั่วไปแยกตามสีและขนาด</p>
+                    <h3>สต็อกสินค้าเบ็ดเตล็ด</h3>
+                    <p>กระดาษ / พู่กัน / โฟม / สติกเกอร์</p>
+                </div>
+            </a>
+            <a href="stock-shoes.html" class="menu-card">
+                <div class="card-icon icon-stock"><i class="fas fa-shoe-prints"></i></div>
+                <div class="card-content">
+                    <h3>สต็อกรองเท้า</h3>
+                    <p>Breaker / Popteen / Popman (SCS)</p>
+                </div>
+            </a>
+            <a href="stock-books.html" class="menu-card">
+                <div class="card-icon icon-stock"><i class="fas fa-book"></i></div>
+                <div class="card-content">
+                    <h3>สต็อกหนังสือ</h3>
+                    <p>แบบเรียน / นิทาน / สมุดภาพระบายสี</p>
+                </div>
+            </a>
+            <a href="stock-custom.html" class="menu-card">
+                <div class="card-icon icon-stock"><i class="fas fa-edit"></i></div>
+                <div class="card-content">
+                    <h3>สร้างแบบฟอร์มเอง</h3>
+                    <p>สำหรับสร้างใบเช็คสต็อกชั่วคราว</p>
                 </div>
             </a>
         </div>
 
-        <div class="section-header"><i class="fas fa-user-graduate"></i> หน้านักเรียน</div>
+        <div class="section-header"><i class="fas fa-tools"></i> เครื่องมือจัดการ</div>
+        <div class="grid-menu">
+            <a href="pricetag-ls.html" class="menu-card">
+                <div class="card-icon icon-ls"><i class="fas fa-tag"></i></div>
+                <div class="card-content">
+                    <h3>พิมพ์ป้ายราคา (LS)</h3>
+                    <p>ทำป้ายราคา แหลมฉบังฯ</p>
+                </div>
+            </a>
+            <a href="pricetag-sk.html" class="menu-card">
+                <div class="card-icon icon-sk"><i class="fas fa-tags"></i></div>
+                <div class="card-content">
+                    <h3>พิมพ์ป้ายราคา (SK)</h3>
+                    <p>ทำป้ายราคา สมาร์ทคิดส์</p>
+                </div>
+            </a>
+            <a href="barcode-quickscan.html" class="menu-card">
+                <div class="card-icon icon-tool"><i class="fas fa-barcode"></i></div>
+                <div class="card-content">
+                    <h3>ทำบาร์โค้ดด่วน</h3>
+                    <p>สร้างบาร์โค้ดชั่วคราว</p>
+                </div>
+            </a>
+            <a href="order-reserve.html" class="menu-card">
+                <div class="card-icon icon-tool"><i class="fas fa-file-contract"></i></div>
+                <div class="card-content">
+                    <h3>ใบมัดจำสินค้า</h3>
+                    <p>บันทึกการจอง</p>
+                </div>
+            </a>
+            <a href="bill-school.html" class="menu-card">
+                <div class="card-icon icon-tool"><i class="fas fa-receipt"></i></div>
+                <div class="card-content">
+                    <h3>ขอออกบิลโรงเรียน</h3>
+                    <p>แบบฟอร์มสำหรับนักเรียน</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-header"><i class="fas fa-user-graduate"></i> งานบริการนักเรียน</div>
         <div class="grid-menu">
             <a href="embroidery-guide.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-book-open"></i></div>
+                <div class="card-icon icon-tool"><i class="fas fa-tshirt"></i></div>
                 <div class="card-content">
                     <h3>ตัวอย่างการปัก</h3>
-                    <p>คู่มือรูปแบบการปักแยกตามโรงเรียน</p>
+                    <p>คู่มือตำแหน่งปักแต่ละโรงเรียน</p>
                 </div>
             </a>
             <a href="embroidery-forms.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-print"></i></div>
+                <div class="card-icon icon-tool"><i class="fas fa-print"></i></div>
                 <div class="card-content">
-                    <h3>แบบฟอร์มส่งปัก</h3>
-                    <p>พิมพ์ใบส่งปัก A5 สำหรับลูกค้าและช่าง</p>
+                    <h3>พิมพ์ใบส่งปัก</h3>
+                    <p>แบบฟอร์มส่งงานช่าง</p>
                 </div>
             </a>
             <a href="embroidery-book.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-journal-whills"></i></div>
+                <div class="card-icon icon-tool"><i class="fas fa-book-open"></i></div>
                 <div class="card-content">
-                    <h3>สมุดส่งปัก</h3>
-                    <p>พิมพ์สมุดบันทึกรายการส่งปักรวม</p>
-                </div>
-            </a>
-            <a href="embroidery-position.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-crosshairs"></i></div>
-                <div class="card-content">
-                    <h3>ระบุตำแหน่งปัก</h3>
-                    <p>เลือกโครงเสื้อและจุดที่ต้องการปัก</p>
+                    <h3>สมุดคุมงานปัก</h3>
+                    <p>บันทึกรายการรับ-ส่งงาน</p>
                 </div>
             </a>
             <a href="book-wrap.html" class="menu-card">
-                <div class="card-icon icon-gen"><i class="fas fa-scroll"></i></div>
+                <div class="card-icon icon-tool"><i class="fas fa-book-cover"></i></div>
                 <div class="card-content">
                     <h3>ใบฝากห่อปก</h3>
-                    <p>ข้อมูลลูกค้าสำหรับงานห่อปกสมุด/หนังสือ</p>
+                    <p>รับงานห่อปกหนังสือ</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-header"><i class="fas fa-ellipsis-h"></i> อื่นๆ</div>
+        <div class="grid-menu">
+            <a href="hotline.html" class="menu-card">
+                <div class="card-icon icon-hotline"><i class="fas fa-phone-volume"></i></div>
+                <div class="card-content">
+                    <h3>เบอร์โทรฉุกเฉิน / ภายใน</h3>
+                    <p>รายชื่อเบอร์ติดต่อสำคัญและแผนกต่างๆ</p>
                 </div>
             </a>
         </div>
@@ -307,12 +326,7 @@
     </div>
 
     <footer>
-        <div class="footer-content">
-            Copyright &copy; 2026 บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด. All rights reserved. <br>
-            <div class="footer-bottom">
-                <span>Designed with absolute simplicity for Laem Chabang Family</span>
-            </div>
-        </div>
+        Copyright &copy; 2026 บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด. All rights reserved.
     </footer>
 
 </body>
