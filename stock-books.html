@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>เช็คสต็อคหนังสือ (แก้ไขล้นขอบ)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #023f88; --wanna: #e91e63; --aksara: #2e7d32; --bg: #f4f6f9; }
+        
+        /* ตั้งค่าหน้ากระดาษ */
+        @page { 
+            size: A4 portrait; 
+            margin: 10mm; /* ให้ Printer จัดการขอบเอง */
+        }
+        
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; padding: 0; 
+            background: var(--bg); 
+            color: #000;
+            display: flex;
+            height: 100vh;
+        }
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* --- Toolbar (Left) --- */
+        #control-panel {
+            width: 320px; padding: 20px; background: white; border-right: 1px solid #ccc;
+            display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex-shrink: 0;
+        }
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+        
+        .selector-box { border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fff; }
+        .selector-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        
+        .checkbox-group { display: flex; flex-direction: column; gap: 4px; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; padding: 2px; }
+        .checkbox-item:hover { background: #f0f7ff; }
+        .checkbox-item input { transform: scale(1.3); }
+
+        .btn { padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; width: 100%; font-size: 14px; margin-top: 5px; font-family: 'Sarabun'; }
+        .btn-gen { background: #28a745; color: white; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; display: block; box-sizing: border-box; }
+
+        /* --- Preview Area (Right) --- */
+        #preview-area { flex-grow: 1; padding: 20px; overflow: auto; display: flex; justify-content: center; background: #555; }
+        
+        /* A4 Container ในหน้าจอ */
+        .a4-page {
+            background: white; width: 210mm; min-height: 297mm; 
+            padding: 10mm 15mm; /* ขอบซ้ายขวาเผื่อเย็บเล่มนิดนึง */
+            box-sizing: border-box; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            margin-bottom: 20px; position: relative;
+        }
+
+        /* --- Document Header --- */
+        .doc-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 10px;
+        }
+        .doc-title { font-size: 24px; font-weight: 800; color: #000; }
+        .doc-info { font-size: 14px; font-weight: bold; text-align: right; line-height: 1.8; }
+        .doc-line { border-bottom: 1px dotted #000; display: inline-block; width: 120px; text-align: center; }
+
+        /* --- Content Layout --- */
+        
+        /* หัวข้อสีๆ (Main Group) */
+        .main-header { 
+            font-size: 16px; font-weight: 800; color: white; padding: 6px 10px; 
+            margin-top: 15px; margin-bottom: 5px; border-radius: 4px; 
+            page-break-after: avoid; /* ห้ามตัดหน้าหลังหัวข้อนี้ */
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important;
+        }
+        .bg-wanna { background-color: var(--wanna); }
+        .bg-aksara { background-color: var(--aksara); }
+
+        /* กล่องหมวดหมู่ย่อย */
+        .category-block { 
+            margin-bottom: 15px; 
+            page-break-inside: auto; /* ยอมให้ตัดครึ่งกล่องได้ */
+        }
+
+        .sub-header {
+            background: #eee; font-weight: bold; padding: 5px 8px; font-size: 13px;
+            border-left: 5px solid #666; margin-bottom: 0;
+            page-break-after: avoid; /* ห้ามตัดหน้าหลังหัวข้อย่อย */
+            -webkit-print-color-adjust: exact !important;
+        }
+
+        /* ตาราง */
+        .stock-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; }
+        
+        .stock-table thead { display: table-header-group; } /* หัวตารางซ้ำหน้าถัดไป */
+        .stock-table tfoot { display: table-footer-group; }
+        .stock-table tr { page-break-inside: avoid; } /* ห้ามตัดครึ่งบรรทัด */
+
+        .stock-table th { 
+            border: 1px solid #000; padding: 4px; text-align: center; 
+            background: #f0f0f0; font-weight: bold;
+        }
+        .stock-table td { 
+            border: 1px solid #ccc; padding: 2px; vertical-align: middle; height: 18px;
+        }
+        .stock-table tr:nth-child(even) { background-color: #fcfcfc; }
+        
+        .col-code { width: 90px; font-family: monospace; color: #444; font-weight: bold; }
+        .col-name { font-weight: 600; }
+        .col-input { width: 60px; text-align: center; border-left: 1px solid #999; border-right: 1px solid #999; }
+        .col-total { width: 60px; text-align: center; background-color: #f5f5f5; font-weight: bold; border: 1px solid #999; }
+        
+        .input-box { width: 100%; height: 100%; border: none; text-align: center; font-size: 12px; font-weight: bold; color: var(--primary); background: transparent; }
+
+        @media print {
+            body { display: block; background: white; padding: 0; }
+            #control-panel { display: none !important; }
+            #preview-area { padding: 0; background: white; overflow: visible; display: block; }
+            
+            /* ปลดล็อกความสูงตอนพิมพ์ ให้ไหลตามเนื้อหา */
+            .a4-page { 
+                box-shadow: none; margin: 0; width: 100%; 
+                min-height: 0; height: auto; 
+                padding: 0; border: none;
+            }
+            
+            input { border: none !important; }
+            
+            /* บังคับให้ browser พิมพ์พื้นหลังสี */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="logo-ls.jpg">
+            <div>
+                <h2>เช็คสต็อคหนังสือ</h2>
+                <small>แยกตามสำนักพิมพ์</small>
+            </div>
+        </div>
+
+        <div class="selector-box">
+            <div class="selector-title" style="color:var(--wanna);">1. เครือวรรณาบุ๊คส์ (การ์ตูน)</div>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="wanna_boy" checked> เด็กผู้ชาย (Ultraman/Rider)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="wanna_girl" checked> เด็กผู้หญิง (Princess/Sanrio)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="wanna_sticker" checked> สติกเกอร์เล่ม/A4</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="wanna_mix" checked> นิทาน / อื่นๆ</label>
+            </div>
+        </div>
+
+        <div class="selector-box" style="margin-top:10px;">
+            <div class="selector-title" style="color:var(--aksara);">2. เครืออักษรา / กาญจนา</div>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="aksara_learn" checked> การเรียน / แบบฝึกหัด</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="aksara_activity" checked> กิจกรรม (สติกเกอร์/ระบายสี)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="aksara_tales" checked> นิทาน / อ่านเล่น / Marvel</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="aksara_poster" checked> โปสเตอร์พลาสติก</label>
+            </div>
+        </div>
+
+        <button class="btn btn-gen" onclick="generateSheet()">🔄 สร้างแบบฟอร์ม</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์เอกสาร</button>
+        <a href="index.html" class="btn btn-back">กลับหน้าหลัก</a>
+    </div>
+
+    <div id="preview-area">
+        <div class="a4-page">
+            <div class="doc-header">
+                <div class="doc-title">ใบเช็คสต็อคหนังสือ</div>
+                <div class="doc-info">
+                    วันที่: <span class="doc-line"></span> เวลา: <span class="doc-line" style="width:80px;"></span><br>
+                    ผู้ตรวจ: <span class="doc-line" style="width:200px;"></span>
+                </div>
+            </div>
+            
+            <div id="sheet-content">
+                </div>
+        </div>
+    </div>
+
+<script>
+    // 📚 Database - แยกตามกลุ่มที่ user ต้องการ
+    const db = {
+        // --- WANNA GROUP ---
+        wanna_boy: {
+            group: "Wanna", title: "วรรณา: ฮีโร่ & เด็กผู้ชาย",
+            items: [
+                {c:"8856652054319", n:"รบส.สติกเกอร์ อุลตร้าแมน เดคเกอร์ 1"},
+                {c:"8856652054326", n:"รบส.อุลตร้าแมน เดคเกอร์ 2"},
+                {c:"8856652050007", n:"รบส.อุลตร้าแมน ทริกเกอร์ 2"},
+                {c:"8856652049971", n:"รบส.สติกเกอร์ A4 อุลตร้าแมน ทริกเกอร์ No.1"},
+                {c:"8856652049988", n:"รบส. A4 อุลตร้าแมน ทริกเกอร์ No.2"},
+                {c:"8856652049995", n:"รบส.สติกเกอร์ อุลตร้าแมน ทริกเกอร์ No.1"},
+                {c:"8856652054333", n:"รบส.สติกเกอร์ S มาร์คไรเดอร์ รีไวซ์ 1"},
+                {c:"8856652054340", n:"รบส. S มาร์คไรเดอร์ รีไวซ์ 2"},
+                {c:"8856652050014", n:"รบส.สติกเกอร์ A4 มาสค์ไรเดอร์ เชเบอร์ 1"},
+                {c:"8856652050021", n:"รบส. A4 มาสค์ไรเดอร์ เชเบอร์ 2"},
+                {c:"8856652050038", n:"รบส.สติกเกอร์ มาส์คไรเดอร์ เชเบอร์ 1"},
+                {c:"8856652050045", n:"รบส. มาส์คไรเดอร์ เชเบอร์ 1"},
+                {c:"8856652052346", n:"รบส.สติกเกอร์ ขบวนการ เซ็นไคเจอร์ No.1"},
+                {c:"8856652052353", n:"รบส.(4สี) ขบวนการ เซ็นไคเจอร์ No.2"},
+                {c:"8856652052322", n:"รบส.สติกเกอร์ Tranformers มูฟวี่ 7 No.1"},
+                {c:"8856652052339", n:"รบส.Tranformers มูฟวี่ 7 No.2"},
+                {c:"8856652051929", n:"รบส.Transformers มูฟวี่ 7 No.2"},
+                {c:"8856652051967", n:"รบส.สติกเกอร์ Transformers มูฟวี่ 7 No.1"},
+                {c:"8856652046437", n:"Ben 10 สมุด รบส.ด้วยน้ำ"},
+                {c:"8856652045256", n:"รบส.(A4) Justice League No.2"},
+                {c:"8856652045263", n:"รบส.สติกเกอร์ (A4) Justice League No.1"}
+            ]
+        },
+        wanna_girl: {
+            group: "Wanna", title: "วรรณา: เด็กผู้หญิง (Sanrio / Princess / Care Bears)",
+            items: [
+                {c:"8856652055378", n:"รบส.สติกเกอร์ Esther Bunny No.1"},
+                {c:"8856652055385", n:"รบส. Esther Bunny No.2"},
+                {c:"8856652053626", n:"รบส.สติกเกอร์ Care Bears No.1"},
+                {c:"8856652053633", n:"รบส. Care Bears No.2"},
+                {c:"8856652053640", n:"รบส.สติกเกอร์ Care Bears Unlock Magic 1"},
+                {c:"8856652053657", n:"รบส.Care Bears Unlock Magic 2"},
+                {c:"8856652058270", n:"รบส.สติกเกอร์ A4 Care Bears 11"},
+                {c:"8856652053589", n:"รบส.สติกเกอร์ A4 Care Bears No.1"},
+                {c:"8856652053596", n:"รบส. A4 Care Bears No.2"},
+                {c:"8856652053565", n:"รบส.สติกเกอร์ Kuromi No.1"},
+                {c:"8856652053572", n:"รบส. Kuromi No.2"},
+                {c:"8856652053527", n:"รบส.สติกเกอร์ A4 Kuromi 1"},
+                {c:"8856652053534", n:"รบส.A4 Kuromi 2"},
+                {c:"8856652055705", n:"รบส.A4 Kuromi 3"},
+                {c:"8856652057426", n:"รบส.A4 Kuromi 4"},
+                {c:"8856652057433", n:"รบส.A4 Kuromi 5"},
+                {c:"8856652053541", n:"รบส.สติกเกอร์ My Melody No.1"},
+                {c:"8856652053558", n:"รบส. My Melody No.2"},
+                {c:"8856652053503", n:"รบส.สติกเกอร์ A4 My Melody 1"},
+                {c:"8856652053510", n:"รบส. A4 My Melody 2"},
+                {c:"8856652055675", n:"รบส. A4 My Melody 3"},
+                {c:"8856652055682", n:"รบส. A4 My Melody 4"},
+                {c:"8856652055699", n:"รบส. A4 My Melody 5"},
+                {c:"8856652057440", n:"รบส. A4 My Melody 6"},
+                {c:"8856652057457", n:"รบส. A4 My Melody 7"},
+                {c:"8856652050540", n:"รบส.A4 Secret Jouju 2"},
+                {c:"8856652050564", n:"รบส.A4 Secret Jouju 2 ปกฟิกเกอร์"},
+                {c:"8856652032690", n:"รบส.หนูน้อย Princess story 1"},
+                {c:"8856652032706", n:"รบส.หนูน้อย Princess story 2"},
+                {c:"8856652051943", n:"รบส.สติกเกอร์ A4 Princess Story 1"},
+                {c:"8856652056863", n:"รบส.สติกเกอร์ A4 Princess Story 1 (ฟิกเกอร์)"},
+                {c:"8856652051905", n:"รบส.A4 Princess Story 2"},
+                {c:"8856652056870", n:"รบส.A4 Princess Story 2 (ฟิกเกอร์)"},
+                {c:"8856652040893", n:"รบส.Pretty Brisal No.1"},
+                {c:"8856652040909", n:"รบส.Pretty Brisal No.2"},
+                {c:"8856652036261", n:"รบส. Sailor Moon"},
+                {c:"8856652036278", n:"รบส.สติกเกอร์ Sailor Moon"}
+            ]
+        },
+        wanna_mix: {
+            group: "Wanna", title: "วรรณา: โดราเอมอน / ทอมเจอร์รี่ / อื่นๆ",
+            items: [
+                {c:"8856652043313", n:"รบส.+สติกเกอร์ Doraemon ไดโนเสาร์ตัวใหม่"},
+                {c:"8856652050182", n:"รบส.สงครามอวกาศจิ๋วของโนบิตะ 2021"},
+                {c:"8856652050199", n:"รบส.Doraemon สงครามอวกาศจิ๋ว No.2"},
+                {c:"8856652058294", n:"รบส.สติกเกอร์ A4 โลกภาพวาดของโนบิตะ 1"},
+                {c:"8856652046406", n:"Doraemon สมุด รบส.ด้วยน้ำ"},
+                {c:"8856652045294", n:"รบส.สติกเกอร์ Tom and Jerry No.1"},
+                {c:"8856652045300", n:"รบส. Tom and Jerry No.2"},
+                {c:"8856652045317", n:"รบส.สติกเกอร์ (A4) Tom and Jerry No.1"},
+                {c:"8856652045324", n:"รบส. (A4) Tom and Jerry No.2"},
+                {c:"8856652046468", n:"Tom and Jerry รบส.ด้วนน้ำ"},
+                {c:"9000000000063", n:"นิทานสร้างลักษณะนิสัย (คละปก)"},
+                {c:"9000000000001", n:"นิทานอีสป วรรณา คละปก 15.-"},
+                {c:"9000000000032", n:"นิทานเสริมสร้าง ราคา55.- (คละปก)"}
+            ]
+        },
+
+        // --- AKSARA GROUP ---
+        aksara_learn: {
+            group: "Aksara", title: "อักษรา/กาญจนา: การเรียน (หัดคัด/แบบเรียน)",
+            items: [
+                {c:"8858736510582", n:"หัดอ่าน หัดคัด ก-ฮ A-Z 1-20 K276"},
+                {c:"8858736505526", n:"หัดคัด ก.ไก่ ตัวกลมใหญ่ K017"},
+                {c:"8858736513361", n:"แบบเรียน กขค เล่ม 1"},
+                {c:"8858736512913", n:"แบบเรียน กขค เล่ม 2"},
+                {c:"8858736515051", n:"ฝึกคัด หัดเขียน เรียนเก่ง ภาษาไทย เล่ม 1"},
+                {c:"8858736515068", n:"ฝึกคัด หัดเขียน เรียนเก่ง ภาษาไทย เล่ม 2"},
+                {c:"8858736515075", n:"ฝึกคัด หัดเขียน เรียนเก่ง ภาษาไทย เล่ม 3"},
+                {c:"8858736515082", n:"ฝึกคัด หัดเขียน เรียนเก่ง ภาษาไทย เล่ม 4"},
+                {c:"8858736515099", n:"ฝึกคัด หัดเขียน เรียนเก่ง ภาษาไทย เล่ม 5"},
+                {c:"8858736511237", n:"บห.อ่านภาษาไทย 1 (ฝึกประสมสระ) K237"},
+                {c:"8858736511244", n:"บห.ภาษาไทย 2 (ฝึกประสมสระ) K234"},
+                {c:"9789740970996", n:"บห.อ่านภาษาไทย 3 (ฝึกผันวรรณยุกต์)"},
+                {c:"9789745282407", n:"บห.อ่านภาษาไทย 4 (เรียนรู้ตัวสะกด)"},
+                {c:"8858736513446", n:"พจนานุกรมไทย ฉบับนักเรียน K027-080"},
+                {c:"9786169034766", n:"DIC. ENG-THAI (พรีมา)"},
+                {c:"8858736513439", n:"Standard Modern E-T Dic"},
+                {c:"8858736514184", n:"WRITING ABC ตัวพิมพ์ใหญ่-เล็ก พี่สิงโต"},
+                {c:"8858736515174", n:"ฝึกคัดและระบายสี ABC ตัวพิมพ์ใหญ่"},
+                {c:"8858736511794", n:"ฝึกคัดและเรียนรู้ศัพท์ ABC พิมพ์ใหญ่ ล.2"},
+                {c:"8858736510988", n:"บฝ.คำศัพท์ภาษาอังกฤษ เล่ม 1"},
+                {c:"8858736510995", n:"บฝ.คำศัพท์ภาษาอังกฤษ เล่ม 2"},
+                {c:"8858736511008", n:"บฝ.คำศัพท์ภาษาอังกฤษ เล่ม 3"},
+                {c:"8858736502648", n:"คำศัพท์ภาษาอังกฤษ 5000 คำ"},
+                {c:"9789745009615", n:"ศัพท์อังกฤษ ป.1-6 (ปกแมว)"},
+                {c:"9789745282643", n:"ศัพท์อังกฤษ ป.1-6 (ปกนกฮูก)"},
+                {c:"9789745279124", n:"กริยา 3 ช่อง"},
+                {c:"8858736511565", n:"ฝึกนับและคัดเลข(อารบิค-ไทย)123"},
+                {c:"8858736506226", n:"คัดตัวเลข 1-100 แบบฝึกหัด ปฐมวัย"},
+                {c:"8858736511299", n:"ปูพื้นฐาน การบวก"},
+                {c:"8858736511305", n:"ปูพื้นฐาน การลบ"},
+                {c:"8858736513378", n:"เก่งบวก-ลบ ล.1"},
+                {c:"8858736513385", n:"เก่งบวก-ลบ ล.2"},
+                {c:"8858736513392", n:"เก่งบวก-ลบ ล.3"},
+                {c:"8858736511190", n:"ปูพื้นฐานการคูณ"},
+                {c:"8858736511206", n:"ปูพื้นฐานการหาร"},
+                {c:"8858736512647", n:"บฝ.ภาษาไทย เตรียมสอบเข้าป.1 เล่ม1"},
+                {c:"8858736512654", n:"บฝ.ภาษาไทย เตรียมสอบเข้าป.1 เล่ม2"}
+            ]
+        },
+        aksara_activity: {
+            group: "Aksara", title: "อักษรา: กิจกรรม (สติกเกอร์ / ระบายสี)",
+            items: [
+                {c:"8858736513507", n:"สติกเกอร์ สัตว์ในฟาร์ม"},
+                {c:"8858736513811", n:"สติกเกอร์ สัตว์เลี้ยง"},
+                {c:"8858736513866", n:"สติกเกอร์ สัตว์เลี้ยง เล่ม 2"},
+                {c:"8858736514313", n:"สติกเกอร์ เที่ยวสวนสัตว์"},
+                {c:"8858736514023", n:"สติกเกอร์ ไดโนเสาร์"},
+                {c:"8858736513873", n:"สติกเกอร์ ไดโนเสาร์ เล่ม 2"},
+                {c:"8858736513798", n:"สติกเกอร์ รถยนต์"},
+                {c:"8858736514436", n:"สติกเกอร์ รถแทรคเตอร์ รถบรรทุก"},
+                {c:"8858736513750", n:"สติกเกอร์ รถขุดตัก รถเครน"},
+                {c:"8858736513972", n:"สติกเกอร์ รถขุดเจาะ"},
+                {c:"8858736513828", n:"สติกเกอร์ รถไฟปู๊นปู๊น"},
+                {c:"8858736513767", n:"สติกเกอร์ อาชีพหลากหลาย"},
+                {c:"8858736514092", n:"สติกเกอร์ อาชีพของฉัน"},
+                {c:"8858736514276", n:"สติกเกอร์ ไปตลาด"},
+                {c:"8858736513965", n:"สติกเกอร์ ผักผลไม้"},
+                {c:"8858736513989", n:"สติกเกอร์ เจ้าหญิง"},
+                {c:"8858736514474", n:"สติกเกอร์ เจ้าหญิงองค์น้อย"},
+                {c:"8858736513996", n:"สติกเกอร์ เจ้าหญิงเงือกน้อย"},
+                {c:"8858736514177", n:"สติกเกอร์ นางฟ้า"},
+                {c:"8858736514030", n:"สติกเกอร์ ม้ายูนิคอร์น"},
+                {c:"8858736514122", n:"สติกเกอร์ บ้านแสนสุข"},
+                {c:"8858736514078", n:"สติกเกอร์ บ้านตุ๊กตา"},
+                {c:"8858736514696", n:"สติกเกอร์ โจรสลัด"},
+                {c:"8858736513880", n:"สติกเกอร์ ท่องอวกาศ"},
+                {c:"8858736513514", n:"สติกเกอร์ อควาเรียม"},
+                {c:"8858736506868", n:"สติกเกอร์ โลกใต้ทะเล"},
+                {c:"8858736513538", n:"สติกเกอร์ติดสนุก 100 First English Word"},
+                {c:"8858736512241", n:"รบส.สติกเกอร์ ไดโนเสาร์ 1"},
+                {c:"8858736512746", n:"รบส.สติกเกอร์ ไดโนเสาร์ 2"},
+                {c:"8858736514634", n:"ไดโนเสาร์ ฝึกวาดภาพ+รบส."},
+                {c:"8858736515044", n:"ไดโนเสาร์ รบส.มีสติกเกอร์+ฝึกสมอง"},
+                {c:"8858736512951", n:"ฝึกลากเส้นพื้นฐาน"},
+                {c:"8858736514597", n:"ลากเส้นระบายสี"},
+                {c:"8858736508251", n:"ลากเส้นระบายสี เล่ม 2"},
+                {c:"8858736508886", n:"ลากเส้นแสนสนุก ชุดสอนลูกน้อย"},
+                {c:"8858736513941", n:"ลากเส้นต่อจุดและระบายสี สอนลูกน้อย"},
+                {c:"8858736510100", n:"ลากเส้นต่อจุด"},
+                {c:"8858736506745", n:"หนูคนเก่งฝึกวาดภาพ ล.1"},
+                {c:"8858736510124", n:"สัตว์ ล.1 ฝึกลากเส้น รบส."},
+                {c:"8858736510131", n:"สัตว์ ล.2 ฝึกลากเส้น รบส."},
+                {c:"8858736510148", n:"ยานพาหนะ ฝึกลากเส้น รบส."},
+                {c:"8858736514511", n:"ผักผลไม้ ฝึกลากเส้นและระบายสี"},
+                {c:"8858736514504", n:"สีแสนสวย"},
+                {c:"8858736515228", n:"สมุดภาพระบายสี ABC for kids"}
+            ]
+        },
+        aksara_tales: {
+            group: "Aksara", title: "อักษรา: นิทาน / Marvel / หนังสือเล่มแรก",
+            items: [
+                {c:"8858736514702", n:"นิทานอีสป ล.1 ราชสีห์กับหนู"},
+                {c:"8858736514719", n:"นิทานอีสป ล.2 ห่านวิเศษ"},
+                {c:"8858736514726", n:"นิทานอีสป ล.3 เด็กเลี้ยงแกะ"},
+                {c:"8858736514733", n:"นิทานอีสป ล.4 มดกับตั๊กแตน"},
+                {c:"8858736514740", n:"นิทานอีสป ล.5 องุ่นเปรี้ยว"},
+                {c:"8858736514757", n:"นิทานอีสป ล.6 ทรัพย์ในดิน"},
+                {c:"8858736514764", n:"นิทานอีสป ล.7 กาเจ้าปัญญา"},
+                {c:"8858736514771", n:"นิทานอีสป ล.8 ความสามัคคี"},
+                {c:"8858736514788", n:"นิทานอีสป ล.9 สิงโตกับกระต่ายป่า"},
+                {c:"8858736514795", n:"นิทานอีสป ล.10 ชายแก่กับลา"},
+                {c:"9786163400666", n:"Marvel IRON MAN ดวงตามังกร"},
+                {c:"9786163400673", n:"Marvel CAPT.AMERICA โจรกรรม"},
+                {c:"9786163400710", n:"Marvel HULK จอมพลัง"},
+                {c:"9786163401458", n:"Marvel THE MIGHTY THOR"},
+                {c:"9786163401465", n:"Marvel Avengers ปราบธานอส"},
+                {c:"9786163401489", n:"Marvel SPIDER-MAN กับดัก กรีน กล็อบบิน"},
+                {c:"9786163400000", n:"หนังสือเล่มแรก THING THAT MOVE"},
+                {c:"9786163400017", n:"หนังสือเล่มแรก MY BODY"},
+                {c:"9786163400611", n:"หนังสือเล่มแรก กขค"},
+                {c:"9786167000954", n:"หนังสือเล่มแรก ABC"},
+                {c:"8858736510094", n:"หนังสือเล่มแรก 123"},
+                {c:"9789745282896", n:"หนังสือเล่มแรก ANIMALS"},
+                {c:"9786167000985", n:"หนังสือเล่มแรก COLOURS"},
+                {c:"8858736515235", n:"หนังสือเล่มแรก Shapes รูปเรขาคณิต"},
+                {c:"9786163401700", n:"หนังสือเล่มแรก ผลไม้แสนอร่อย"},
+                {c:"9786163401717", n:"หนังสือเล่มแรก ผักกินดี มีประโยชน์"},
+                {c:"8858736513477", n:"Reading English 1"},
+                {c:"8858736510919", n:"I can read 1"},
+                {c:"8858736510940", n:"I can read 4"}
+            ]
+        },
+        aksara_poster: {
+            group: "Aksara", title: "อักษรา: โปสเตอร์หุ้มพลาสติก",
+            items: [
+                {c:"8858736513118", n:"โปสเตอร์ ก.ไก่ แบบที่2"},
+                {c:"8858736513132", n:"โปสเตอร์ ABC ANIMALS"},
+                {c:"8858736513149", n:"โปสเตอร์ 1-100 อารบิค"},
+                {c:"8858736513156", n:"โปสเตอร์ นับเลขไทย ๑-๑๐๐"},
+                {c:"8858736513569", n:"โปสเตอร์ มาท่องสูตรคูณกันเถอะ"},
+                {c:"8858736513125", n:"โปสเตอร์ สระ-วรรณยุกต์"},
+                {c:"8858736513262", n:"โปสเตอร์ วัน-เดือน"},
+                {c:"8858736513231", n:"โปสเตอร์ สีและรูปเรขาคณิต"},
+                {c:"8858736513255", n:"โปสเตอร์ ร่างกายของเรา"},
+                {c:"8858736514467", n:"โปสเตอร์ แผนที่ประเทศไทย"},
+                {c:"8858736513194", n:"โปสเตอร์ ผักกินดีมีประโยชน์"},
+                {c:"8858736513200", n:"โปสเตอร์ ผลไม้แสนอร่อย"},
+                {c:"8858736513217", n:"โปสเตอร์ สัตว์โลกน่ารู้ 1"},
+                {c:"8858736513224", n:"โปสเตอร์ สัตว์โลกน่ารู้ 2"},
+                {c:"8858736513248", n:"โปสเตอร์ ตัวเลข 1-20 (สีเขียว)"},
+                {c:"8858736509067", n:"โปสเตอร์ 1-10 POOH"},
+                {c:"8858736507643", n:"โปสเตอร์ 1-10 Kitty"}
+            ]
+        }
+    };
+
+    function generateSheet() {
+        const checkboxes = document.querySelectorAll('input[name="cat"]:checked');
+        const container = document.getElementById('sheet-content');
+        container.innerHTML = '';
+
+        if (checkboxes.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#999; padding:50px; font-size:16px;">กรุณาติ๊กเลือกหมวดหมู่ที่ต้องการ</div>';
+            return;
+        }
+
+        let currentGroup = "";
+        
+        checkboxes.forEach(chk => {
+            const key = chk.value;
+            const data = db[key];
+            if (data) {
+                // Check if group changes to add a Main Header
+                if (data.group !== currentGroup) {
+                    const headerClass = data.group === "Wanna" ? "bg-wanna" : "bg-aksara";
+                    const groupTitle = data.group === "Wanna" ? "เครือวรรณาบุ๊คส์ (ลิขสิทธิ์)" : "เครืออักษรา / กาญจนา";
+                    container.insertAdjacentHTML('beforeend', `<div class="main-header ${headerClass}"><span>${groupTitle}</span></div>`);
+                    currentGroup = data.group;
+                }
+                renderBlock(data, container);
+            }
+        });
+    }
+
+    function renderBlock(data, container) {
+        let rowsHtml = '';
+        data.items.forEach(item => {
+            rowsHtml += `
+                <tr>
+                    <td class="col-code">${item.c}</td>
+                    <td class="col-name">${item.n}</td>
+                    <td class="col-input"><input class="input-box" type="text"></td>
+                    <td class="col-input"><input class="input-box" type="text"></td>
+                    <td class="col-total"><input class="input-box" type="text"></td>
+                </tr>
+            `;
+        });
+
+        const html = `
+            <div class="category-block">
+                <div class="sub-header">${data.title}</div>
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th style="width:20%">บาร์โค้ด</th>
+                            <th style="width:50%">ชื่อสินค้า</th>
+                            <th style="width:10%">หน้าร้าน</th>
+                            <th style="width:10%">สโตร์</th>
+                            <th style="width:10%">รวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+    
+    // Auto-generate on load
+    generateSheet();
+</script>
+
+</body>
+</html>
