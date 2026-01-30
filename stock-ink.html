@@ -16,6 +16,18 @@
             font-size: 9px;
         }
 
+        /* ซ่อนลูกศรขึ้นลงใน Input Number (Chrome, Safari, Edge, Opera) */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* ซ่อนลูกศรขึ้นลงใน Input Number (Firefox) */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         /* --- ส่วนจัดการ (ซ้าย) --- */
         #control-panel {
             width: 280px; padding: 20px;
@@ -46,20 +58,23 @@
         }
 
         .a4-landscape {
-            background: white; width: 297mm; min-height: 210mm;
-            padding: 4mm; box-sizing: border-box; position: relative;
+            background: white; width: 297mm; height: 210mm; 
+            padding: 2mm; /* ขอบบางเฉียบ */
+            box-sizing: border-box; position: relative;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             display: flex; flex-direction: column;
+            overflow: hidden; 
         }
 
         .main-wrapper {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2mm;
+            gap: 4mm;
             width: 100%;
+            height: 100%;
         }
 
-        .day-section { display: flex; flex-direction: column; }
+        .day-section { display: flex; flex-direction: column; height: 100%; }
         .day-section:first-child { border-right: 1px dashed #ccc; padding-right: 2mm; }
         .day-section:last-child { padding-left: 2mm; }
 
@@ -67,41 +82,53 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2px;
+            flex-grow: 1;
         }
 
+        /* ปรับส่วนหัวให้เตี้ยที่สุด */
         .date-line {
-            background: #eee; border: 1px solid #000;
-            padding: 4px 8px; display: flex; align-items: center; 
-            height: 24px; margin-bottom: 2px; box-sizing: border-box;
+            display: flex; align-items: flex-end;
+            height: 16px; /* ความสูงรวม */
+            margin-bottom: 3px;
+            font-size: 10px; font-weight: bold; color: #000;
         }
-        .date-label { font-weight: bold; font-size: 11px; margin-right: 5px; }
-        .date-input { 
-            border: none; border-bottom: 1px solid #000; background: transparent; 
-            width: 60%; font-family: 'Sarabun'; font-size: 11px; outline: none;
+        .date-label { white-space: nowrap; margin-right: 5px; }
+        .date-underline { 
+            border-bottom: 1px solid #000; 
+            flex-grow: 1; 
+            height: 12px; /* ตำแหน่งเส้น */
         }
 
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        
         th { 
             color: #fff; border: 1px solid #666; text-align: center; 
-            height: 16px; font-weight: bold; font-size: 8.5px; padding: 0;
-            background: #0d2e5c; 
+            height: 13px; font-weight: bold; font-size: 8.5px; padding: 0;
+            background: #0d2e5c; line-height: 13px;
         }
+        
         td { 
             border: 1px solid #ccc; padding: 0; vertical-align: middle; 
-            height: 14.5px; font-size: 9px; white-space: nowrap; overflow: hidden;
+            height: 13px; font-size: 9px; white-space: nowrap; overflow: hidden;
+            line-height: 13px;
         }
 
         input.cell-input {
             width: 100%; height: 100%; border: none; outline: none;
             text-align: center; font-family: 'Sarabun'; font-size: 9px;
             background: transparent; color: #333; padding: 0;
+            margin: 0; display: block;
         }
 
         .txt-missing { color: red; font-weight: bold; }
         .txt-surplus { color: blue; font-weight: bold; }
         .bg-readonly { background: #f9f9f9; color: #555; pointer-events: none; } 
 
-        .brand-row td { font-weight: bold; text-align: center; border: 1px solid #999; font-size: 9px; height: 16px; }
+        .brand-row td { 
+            font-weight: bold; text-align: center; border: 1px solid #999; 
+            font-size: 9px; height: 13px; line-height: 13px;
+        }
+        
         .bg-brother { background: #e3f2fd; color: #0d47a1; }
         .bg-canon { background: #ffebee; color: #b71c1c; }
         .bg-epson { background: #e0f2f1; color: #004d40; }
@@ -110,21 +137,21 @@
         .bg-tape { background: #f3e5f5; color: #4a148c; }
         .bg-sum { background: #f5f5f5; color: #333; }
 
-        .badge { display: inline-block; width: 11px; height: 10px; line-height: 10px; text-align: center; font-size: 7px; font-weight: bold; border-radius: 2px; margin-right: 2px; border: 1px solid rgba(0,0,0,0.1); }
-        .b-k { background: #222; color: #fff; }   
+        .badge { display: inline-block; width: 10px; height: 9px; line-height: 9px; text-align: center; font-size: 7px; font-weight: bold; border-radius: 2px; margin-right: 1px; border: 1px solid rgba(0,0,0,0.1); }
+        .b-k { background: #222; color: #fff; }    
         .b-c { background: #00B0F0; color: #000; } 
         .b-m { background: #FF00FF; color: #fff; } 
         .b-y { background: #FFFF00; color: #000; } 
         .b-w { background: #fff; color: #000; border:1px solid #ccc; }
         .b-r { background: #d32f2f; color: #fff; }
         .tri-box { display: inline-flex; margin-right: 2px; border: 1px solid #ccc; vertical-align: middle; }
-        .tri-box span { width: 3px; height: 10px; display: block; }
+        .tri-box span { width: 3px; height: 9px; display: block; }
 
         @media print {
             body { display: block; background: white; }
             #control-panel { display: none !important; }
             #preview-area { width: 100%; padding: 0; background: white; overflow: visible; }
-            .a4-landscape { box-shadow: none; border: none; width: 100%; height: auto; margin: 0; padding: 4mm; }
+            .a4-landscape { box-shadow: none; border: none; width: 100%; height: 100%; margin: 0; padding: 2mm; }
             .bg-readonly { background: #fff !important; }
             * { -webkit-print-color-adjust: exact; }
         }
@@ -152,19 +179,18 @@
                 <div class="day-section">
                     <div class="date-line">
                         <span class="date-label">วันที่:</span>
-                        <input type="text" class="date-input">
-                        <small style="color:#999; margin-left: auto;">(ตารางที่ 1)</small>
+                        <div class="date-underline"></div>
                     </div>
                     <div class="inner-grid">
                         <div>
                             <table>
-                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <thead><tr><th style="width:38%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:11%">ขาด</th><th style="width:11%">เกิน</th></tr></thead>
                                 <tbody id="L_col1"></tbody>
                             </table>
                         </div>
                         <div>
                             <table>
-                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <thead><tr><th style="width:38%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:11%">ขาด</th><th style="width:11%">เกิน</th></tr></thead>
                                 <tbody id="L_col2"></tbody>
                             </table>
                         </div>
@@ -174,19 +200,18 @@
                 <div class="day-section">
                     <div class="date-line">
                         <span class="date-label">วันที่:</span>
-                        <input type="text" class="date-input">
-                        <small style="color:#999; margin-left: auto;">(ตารางที่ 2)</small>
+                        <div class="date-underline"></div>
                     </div>
                     <div class="inner-grid">
                         <div>
                             <table>
-                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <thead><tr><th style="width:38%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:11%">ขาด</th><th style="width:11%">เกิน</th></tr></thead>
                                 <tbody id="R_col1"></tbody>
                             </table>
                         </div>
                         <div>
                             <table>
-                                <thead><tr><th style="width:40%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:10%">ขาด</th><th style="width:10%">เกิน</th></tr></thead>
+                                <thead><tr><th style="width:38%">รุ่น</th><th style="width:10%">ช.1</th><th style="width:10%">สต็อค</th><th style="width:10%" class="bg-readonly">รวม</th><th style="width:10%">คอม</th><th style="width:11%">ขาด</th><th style="width:11%">เกิน</th></tr></thead>
                                 <tbody id="R_col2"></tbody>
                             </table>
                         </div>
@@ -206,14 +231,13 @@
         const TRI = '<span class="tri-box"><span style="background:#00B0F0"></span><span style="background:#FF00FF"></span><span style="background:#FFFF00"></span></span>';
 
         const data_col1 = [
-            { h: "BROTHER (INK)", c: "bg-brother" },
+            { h: "BROTHER", c: "bg-brother" },
             { n: `${B} D60` }, { n: `${B} 6000` },
             { n: `${C} 5000` }, { n: `${M} 5000` }, { n: `${Y} 5000` },
-            { n: `${B} D100` }, // เพิ่มสีดำ D100 ตรงนี้
+            { n: `${B} D100` },
             { n: `${C} D100` }, { n: `${M} D100` }, { n: `${Y} D100` },
             { n: `${B} 3619XL` }, { n: `${C} 3619XL` }, { n: `${M} 3619XL` }, { n: `${Y} 3619XL` },
             { n: `${B} 462XL` }, { n: `${C} 462XL` }, { n: `${M} 462XL` }, { n: `${Y} 462XL` },
-            { h: "BROTHER (LASER)", c: "bg-brother" },
             { n: "TN1000 (แท้)" }, { n: "DR1000 (แท้)" },
             { n: "TN1000 (เทียบ)" }, { n: "DR1000 (เทียบ)" },
             { h: "CANON", c: "bg-canon" },
@@ -224,30 +248,34 @@
             { n: `${B} 88` }, { n: `${TRI} 98` },
             { n: `${B} 71` }, { n: `${C} 71` }, { n: `${M} 71` }, { n: `${Y} 71` },
             { n: `${B} 790` }, { n: `${C} 790` }, { n: `${M} 790` }, { n: `${Y} 790` },
-            { h: "เพิ่มเติม", c: "bg-sum" },
-            { n: "" }, { n: "" }, { n: "" }
+            { h: "BROTHER (TZE TAPE)", c: "bg-tape" },
+            { n: `${W} 221 (9 ขาว)` }, { n: `${R} 421 (9 แดง)` }, { n: `${C} 521 (9 ฟ้า)` }, { n: `${Y} 621 (9 หล)` },
+            { n: `${W} 231 (12 ขาว)` }, { n: `${R} 431 (12 แดง)` }, { n: `${Y} 631 (12 หล)` },
+            { n: `${W} 251 (24 ขาว)` }
         ];
 
         const data_col2 = [
-            { h: "EPSON (INK)", c: "bg-epson" },
+            { h: "EPSON", c: "bg-epson" },
             { n: `${B} 001` }, { n: `${C} 001` }, { n: `${M} 001` }, { n: `${Y} 001` },
             { n: `${B} 003` }, { n: `${C} 003` }, { n: `${M} 003` }, { n: `${Y} 003` },
             { n: `${B} 008` }, { n: `${C} 008` }, { n: `${M} 008` }, { n: `${Y} 008` },
             { n: `${B} 664` }, { n: `${C} 664` }, { n: `${M} 664` }, { n: `${Y} 664` },
             { n: `${B} 774` },
-            { h: "EPSON (RIBBON)", c: "bg-ribbon" },
             { n: "LQ300" }, { n: "LQ310" }, { n: "LQ590" }, 
             { n: "LQ630" }, { n: "LQ2090" }, { n: "LQ2180" },
+            { n: "ERC-38 (เทียบ)" },
             { h: "HP", c: "bg-hp" },
             { n: `${B} 678` }, { n: `${TRI} 678` },
             { n: `${B} 680` }, { n: `${TRI} 680` },
             { n: `${B} 682` }, { n: `${TRI} 682` },
             { n: `${B} GT53` }, 
             { n: `${C} GT52` }, { n: `${M} GT52` }, { n: `${Y} GT52` },
-            { h: "BROTHER (TZE TAPE)", c: "bg-tape" },
-            { n: `${W} 221 (9 ขาว)` }, { n: `${R} 421 (9 แดง)` }, { n: `${C} 521 (9 ฟ้า)` }, { n: `${Y} 621 (9 หล)` },
-            { n: `${W} 231 (12 ขาว)` }, { n: `${R} 431 (12 แดง)` }, { n: `${Y} 631 (12 หล)` },
-            { n: `${W} 251 (24 ขาว)` }
+            { n: "CF279A (79A)" },
+            { n: "W1107A (107A)" },
+            { n: "CE285A (85A)" },
+            { n: `${B} CE320A` }, { n: `${C} CE321A` }, { n: `${Y} CE322A` }, { n: `${M} CE323A` },
+            { h: "เพิ่มเติม", c: "bg-sum" },
+            { n: "" }, { n: "" }, { n: "" }, { n: "" }, { n: "" }, { n: "" }
         ];
 
         function render(data, targetId) {
@@ -312,4 +340,3 @@
     </script>
 </body>
 </html>
-
