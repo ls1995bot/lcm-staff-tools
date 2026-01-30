@@ -2,204 +2,157 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ใบเช็คสต็อกเอนกประสงค์ (Custom Stock)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>ใบเช็คสต็อกเอนกประสงค์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ปรับธีมสีให้เหมือนเพื่อน (LS Blue) */
-        :root { --primary: #023f88; --accent: #17a2b8; --bg: #f4f6f9; --border: #ccdceb; }
-        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #2c3e50; padding-top: 70px; }
-        .container { max-width: 210mm; margin: 0 auto; background: white; min-height: 297mm; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; }
-        
-        /* Header Toolbar (Fixed Top) */
-        .toolbar { 
-            position: fixed; top: 0; left: 0; right: 0; background: var(--primary); padding: 10px 20px; 
-            display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        :root { --primary: #023f88; --bg: #f4f6f9; --border: #e0e0e0; }
+        body { 
+            font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; 
+            background: var(--bg); color: #333; display: flex; height: 100vh; 
         }
-        .toolbar h1 { margin: 0; color: white; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; font-weight: bold; }
-        .toolbar-btn { 
-            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); 
-            padding: 8px 15px; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 0.9rem; transition: 0.2s; font-family: 'Sarabun';
-        }
-        .toolbar-btn:hover { background: rgba(255,255,255,0.2); }
-        .btn-add-table { background: #28a745; border-color: #28a745; font-weight: bold; }
-        .btn-print { background: #ff9800; border-color: #ff9800; font-weight: bold; }
-        .btn-clear { background: #dc3545; border-color: #dc3545; }
 
-        /* Report Header */
-        .report-header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
-        .report-header h2 { margin: 0; font-size: 1.8rem; color: var(--primary); }
-        .report-header p { margin: 5px 0 0; color: #666; font-size: 1rem; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        /* --- Toolbar --- */
+        #control-panel {
+            width: 280px; padding: 25px; background: white; border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10;
+        }
+        .shop-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .shop-header img { width: 48px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); font-weight: 700; }
+
+        .btn { 
+            padding: 12px; border: none; border-radius: 8px; font-family: 'Sarabun'; cursor: pointer; 
+            font-weight: 600; transition: all 0.2s; text-align: center; font-size: 14px; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; width: 100%;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         
-        /* Title Input Style */
+        .btn-add { background: #28a745; color: white; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-clear { background: #fff0f0; color: #d32f2f; border: 1px solid #ffcdd2; }
+        .btn-back { background: #f5f5f7; color: #333; border: 1px solid #e0e0e0; margin-top: auto; }
+
+        /* --- Preview Area --- */
+        #preview-area { flex-grow: 1; padding: 30px; overflow: auto; display: flex; justify-content: center; background: var(--bg); }
+        
+        .container { 
+            max-width: 210mm; background: white; min-height: 297mm; padding: 40px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 2px; position: relative; 
+        }
+
+        /* --- Content Style --- */
+        .report-header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid var(--primary); padding-bottom: 10px; }
+        .report-header h2 { margin: 0; font-size: 24px; color: var(--primary); }
+        .report-header p { margin: 10px 0 0; color: #666; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        
         .editable-title { border: 1px dashed transparent; padding: 2px 5px; border-radius: 4px; display: inline-block; min-width: 50px; }
         .editable-title:hover { border-color: #aaa; background: #f0f7ff; cursor: text; }
         .editable-title:focus { outline: 2px solid var(--primary); background: white; border-color: transparent; }
 
-        /* Staff Name Input Style */
-        .staff-input {
-            border: none;
-            border-bottom: 1px solid #333;
-            font-family: 'Sarabun', sans-serif;
-            font-size: 1rem;
-            width: 250px;
-            text-align: center;
-            background: transparent;
-            color: #2c3e50;
-        }
-        .staff-input:focus { outline: none; border-bottom: 2px solid var(--primary); background: #f0f7ff; }
+        .staff-input { border: none; border-bottom: 1px solid #333; font-family: 'Sarabun'; font-size: 14px; width: 200px; text-align: center; background: transparent; }
+        .staff-input:focus { outline: none; border-bottom: 2px solid var(--primary); }
 
-        /* Table Block */
         .stock-block { margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 8px; position: relative; transition: 0.2s; background: #fff; }
         .stock-block:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-color: var(--primary); }
-        .block-actions { position: absolute; top: -12px; right: 10px; display: none; gap: 5px; background: white; padding: 2px 8px; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        .block-actions { position: absolute; top: -12px; right: 10px; display: none; gap: 5px; background: white; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .stock-block:hover .block-actions { display: flex; }
         
-        .block-btn { padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; background: #fff; font-family: 'Sarabun'; }
-        .btn-del-block { color: #dc3545; border-color: #dc3545; }
-        .btn-del-block:hover { background: #dc3545; color: white; }
-        .btn-add-col { color: var(--primary); border-color: var(--primary); }
-        .btn-add-col:hover { background: var(--primary); color: white; }
+        .block-btn { padding: 4px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; background: #fff; font-family: 'Sarabun'; }
+        .btn-del-block:hover { background: #d32f2f; color: white; border-color: #d32f2f; }
+        .btn-add-col:hover { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .block-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; color: var(--primary); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .block-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--primary); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
         
-        /* The Table */
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { border: 1px solid #bbb; padding: 8px; vertical-align: middle; position: relative; }
-        th { background: #e6f0ff; font-weight: bold; text-align: center; color: var(--primary); }
+        th { background: #e3f2fd; font-weight: bold; text-align: center; color: var(--primary); }
         
-        /* Inputs in Table */
-        .cell-input { width: 100%; border: none; background: transparent; padding: 2px; font-family: 'Sarabun'; font-size: 0.95rem; text-align: center; color: #333; }
+        .cell-input { width: 100%; border: none; background: transparent; padding: 2px; font-family: 'Sarabun'; font-size: 13px; text-align: center; color: #333; }
         .cell-input:focus { outline: none; background: #fff9c4; }
         .cell-left { text-align: left; font-weight: bold; }
         
-        /* Column Controls */
-        .col-remove { position: absolute; top: -10px; right: -5px; color: white; font-size: 0.6rem; cursor: pointer; display: none; background: #dc3545; border-radius: 50%; width: 18px; height: 18px; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .col-remove { position: absolute; top: -8px; right: -5px; color: white; font-size: 10px; cursor: pointer; display: none; background: #dc3545; border-radius: 50%; width: 16px; height: 16px; align-items: center; justify-content: center; }
         th:hover .col-remove { display: flex; }
 
-        /* Row Controls */
-        .row-action-cell { border: none; background: transparent; width: 30px; text-align: center; opacity: 0; transition: 0.2s; }
+        .row-action-cell { border: none; background: transparent; width: 30px; text-align: center; opacity: 0; }
         tr:hover .row-action-cell { opacity: 1; }
-        .btn-del-row { color: #ccc; cursor: pointer; font-size: 1rem; }
+        .btn-del-row { color: #ccc; cursor: pointer; }
         .btn-del-row:hover { color: #dc3545; }
 
-        /* Footer Add Row */
-        .add-row-btn { 
-            display: block; width: 100%; padding: 8px; text-align: center; background: #f8f9fa; border: 1px dashed #ccc; border-top: none;
-            cursor: pointer; color: #666; font-size: 0.85rem; font-weight: bold; transition: 0.2s;
-        }
+        .add-row-btn { display: block; width: 100%; padding: 8px; text-align: center; background: #f8f9fa; border: 1px dashed #ccc; border-top: none; cursor: pointer; color: #666; font-size: 12px; font-weight: bold; transition: 0.2s; }
         .add-row-btn:hover { background: #e9ecef; color: var(--primary); }
 
-        /* --- Guide Box (คู่มือ) --- */
-        .guide-container { max-width: 210mm; margin: 30px auto; }
-        .guide-box { background: #fff; border: 2px solid var(--primary); border-radius: 10px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .guide-box h3 { margin: 0 0 15px 0; border-bottom: 2px solid #eee; padding-bottom: 10px; color: var(--primary); font-size: 1.2rem; }
-        .guide-step { margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 15px; }
-        .guide-step h5 { margin: 0 0 5px 0; font-size: 1rem; color: #333; }
-        .guide-step p { margin: 0; font-size: 0.9rem; color: #666; line-height: 1.4; }
-        .guide-icon { color: var(--primary); margin-right: 5px; }
-
         @media print {
-            body { background: white; padding: 0; }
-            .toolbar, .block-actions, .add-row-btn, .row-action-cell, .col-remove, .no-print, .guide-container { display: none !important; }
+            body { display: block; background: white; padding: 0; }
+            #control-panel, .block-actions, .add-row-btn, .row-action-cell, .col-remove { display: none !important; }
+            #preview-area { padding: 0; overflow: visible; display: block; }
             .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; margin: 0; }
             .stock-block { border: none; padding: 0; margin-bottom: 20px; page-break-inside: avoid; }
             input { border: none; }
             th { background-color: #eee !important; color: #000 !important; -webkit-print-color-adjust: exact; }
-            .cell-input { resize: none; overflow: visible; }
             .report-header { border-bottom: 2px solid #000; }
-            .staff-input { border-bottom: 1px solid #000; }
         }
     </style>
 </head>
 <body>
 
-<div class="toolbar no-print">
-    <h1><i class="fas fa-boxes"></i> ระบบสร้างใบเช็คสต็อก</h1>
-    <div style="display:flex; gap:10px;">
-        <a href="index.html" class="toolbar-btn"><i class="fas fa-arrow-left"></i> กลับ</a>
-        <button class="toolbar-btn btn-clear" onclick="clearAll()"><i class="fas fa-trash"></i> ล้างใหม่</button>
-        <button class="toolbar-btn btn-add-table" onclick="addTable()"><i class="fas fa-plus-circle"></i> เพิ่มตาราง</button>
-        <button class="toolbar-btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์เอกสาร</button>
+<div id="control-panel">
+    <div class="shop-header">
+        <img src="logo-ls.jpg">
+        <div>
+            <h2>สร้างแบบฟอร์ม</h2>
+            <small>Custom Form</small>
+        </div>
+    </div>
+    
+    <button class="btn btn-add" onclick="addTable()"><i class="fas fa-plus-circle"></i> เพิ่มตารางใหม่</button>
+    <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์เอกสาร</button>
+    <button class="btn btn-clear" onclick="clearAll()"><i class="fas fa-trash"></i> ล้างข้อมูล</button>
+    <a href="index.html" class="btn btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+    
+    <div style="margin-top:20px; font-size:12px; color:#666; padding:15px; background:#f8f9fa; border-radius:8px; line-height:1.6;">
+        <b><i class="fas fa-info-circle"></i> คำแนะนำ:</b><br>
+        1. คลิกที่ <b>ชื่อหมวดหมู่</b> เพื่อแก้ไข<br>
+        2. คลิกที่ <b>หัวตาราง</b> เพื่อเปลี่ยนชื่อคอลัมน์<br>
+        3. เอาเมาส์ชี้ตารางเพื่อ <b>เพิ่ม/ลบ</b> คอลัมน์
     </div>
 </div>
 
-<div class="container">
-    <div class="report-header">
-        <h2 contenteditable="true" class="editable-title" id="docTitle">รายงานตรวจนับสินค้าคงเหลือ</h2>
-        <p>
-            ประจำวันที่: <span id="currentDate">...</span> | 
-            ผู้ตรวจนับ: <input type="text" id="staffName" class="staff-input" placeholder=" ">
-        </p>
-    </div>
-
-    <div id="tablesContainer"></div>
-
-    <div class="no-print" style="text-align:center; padding:30px; color:#aaa; border: 2px dashed #ddd; border-radius:10px; margin-top:20px; cursor:pointer; background:#fafafa;" onclick="addTable()">
-        <i class="fas fa-plus-circle" style="font-size:2.5rem; margin-bottom:10px; color:var(--primary);"></i><br>
-        <span style="font-weight:bold; font-size:1.1rem; color:#555;">คลิกเพื่อเพิ่มหมวดหมู่สินค้าใหม่</span><br>
-        <span style="font-size:0.9rem;">(เช่น ปากกา, สมุด, สี, แฟ้ม)</span>
-    </div>
-</div>
-
-<div class="guide-container no-print">
-    <div class="guide-box">
-        <h3><i class="fas fa-book-reader guide-icon"></i> คู่มือการใช้งาน (สำหรับพนักงาน)</h3>
+<div id="preview-area">
+    <div class="container">
+        <div class="report-header">
+            <h2 contenteditable="true" class="editable-title" id="docTitle">รายงานตรวจนับสินค้าคงเหลือ</h2>
+            <p>
+                ประจำวันที่: <span id="currentDate">...</span> | 
+                ผู้ตรวจนับ: <input type="text" id="staffName" class="staff-input" placeholder=" ">
+            </p>
+        </div>
+        <div id="tablesContainer"></div>
         
-        <div class="guide-step">
-            <h5>1. การสร้างตารางใหม่</h5>
-            <p>กดปุ่ม <b>"+ เพิ่มตาราง"</b> ด้านบน หรือกดที่กล่องเส้นประตรงกลาง เพื่อเริ่มสร้างหมวดหมู่สินค้าใหม่ (แยกตามประเภท เช่น ตารางปากกา, ตารางสมุด)</p>
-        </div>
-
-        <div class="guide-step">
-            <h5>2. การแก้ไขชื่อและหัวข้อ</h5>
-            <p>คลิกที่ <b>"ชื่อหมวดหมู่"</b> หรือ <b>"หัวตาราง"</b> แล้วพิมพ์แก้ไขข้อความได้ทันที เพื่อให้ตรงกับสินค้าที่จะนับ</p>
-        </div>
-
-        <div class="guide-step">
-            <h5>3. ปรับแต่งตาราง</h5>
-            <p>เอาเมาส์ชี้ที่ตาราง จะมีเมนูโผล่ขึ้นมามุมขวาบน:</p>
-            <ul style="margin:5px 0 0 20px; font-size:0.9rem; color:#666;">
-                <li><b>เพิ่มคอลัมน์:</b> สำหรับเพิ่มช่องเก็บข้อมูล (เช่น สี, ขนาด, รุ่น)</li>
-                <li><b>ลบตาราง:</b> หากต้องการลบตารางนั้นทิ้งทั้งอัน</li>
-                <li><b>กากบาทสีแดง (บนหัวตาราง):</b> เพื่อลบคอลัมน์ที่ไม่ต้องการ</li>
-            </ul>
-        </div>
-
-        <div class="guide-step">
-            <h5>4. การพิมพ์เอกสาร</h5>
-            <p>เมื่อจัดรูปแบบเสร็จแล้ว กดปุ่ม <span style="background:#ff9800; color:white; padding:2px 6px; border-radius:4px; font-size:0.8rem;">พิมพ์เอกสาร</span> ระบบจะซ่อนปุ่มเครื่องมือทั้งหมด และจัดหน้ากระดาษ A4 ให้สวยงามพร้อมเซ็นชื่อ</p>
+        <div class="no-print" style="text-align:center; padding:40px; color:#aaa; border: 2px dashed #ddd; border-radius:10px; margin-top:20px; cursor:pointer; background:#fafafa;" onclick="addTable()">
+            <i class="fas fa-plus-circle" style="font-size:2rem; margin-bottom:10px; color:var(--primary);"></i><br>
+            คลิกเพื่อเพิ่มตาราง
         </div>
     </div>
 </div>
 
 <script>
-    // --- State Management ---
     let tablesData = [];
     const KEY = 'customStock_Data';
 
     function init() {
         document.getElementById('currentDate').innerText = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
         loadData();
-        
-        // Save staff name on change
         document.getElementById('staffName').addEventListener('input', saveData);
     }
-
-    // --- Core Functions ---
 
     function addTable(data = null) {
         const id = Date.now().toString();
         const defaultCols = ["รายการสินค้า", "สี/ลาย", "ขนาด", "จำนวน"];
-        
-        const tableObj = data || {
-            id: id,
-            title: "หมวดหมู่: _________________________________", 
-            cols: defaultCols,
-            rows: [{}, {}, {}, {}, {}, {}] 
-        };
-
+        const tableObj = data || { id: id, title: "หมวดหมู่: ...", cols: defaultCols, rows: [{}, {}, {}, {}, {}, {}] };
         createTableDOM(tableObj);
         saveData();
     }
@@ -225,27 +178,19 @@
 
         section.innerHTML = `
             <div class="block-actions no-print">
-                <button class="block-btn btn-add-col" onclick="addCol('${data.id}')"><i class="fas fa-columns"></i> เพิ่มคอลัมน์</button>
-                <button class="block-btn btn-del-block" onclick="deleteTable('${data.id}')"><i class="fas fa-trash"></i> ลบตาราง</button>
+                <button class="block-btn btn-add-col" onclick="addCol('${data.id}')"><i class="fas fa-columns"></i> คอลัมน์</button>
+                <button class="block-btn btn-del-block" onclick="deleteTable('${data.id}')"><i class="fas fa-trash"></i> ลบ</button>
             </div>
             <div class="block-title">
                 <i class="fas fa-caret-right"></i>
                 <span contenteditable="true" class="editable-title" onblur="updateTitle('${data.id}', this.innerText)">${data.title}</span>
             </div>
             <table id="tbl-${data.id}">
-                <thead>
-                    <tr id="thead-${data.id}">
-                        ${colsHTML}
-                        <th class="row-action-cell no-print"></th>
-                    </tr>
-                </thead>
-                <tbody id="tbody-${data.id}">
-                    ${rowsHTML}
-                </tbody>
+                <thead><tr id="thead-${data.id}">${colsHTML}<th class="row-action-cell no-print"></th></tr></thead>
+                <tbody id="tbody-${data.id}">${rowsHTML}</tbody>
             </table>
             <div class="add-row-btn no-print" onclick="addRow('${data.id}')"><i class="fas fa-plus"></i> เพิ่มรายการ</div>
         `;
-
         container.appendChild(section);
     }
 
@@ -256,15 +201,8 @@
             let alignClass = i === 0 ? 'cell-left' : '';
             cells += `<td><input type="text" class="cell-input ${alignClass}" value="${val}" onchange="updateRowData('${tableId}', ${rowIdx}, ${i}, this.value)"></td>`;
         }
-        return `
-            <tr id="tr-${tableId}-${rowIdx}">
-                ${cells}
-                <td class="row-action-cell no-print"><i class="fas fa-times btn-del-row" onclick="deleteRow('${tableId}', ${rowIdx})"></i></td>
-            </tr>
-        `;
+        return `<tr id="tr-${tableId}-${rowIdx}">${cells}<td class="row-action-cell no-print"><i class="fas fa-times btn-del-row" onclick="deleteRow('${tableId}', ${rowIdx})"></i></td></tr>`;
     }
-
-    // --- Actions ---
 
     function addRow(tableId) {
         const table = tablesData.find(t => t.id === tableId);
@@ -290,7 +228,7 @@
     function addCol(tableId) {
         const table = tablesData.find(t => t.id === tableId);
         if(!table) return;
-        const colName = prompt("ชื่อคอลัมน์ใหม่ (เช่น หมายเหตุ, หน่วยนับ):");
+        const colName = prompt("ชื่อคอลัมน์ใหม่:");
         if(colName) {
             table.cols.push(colName);
             saveData();
@@ -301,17 +239,11 @@
     function removeCol(tableId, colIdx) {
         const table = tablesData.find(t => t.id === tableId);
         if(!table) return;
-        if(confirm(`ลบคอลัมน์ "${table.cols[colIdx]}" ? ข้อมูลในคอลัมน์นี้จะหายไป`)) {
+        if(confirm(`ลบคอลัมน์ "${table.cols[colIdx]}" ?`)) {
             table.cols.splice(colIdx, 1);
             table.rows = table.rows.map(row => {
-                let newR = {};
-                let c = 0;
-                for(let i=0; i<=table.cols.length; i++) { 
-                    if (i !== colIdx) {
-                        if(row[i]) newR[c] = row[i];
-                        c++;
-                    }
-                }
+                let newR = {}; let c = 0;
+                for(let i=0; i<=table.cols.length; i++) { if (i !== colIdx) { if(row[i]) newR[c] = row[i]; c++; } }
                 return newR;
             });
             saveData();
@@ -319,27 +251,12 @@
         }
     }
 
-    function updateColName(tableId, colIdx, val) {
-        const table = tablesData.find(t => t.id === tableId);
-        if(table) { table.cols[colIdx] = val; saveData(); }
-    }
-
-    function updateTitle(tableId, val) {
-        const table = tablesData.find(t => t.id === tableId);
-        if(table) { table.title = val; saveData(); }
-    }
-
-    function updateRowData(tableId, rowIdx, colIdx, val) {
-        const table = tablesData.find(t => t.id === tableId);
-        if(table) { 
-            if(!table.rows[rowIdx]) table.rows[rowIdx] = {};
-            table.rows[rowIdx][colIdx] = val; 
-            saveData(); 
-        }
-    }
+    function updateColName(tableId, colIdx, val) { const table = tablesData.find(t => t.id === tableId); if(table) { table.cols[colIdx] = val; saveData(); } }
+    function updateTitle(tableId, val) { const table = tablesData.find(t => t.id === tableId); if(table) { table.title = val; saveData(); } }
+    function updateRowData(tableId, rowIdx, colIdx, val) { const table = tablesData.find(t => t.id === tableId); if(table) { if(!table.rows[rowIdx]) table.rows[rowIdx] = {}; table.rows[rowIdx][colIdx] = val; saveData(); } }
 
     function deleteTable(tableId) {
-        if(confirm("ต้องการลบตารางนี้ทั้งตาราง?")) {
+        if(confirm("ต้องการลบตารางนี้?")) {
             tablesData = tablesData.filter(t => t.id !== tableId);
             document.getElementById(`block-${tableId}`).remove();
             saveData();
@@ -353,7 +270,7 @@
     }
 
     function clearAll() {
-        if(confirm("ล้างข้อมูลทั้งหมดหน้าจอนี้?")) {
+        if(confirm("ล้างข้อมูลทั้งหมด?")) {
             localStorage.removeItem(KEY);
             location.reload();
         }
@@ -361,7 +278,6 @@
 
     function saveData() {
         const docTitle = document.getElementById('docTitle').innerText;
-        // Use value instead of innerText for input
         const staffName = document.getElementById('staffName').value;
         const payload = { docTitle, staffName, tables: tablesData };
         localStorage.setItem(KEY, JSON.stringify(payload));
@@ -372,18 +288,12 @@
         if(raw) {
             const data = JSON.parse(raw);
             document.getElementById('docTitle').innerText = data.docTitle || "รายงานตรวจนับสินค้าคงเหลือ";
-            // Use value instead of innerText
             document.getElementById('staffName').value = data.staffName || "";
-            
             if(data.tables && data.tables.length > 0) {
                 tablesData = data.tables;
                 tablesData.forEach(t => createTableDOM(t));
-            } else {
-                addTable();
-            }
-        } else {
-            addTable();
-        }
+            } else { addTable(); }
+        } else { addTable(); }
     }
 
     init();
