@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ใบเช็คสต็อคสินค้าเบ็ดเตล็ด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #023f88; --bg: #f4f6f9; --border: #999; }
+        @page { size: A4 portrait; margin: 0; } 
+        
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            margin: 0; padding: 0; 
+            background: var(--bg); 
+            color: #000;
+            display: flex;
+            height: 100vh;
+        }
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* --- Toolbar --- */
+        #control-panel {
+            width: 340px; padding: 20px; background: white; border-right: 1px solid #ccc;
+            display: flex; flex-direction: column; gap: 10px; overflow-y: auto; flex-shrink: 0;
+        }
+        .shop-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .shop-header img { width: 45px; border-radius: 50%; }
+        .shop-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+        
+        .selector-box { border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fff; }
+        .selector-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .checkbox-group { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding: 2px; }
+        .checkbox-item:hover { background: #f0f7ff; }
+        .checkbox-item input { transform: scale(1.3); }
+
+        .btn { padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; width: 100%; font-size: 14px; margin-top: 5px; font-family: 'Sarabun'; }
+        .btn-gen { background: #28a745; color: white; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; display: block; box-sizing: border-box;}
+
+        /* --- Preview Area --- */
+        #preview-area { flex-grow: 1; padding: 20px; overflow: auto; display: flex; justify-content: center; background: #555; }
+        
+        .a4-page {
+            background: white; width: 210mm; min-height: 297mm; 
+            padding: 10mm; box-sizing: border-box; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            margin-bottom: 20px; position: relative;
+        }
+
+        /* --- Document Design --- */
+        .doc-header {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px;
+        }
+        .doc-title { font-size: 24px; font-weight: 800; color: #000; }
+        .doc-info { font-size: 14px; font-weight: bold; text-align: right; line-height: 1.8; }
+        .doc-line { border-bottom: 1px dotted #000; display: inline-block; width: 120px; text-align: center; }
+
+        /* Table Layout */
+        .print-grid { display: block; }
+
+        .category-block { 
+            border: 2px solid #000; margin-bottom: 15px; 
+            break-inside: avoid; background: #fff;
+        }
+        .cat-header { 
+            background: #ddd; color: #000; padding: 6px 10px; 
+            font-weight: 800; font-size: 16px; border-bottom: 2px solid #000;
+        }
+        
+        /* Inner Table */
+        .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .stock-table th { 
+            border-bottom: 1px solid #000; border-right: 1px solid #000; 
+            padding: 4px; text-align: center; background: #f0f0f0; font-weight: bold;
+        }
+        .stock-table td { 
+            border-bottom: 1px solid #ccc; border-right: 1px solid #000; 
+            padding: 4px; vertical-align: middle; height: 24px;
+        }
+        .stock-table tr:last-child td { border-bottom: none; }
+        
+        .col-code { width: 90px; font-family: monospace; font-weight: bold; text-align: center; color: #444; font-size: 12px; }
+        .col-name { font-weight: 600; padding-left: 8px !important; }
+        .col-input { width: 50px; text-align: center; border-left: 1px solid #000; }
+        .col-total { width: 50px; background: #f9f9f9; font-weight: bold; }
+
+        /* Color Circle */
+        .color-dot {
+            display: inline-block; width: 16px; height: 16px; border-radius: 50%; 
+            border: 1px solid #999; margin-right: 8px; vertical-align: middle;
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Input Mockup for Print */
+        .input-box { width: 100%; height: 100%; border: none; text-align: center; font-size: 14px; color: #000; font-weight: bold; font-family: 'Sarabun'; }
+
+        @media print {
+            body { display: block; background: white; padding: 0; }
+            #control-panel { display: none !important; }
+            #preview-area { padding: 0; background: white; overflow: visible; display: block; }
+            .a4-page { box-shadow: none; margin: 0; page-break-after: always; width: 100%; height: auto; padding: 0; }
+            .a4-page:last-child { page-break-after: auto; }
+            .stock-table th { background-color: #ddd !important; -webkit-print-color-adjust: exact; }
+            input { border: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="control-panel">
+        <div class="shop-header">
+            <img src="logo-ls.jpg">
+            <div>
+                <h2>สร้างใบเช็คสต็อค</h2>
+                <small>สินค้าเบ็ดเตล็ด</small>
+            </div>
+        </div>
+
+        <div class="selector-box">
+            <div class="selector-title">1. หมวดกระดาษ/สติกเกอร์</div>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="poster_thin"> กระดาษโปสเตอร์ (บาง)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="poster_thick"> กระดาษโปสเตอร์ (แข็ง)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="sticker_gr"> สติกเกอร์ GR</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="sticker_kodak"> สติกเกอร์ KODAK</label>
+            </div>
+        </div>
+
+        <div class="selector-box">
+            <div class="selector-title">2. หมวดพู่กัน/แปรง</div>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="brush_set"> ชุดพู่กัน (แพ็ค)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="brush_master"> พู่กันเดี่ยว (Master Art)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="brush_renai"> พู่กันเดี่ยว (Renaissance)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="brush_seikai"> พู่กันเดี่ยว (Seikai)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="brush_sanga"> พู่กันเดี่ยว (สง่า/ซากุระ)</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="brush_acrylic"> พู่กันอะคริลิก/น้ำมัน</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="paint_brush"> แปรงทาสี</label>
+            </div>
+        </div>
+
+        <div class="selector-box">
+            <div class="selector-title">3. หมวดโฟม & กล่อง</div>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="box_postal"> กล่องไปรษณีย์</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="box_multi"> กล่องอเนกประสงค์</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="foam_a"> โฟมแผ่น เกรด A</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="foam_a4"> โฟมแผ่น เกรด A4</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="foam_ball"> โฟมลูกบอล</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="foam_bush"> โฟมพุ่ม</label>
+                <label class="checkbox-item"><input type="checkbox" name="cat" value="foam_kratong"> โฟมกระทง</label>
+            </div>
+        </div>
+
+        <button class="btn btn-gen" onclick="generateSheet()">🔄 สร้างแบบฟอร์ม</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์เอกสาร</button>
+        <a href="index.html" class="btn btn-back">กลับหน้าหลัก</a>
+    </div>
+
+    <div id="preview-area">
+        <div class="a4-page">
+            <div class="doc-header">
+                <div class="doc-title">ใบเช็คสต็อคสินค้า</div>
+                <div class="doc-info">
+                    วันที่เช็ค: <span class="doc-line"></span> เวลา: <span class="doc-line" style="width:80px;"></span><br>
+                    ผู้ตรวจนับ: <span class="doc-line" style="width:200px;"></span>
+                </div>
+            </div>
+            
+            <div class="print-grid" id="sheet-content">
+                <div style="text-align:center; color:#999; padding:50px; font-size:16px;">
+                    กรุณาเลือกหมวดหมู่ด้านซ้าย<br>แล้วกดปุ่ม "สร้างแบบฟอร์ม"
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // 🎨 Color Mapping
+    const colors = {
+        // Basic
+        "black": "#000000", "gray": "#808080", "brown": "#5D4037", "purple": "#6a1b9a",
+        "pink": "#ec407a", "shocking": "#E91E63", "red": "#d32f2f", "orange": "#ef6c00",
+        "gold": "#FBC02D", "yellow": "#ffeb3b", "cream": "#FFF9C4", "lightgreen": "#8BC34A",
+        "green": "#2e7d32", "darkgreen": "#1b5e20", "blue": "#1565c0", "lightblue": "#03A9F4", 
+        "white": "#FFFFFF", "clear": "transparent",
+        
+        // Sticker Specific
+        "s-blue": "#0000FF", "s-lightblue": "#00BFFF", "s-yellow": "#FFFF00", "s-gold": "#FFD700",
+        "s-pink": "#FF69B4", "s-brown": "#8B4513", "s-orange": "#FFA500", "s-silver": "#C0C0C0",
+        "s-green": "#008000", "s-lightgreen": "#90EE90", "s-red": "#FF0000", "s-black": "#000000",
+        "s-purple": "#800080", "s-darkgray": "#A9A9A9",
+        
+        // Neon
+        "n-yellow": "#ccff00", "n-red": "#ff3333", "n-green": "#39ff14", "n-blue": "#33FFFF", 
+        "n-orange": "#ff6600", "n-pink": "#ff0099", "n-purple": "#aa00ff"
+    };
+
+    const db = {
+        // --- 1. กระดาษ & สติกเกอร์ ---
+        poster_thin: {
+            title: "กระดาษโปสเตอร์ (บาง 2 หน้า) #0703001/005",
+            items: [
+                {c:"#001", n:"ดำ", k:"black"}, {c:"#001", n:"เทา", k:"gray"}, {c:"#001", n:"น้ำตาลเข้ม", k:"brown"}, 
+                {c:"#001", n:"ม่วง", k:"purple"}, {c:"#001", n:"ชมพู", k:"pink"}, {c:"#001", n:"บานเย็น", k:"shocking"}, 
+                {c:"#001", n:"แดง", k:"red"}, {c:"#001", n:"ส้ม", k:"orange"}, {c:"#001", n:"เหลืองทอง", k:"gold"}, 
+                {c:"#001", n:"เหลือง", k:"yellow"}, {c:"#001", n:"ครีม", k:"cream"}, {c:"#001", n:"เขียวอ่อน", k:"lightgreen"},
+                {c:"#001", n:"เขียว", k:"green"}, {c:"#001", n:"เขียวเข้ม", k:"darkgreen"}, {c:"#001", n:"น้ำเงิน", k:"blue"}, 
+                {c:"#001", n:"ฟ้า", k:"lightblue"},
+                {c:"#005", n:"ม่วง (สะท้อน)", k:"n-purple"}, {c:"#005", n:"ส้ม (สะท้อน)", k:"n-orange"}, 
+                {c:"#005", n:"เหลือง (สะท้อน)", k:"n-yellow"}, {c:"#005", n:"เขียว (สะท้อน)", k:"n-green"}
+            ]
+        },
+        poster_thick: {
+            title: "กระดาษโปสเตอร์ (แข็ง 2 หน้า) #0703002/006",
+            items: [
+                {c:"#002", n:"ดำ", k:"black"}, {c:"#002", n:"เทา", k:"gray"}, {c:"#002", n:"น้ำตาลเข้ม", k:"brown"}, 
+                {c:"#002", n:"ม่วง", k:"purple"}, {c:"#002", n:"ชมพู", k:"pink"}, {c:"#002", n:"บานเย็น", k:"shocking"}, 
+                {c:"#002", n:"แดง", k:"red"}, {c:"#002", n:"ส้ม", k:"orange"}, {c:"#002", n:"เหลืองทอง", k:"gold"}, 
+                {c:"#002", n:"เหลือง", k:"yellow"}, {c:"#002", n:"เขียวอ่อน", k:"lightgreen"}, {c:"#002", n:"เขียว", k:"green"},
+                {c:"#002", n:"เขียวเข้ม", k:"darkgreen"}, {c:"#002", n:"น้ำเงิน", k:"blue"}, {c:"#002", n:"ฟ้า", k:"lightblue"},
+                {c:"#006", n:"แดง (สะท้อน)", k:"n-red"}, {c:"#006", n:"ส้ม (สะท้อน)", k:"n-orange"}, 
+                {c:"#006", n:"เหลือง (สะท้อน)", k:"n-yellow"}, {c:"#006", n:"เขียว (สะท้อน)", k:"n-green"}
+            ]
+        },
+        sticker_gr: {
+            title: "สติกเกอร์ GR (การันตี)",
+            items: [
+                {c:"11001003", n:"ใส", k:"clear"}, {c:"11001019", n:"ขาว", k:"white"}, 
+                {c:"11001050", n:"ดำ", k:"s-black"}, {c:"11001060", n:"ม่วง", k:"s-purple"}, 
+                {c:"11001052", n:"น้ำเงิน", k:"s-blue"}, {c:"11001053", n:"ฟ้า", k:"s-lightblue"},
+                {c:"11001056", n:"เขียวเข้ม", k:"s-green"}, {c:"11001057", n:"เขียวอ่อน", k:"s-lightgreen"}, 
+                {c:"11001055", n:"เหลือง", k:"s-yellow"}, {c:"11001054", n:"เหลืองทอง", k:"s-gold"}, 
+                {c:"11001059", n:"ส้ม", k:"s-orange"}, {c:"11001051", n:"แดง", k:"s-red"},
+                {c:"11001058", n:"ชมพู", k:"s-pink"}, {c:"11001063", n:"น้ำตาล", k:"s-brown"}, 
+                {c:"11001064", n:"เทาเงิน", k:"s-silver"}, {c:"11001075", n:"ดำด้าน", k:"black"}
+            ]
+        },
+        sticker_kodak: {
+            title: "สติกเกอร์ KODAK",
+            items: [
+                {c:"1101010", n:"ขาว", k:"white"}, {c:"1101020", n:"ใส", k:"clear"}, 
+                {c:"1101029", n:"เขียวสะท้อน", k:"n-green"}, {c:"1101030", n:"ฟ้าสะท้อน", k:"n-blue"}, 
+                {c:"1101031", n:"ส้มสะท้อน", k:"n-orange"}, {c:"1101032", n:"ชมพูสะท้อน", k:"n-pink"},
+                {c:"1101033", n:"เหลืองสะท้อน", k:"n-yellow"}, {c:"1101034", n:"แดงสะท้อน", k:"n-red"}, 
+                {c:"1101035", n:"ดำ", k:"s-black"}, {c:"1101036", n:"แดง", k:"s-red"},
+                {c:"1101037", n:"น้ำเงิน", k:"s-blue"}, {c:"1101038", n:"ฟ้า", k:"s-lightblue"}, 
+                {c:"1101039", n:"เหลืองทอง", k:"s-gold"}, {c:"1101040", n:"เหลือง", k:"s-yellow"},
+                {c:"1101041", n:"เขียวเข้ม", k:"s-green"}, {c:"1101042", n:"ชมพู", k:"s-pink"}, 
+                {c:"1101043", n:"ม่วง", k:"s-purple"}, {c:"1101044", n:"ส้ม", k:"s-orange"},
+                {c:"1101045", n:"แสด", k:"orange"}, {c:"1101047", n:"เขียวอ่อน", k:"s-lightgreen"}, 
+                {c:"11001076", n:"ทอง", k:"s-gold"}, {c:"11001076", n:"เงิน", k:"s-silver"},
+                {c:"11001077", n:"ดำด้าน", k:"black"}, {c:"11001078", n:"เทาด้าน", k:"s-darkgray"}
+            ]
+        },
+        // --- 2. พู่กัน ---
+        brush_set: {
+            title: "ชุดพู่กัน (ขายเป็นแพ็ค)",
+            items: [
+                {c:"8851907098728", n:"MA จิตรกรน้อย กลม #1/3/7"}, {c:"8851907098735", n:"MA จิตรกรน้อย กลม #4/6/8"},
+                {c:"8851907098742", n:"MA จิตรกรน้อย กลม #5/9"}, {c:"8851907148935", n:"MA ฟลอเรนซ์ กลม #0/2/6"},
+                {c:"8851907043353", n:"RE กลม #0/2/6"}, {c:"8851907105938", n:"RE กลม+ปลายพัด"},
+                {c:"8851907259150", n:"RE ใบพัด"}, {c:"8851907234287", n:"RE ด้ามใสคละ 4ชิ้น"},
+                {c:"8851907234294", n:"RE ด้ามเหลี่ยมคละ 4ชิ้น"}, {c:"8851907149529", n:"RE ตัดเฉียง 1/4,3/8,1/2"},
+                {c:"8851664044976", n:"SEIKAI สีน้ำ 3ด้าม"}, {c:"8851664049001", n:"SEIKAI สีน้ำ 4ด้าม"},
+                {c:"8851664056887", n:"SEIKAI สีน้ำ 6ด้าม"}, {c:"8851664065018", n:"SEIKAI Artist 6ด้าม"},
+                {c:"8851664061287", n:"SEIKAI อะคริลิก 3ด้าม"}, {c:"6935483001098", n:"SEIKAI สีน้ำมัน"}
+            ]
+        },
+        brush_master: {
+            title: "พู่กัน Master Art จิตรกรน้อย (หัวกลม)",
+            items: [
+                {c:"8851907140892", n:"เบอร์ 00"}, {c:"8851907030889", n:"เบอร์ 0"}, {c:"8851907030896", n:"เบอร์ 1"},
+                {c:"8851907030902", n:"เบอร์ 2"}, {c:"8851907030919", n:"เบอร์ 3"}, {c:"8851907030926", n:"เบอร์ 4"},
+                {c:"8851907030926", n:"เบอร์ 5"}, {c:"8851907030940", n:"เบอร์ 6"}, {c:"8851907030957", n:"เบอร์ 7"},
+                {c:"8851907030964", n:"เบอร์ 8"}, {c:"8851907030971", n:"เบอร์ 9"}, {c:"8851907030988", n:"เบอร์ 10"},
+                {c:"8851907030995", n:"เบอร์ 11"}, {c:"8851907031008", n:"เบอร์ 12"}
+            ]
+        },
+        brush_renai: {
+            title: "พู่กัน Renaissance (หัวกลม)",
+            items: [
+                {c:"8851907131531", n:"เบอร์ 00"}, {c:"8851907030063", n:"เบอร์ 0"}, {c:"8851907030070", n:"เบอร์ 1"},
+                {c:"8851907030087", n:"เบอร์ 2"}, {c:"8851907030094", n:"เบอร์ 3"}, {c:"8851907030100", n:"เบอร์ 4"},
+                {c:"8851907030117", n:"เบอร์ 5"}, {c:"8851907030124", n:"เบอร์ 6"}, {c:"8851907030131", n:"เบอร์ 7"},
+                {c:"8851907030148", n:"เบอร์ 8"}, {c:"8851907030155", n:"เบอร์ 9"}, {c:"8851907030162", n:"เบอร์ 10"},
+                {c:"8851907030179", n:"เบอร์ 11"}, {c:"8851907030186", n:"เบอร์ 12"}, {c:"...", n:"รุ่น FW #0,2,4,6,8..."}
+            ]
+        },
+        brush_seikai: {
+            title: "พู่กัน Seikai (ด้ามใส)",
+            items: [
+                {c:"8851664000644", n:"กลม #00"}, {c:"...", n:"กลม #0"}, {c:"...", n:"กลม #2"}, {c:"...", n:"กลม #4"},
+                {c:"8851664041128", n:"ตัดเฉียง 0.50"}, {c:"8851664041135", n:"ตัดเฉียง 0.75"},
+                {c:"8851664041142", n:"ตัดเฉียง 0.85"}, {c:"8851664041166", n:"ตัดเฉียง 1.0"},
+                {c:"8851664056818", n:"พัด #2"}, {c:"8851664045324", n:"พัด #4"}
+            ]
+        },
+        brush_sanga: {
+            title: "พู่กันสง่า มะยุระ & Sakura",
+            items: [
+                {c:"000012050444", n:"สง่า กลม #00"}, {c:"...", n:"สง่า กลม #0-12"},
+                {c:"084511391215", n:"KOI แทงค์ S"}, {c:"084511391222", n:"KOI แทงค์ M"}, {c:"084511391239", n:"KOI แทงค์ L"}
+            ]
+        },
+        brush_acrylic: {
+            title: "พู่กันสีอะคริลิก/น้ำมัน/อเนกประสงค์",
+            items: [
+                {c:"8851907160616", n:"RE อะคริลิก กลม #2"}, {c:"8851907160623", n:"RE อะคริลิก กลม #6"},
+                {c:"8851907160630", n:"RE อะคริลิก กลม #10"}, {c:"8851907160647", n:"RE อะคริลิก กลม #16"},
+                {c:"8851907160654", n:"RE อะคริลิก กลม #20"}, {c:"...", n:"RE อะคริลิก แบน"},
+                {c:"8851907038519", n:"RE น้ำมัน แบน #1-22"},
+                {c:"8851907136598", n:"MA แบน #1-24"}, {c:"000012040339", n:"สง่า แบน #1-24"}
+            ]
+        },
+        paint_brush: {
+            title: "แปรงทาสี / ระบายสี",
+            items: [
+                {c:"8851907195045", n:"RE ขนทอง 1นิ้ว"}, {c:"8851907195052", n:"RE ขนทอง 1.5นิ้ว"},
+                {c:"8851907195069", n:"RE ขนทอง 2นิ้ว"}, {c:"8851907195076", n:"RE ขนทอง 2.5นิ้ว"},
+                {c:"8851709005177", n:"999 ทาสี 1/2นิ้ว"}, {c:"8851709005184", n:"999 ทาสี 3/4นิ้ว"},
+                {c:"8851709005191", n:"999 ทาสี 1นิ้ว"}, {c:"8851709005207", n:"999 ทาสี 1.5นิ้ว"},
+                {c:"8851709005214", n:"999 ทาสี 2นิ้ว"}, {c:"8851709005221", n:"999 ทาสี 2.5นิ้ว"},
+                {c:"8851709005238", n:"999 ทาสี 3นิ้ว"}
+            ]
+        },
+        // --- 3. โฟม & กล่อง ---
+        box_postal: {
+            title: "กล่องไปรษณีย์",
+            items: [
+                {c:"0201027", n:"เบอร์ ก"}, {c:"0201028", n:"เบอร์ ข"}, {c:"0201029", n:"เบอร์ ค"},
+                {c:"0201030", n:"เบอร์ ง"}, {c:"0201031", n:"เบอร์ จ"}, {c:"0201040", n:"เบอร์ AA"},
+                {c:"0201033", n:"เบอร์ A"}, {c:"0201034", n:"เบอร์ B"}, {c:"0201035", n:"เบอร์ C"},
+                {c:"0201036", n:"เบอร์ D"}, {c:"0201037", n:"เบอร์ E"}, {c:"0201032", n:"เบอร์ O"}
+            ]
+        },
+        box_multi: {
+            title: "กล่องอเนกประสงค์",
+            items: [
+                {c:"0201038", n:"ไซส์ เล็ก"}, {c:"0201039", n:"ไซส์ ใหญ่"}, {c:"0201041", n:"ไซส์ ใหญ่พิเศษ"}
+            ]
+        },
+        foam_a: {
+            title: "โฟมแผ่น เกรด A (60x120 ซม.)",
+            items: [
+                {c:"0705021", n:"หนา 1/2 นิ้ว (ครึ่งนิ้ว)"}, {c:"0705027", n:"หนา 3/4 นิ้ว"},
+                {c:"0705023", n:"หนา 1 นิ้ว"}, {c:"0705029", n:"หนา 1.5 นิ้ว"},
+                {c:"0705025", n:"หนา 2 นิ้ว"}, {c:"0705082", n:"หนา 3 นิ้ว"}, {c:"0705083", n:"หนา 4 นิ้ว"},
+                {c:"120383", n:"แท่งทำช่อ 2 นิ้ว"}
+            ]
+        },
+        foam_a4: {
+            title: "โฟมแผ่น เกรด A4 (60x120 ซม.)",
+            items: [
+                {c:"0705056", n:"หนา 1/2 นิ้ว"}, {c:"0705055", n:"หนา 3/4 นิ้ว"},
+                {c:"0705054", n:"หนา 1 นิ้ว"}, {c:"0705057", n:"หนา 1.5 นิ้ว"},
+                {c:"0705058", n:"หนา 2 นิ้ว"}, {c:"0705063", n:"หนา 10 มม. (1cm)"},
+                {c:"0705064", n:"หนา 20 มม. (2cm)"}
+            ]
+        },
+        foam_ball: {
+            title: "โฟมลูกบอล (ทรงกลม)",
+            items: [
+                {c:"120375", n:"3 นิ้ว"}, {c:"120376", n:"4 นิ้ว"}, {c:"120369", n:"5 นิ้ว"},
+                {c:"120364", n:"6 นิ้ว"}, {c:"120377", n:"7 นิ้ว"}, {c:"120365", n:"8 นิ้ว"},
+                {c:"120378", n:"9 นิ้ว"}, {c:"120366", n:"10 นิ้ว"}, {c:"120367", n:"12 นิ้ว"}
+            ]
+        },
+        foam_bush: {
+            title: "โฟมพุ่ม",
+            items: [
+                {c:"120379", n:"4 นิ้ว"}, {c:"120360", n:"5 นิ้ว"}, {c:"120361", n:"6 นิ้ว"},
+                {c:"120362", n:"7 นิ้ว"}, {c:"120363", n:"8 นิ้ว"}, {c:"120373", n:"9 นิ้ว"},
+                {c:"120374", n:"10 นิ้ว"}
+            ]
+        },
+        foam_kratong: {
+            title: "โฟมกระทง (กลมแบน)",
+            items: [
+                {c:"120380", n:"3 นิ้ว"}, {c:"120382", n:"3 นิ้ว (หนา 2นิ้ว)"}, {c:"120381", n:"4 นิ้ว"},
+                {c:"120384", n:"5 นิ้ว"}, {c:"120385", n:"6 นิ้ว"}, {c:"120386", n:"7 นิ้ว"},
+                {c:"120388", n:"8 นิ้ว"}, {c:"120389", n:"9 นิ้ว"}, {c:"120390", n:"10 นิ้ว"},
+                {c:"120335", n:"12 นิ้ว"}
+            ]
+        }
+    };
+
+    function generateSheet() {
+        const checkboxes = document.querySelectorAll('input[name="cat"]:checked');
+        const container = document.getElementById('sheet-content');
+        container.innerHTML = '';
+
+        if (checkboxes.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#999; padding:50px; font-size:16px;">กรุณาติ๊กเลือกหมวดหมู่ที่ต้องการ</div>';
+            return;
+        }
+
+        checkboxes.forEach(chk => {
+            const key = chk.value;
+            const data = db[key];
+            if (data) renderBlock(data, container);
+        });
+    }
+
+    function renderBlock(data, container) {
+        let rowsHtml = '';
+        data.items.forEach(item => {
+            // สร้างวงกลมสี ถ้ามี key สี
+            const colorDot = item.k ? `<span class="color-dot" style="background:${colors[item.k]||'#fff'}"></span>` : '';
+            
+            rowsHtml += `
+                <tr>
+                    <td class="col-code">${item.c}</td>
+                    <td class="col-name">${colorDot}${item.n}</td>
+                    <td class="col-input"><input class="input-box" type="text"></td>
+                    <td class="col-input"><input class="input-box" type="text"></td>
+                    <td class="col-input col-total"><input class="input-box" type="text"></td>
+                </tr>
+            `;
+        });
+
+        const html = `
+            <div class="category-block">
+                <div class="cat-header">${data.title}</div>
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th style="width:15%">รหัส</th>
+                            <th style="width:40%">รายการ</th>
+                            <th style="width:15%">หน้าร้าน</th>
+                            <th style="width:15%">สโตร์</th>
+                            <th style="width:15%">รวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    }
+</script>
+
+</body>
+</html>
