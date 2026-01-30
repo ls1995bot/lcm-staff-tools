@@ -31,10 +31,15 @@
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         
+        /* Input Design */
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #fff8e1; }
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
         .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
+        
+        /* Hide Spinner */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
         /* Checkbox Style */
         .qr-cell { display: flex; align-items: center; gap: 5px; }
@@ -170,6 +175,8 @@
         const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
         [curY, curM] = document.getElementById('monthPicker').value.split('-').map(Number);
         curD = now.getDate(); renderTabs(); loadDay(curD);
+        
+        // Navigation Logic Fix
         document.addEventListener('keydown', handleNav);
         document.addEventListener('wheel', (e) => { 
             if (document.activeElement.classList.contains('num-input')) { e.target.blur(); }
@@ -188,8 +195,14 @@
 
     function handleNav(e) { 
         if(!e.target.classList.contains('num-input')) return;
-        if(e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); moveFocusVertical(e.target, 1); } 
-        else if(e.key === 'ArrowUp') { e.preventDefault(); moveFocusVertical(e.target, -1); }
+        
+        // Enter = Down
+        if(e.key === 'Enter' || e.key === 'ArrowDown') { 
+            e.preventDefault(); moveFocusVertical(e.target, 1); 
+        } 
+        else if(e.key === 'ArrowUp') { 
+            e.preventDefault(); moveFocusVertical(e.target, -1); 
+        }
         else if(e.key === 'ArrowLeft') {
             if(e.target.value === '' || e.target.selectionStart === 0) { e.preventDefault(); moveFocusHorizontal(e.target, -1); }
         }
@@ -207,13 +220,15 @@
         if (targetRow) {
             const targetTd = targetRow.children[colIndex];
             if (targetTd) {
-                const targetInput = targetTd.querySelector('input');
+                // Fix: Select only .num-input to avoid checkboxes
+                const targetInput = targetTd.querySelector('.num-input');
                 if (targetInput) { targetInput.focus(); targetInput.select(); }
             }
         }
     }
 
     function moveFocusHorizontal(currentInput, direction) {
+        // This selector naturally excludes checkboxes (no .num-input class)
         const allInputs = Array.from(document.querySelectorAll('.num-input:not([disabled])'));
         const currentIndex = allInputs.indexOf(currentInput);
         const targetIndex = currentIndex + direction;
@@ -239,19 +254,20 @@
         for(let i=1;i<=r;i++) {
             let row=`<tr>`; 
             for(let c=1;c<=6;c++) {
-                row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${i}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${i}" oninput="validateNumber(this)"></div></td>`;
+                // Added tabindex="-1" to skip checkbox on Tab
+                row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" tabindex="-1" id="qc_${c}_${i}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${i}" oninput="validateNumber(this)"></div></td>`;
             }
             t.insertAdjacentHTML('beforeend', row+'</tr>');
         }
     }
 
-    // Fix: Append Row (Data Safe)
     function addQrRow() { 
         qrRows++; 
         const t = document.getElementById('tbQR');
         let row = `<tr>`; 
         for(let c=1;c<=6;c++) {
-            row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${qrRows}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${qrRows}" oninput="validateNumber(this)"></div></td>`;
+            // Added tabindex="-1"
+            row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" tabindex="-1" id="qc_${c}_${qrRows}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${qrRows}" oninput="validateNumber(this)"></div></td>`;
         }
         t.insertAdjacentHTML('beforeend', row+'</tr>');
         calc();
