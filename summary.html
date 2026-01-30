@@ -18,52 +18,56 @@
             --sb: #e67e22; --sb-light: #fff5eb;
         }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; background: var(--bg); /* พื้นหลังต้องชัดเวลาแคป */ }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--bg); }
         
         /* Header & Controls */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .header h1 { margin: 0; font-size: 1.5rem; color: #2c3e50; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .header h1 { margin: 0; font-size: 1.4rem; color: #2c3e50; }
         
-        .controls-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        input[type="month"], input[type="date"] { padding: 8px; border-radius: 8px; border: 1px solid #ccc; font-family: 'Sarabun'; font-size: 0.9rem; }
+        .controls-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        input[type="month"], input[type="date"] { padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-family: 'Sarabun'; font-size: 0.9rem; }
         
-        .filter-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-right: -5px; }
+        .filter-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-right: -3px; }
 
         .btn-home {
-            text-decoration: none; background: #6c757d; color: white; padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px;
+            text-decoration: none; background: #6c757d; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;
         }
         
-        /* ปุ่มแชร์และพิมพ์ */
+        /* Buttons */
         .btn-action {
-            border: none; padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: 'Sarabun'; color: white;
+            border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: 'Sarabun'; color: white;
         }
         .btn-print { background: #34495e; }
-        .btn-share { background: #06c755; /* สี LINE */ }
-        /* ปุ่มใหม่สำหรับแชร์รวม */
+        .btn-share { background: #06c755; }
         .btn-share-daily { background: #8e44ad; }
 
-        /* Summary Cards */
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid #ccc; position: relative; overflow: hidden; }
-        .card h3 { margin: 0 0 5px 0; font-size: 1rem; opacity: 0.8; }
-        .card .amount { font-size: 1.8rem; font-weight: 800; margin: 10px 0; }
-        .card .diff-sum { font-size: 0.9rem; font-weight: 600; }
-        .card-icon { position: absolute; right: 15px; top: 15px; font-size: 2.5rem; opacity: 0.1; }
+        /* Summary Cards (Compact Design) */
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* บังคับ 3 คอลัมน์เสมอ */
+            gap: 10px; 
+            margin-bottom: 20px; 
+        }
+        .card { 
+            background: white; border-radius: 8px; padding: 10px 15px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 4px solid #ccc; 
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .card h3 { margin: 0; font-size: 0.9rem; opacity: 0.8; white-space: nowrap; }
+        .card .amount { font-size: 1.4rem; font-weight: 800; margin: 2px 0; line-height: 1.2; }
+        .card .diff-sum { font-size: 0.8rem; font-weight: 600; color: #666; }
+        .card-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 2rem; opacity: 0.1; }
 
-        .c-ls { border-color: var(--ls); color: var(--ls); }
-        .c-ls .amount { color: var(--ls); }
-        
-        .c-sk { border-color: var(--sk); color: var(--sk); }
-        .c-sk .amount { color: var(--sk); }
-        
-        .c-sb { border-color: var(--sb); color: var(--sb); }
-        .c-sb .amount { color: var(--sb); }
+        .c-ls { border-color: var(--ls); } .c-ls .amount { color: var(--ls); }
+        .c-sk { border-color: var(--sk); } .c-sk .amount { color: var(--sk); }
+        .c-sb { border-color: var(--sb); } .c-sb .amount { color: var(--sb); }
 
         /* Tabs */
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tab-btn { 
-            padding: 10px 20px; border: none; background: #ddd; border-radius: 20px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; white-space: nowrap; flex: 1;
-            transition: 0.2s;
+            padding: 8px 15px; border: none; background: #ddd; border-radius: 20px; cursor: pointer; font-family: 'Sarabun'; font-weight: bold; white-space: nowrap; flex: 1;
+            transition: 0.2s; font-size: 0.9rem;
         }
         .tab-btn.active { background: #333; color: white; }
         .tab-btn.t-ls.active { background: var(--ls); }
@@ -71,48 +75,46 @@
         .tab-btn.t-sb.active { background: var(--sb); }
 
         /* Data Table */
-        .data-table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: none; margin-bottom: 20px;}
+        .data-table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: none; margin-bottom: 15px;}
         .data-table-container.active { display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th { background: #f8f9fa; padding: 12px 8px; text-align: left; font-weight: 600; color: #666; border-bottom: 2px solid #eee; }
-        td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #f8f9fa; padding: 8px; text-align: left; font-weight: 600; color: #666; border-bottom: 2px solid #eee; }
+        td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         
-        .badge { padding: 3px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; }
+        .badge { padding: 2px 6px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
         .bg-ok { background: #d1e7dd; color: #0f5132; }
         .bg-err { background: #f8d7da; color: #842029; }
         .bg-warn { background: #fff3cd; color: #664d03; }
 
-        .loading { text-align: center; padding: 40px; font-size: 1.2rem; color: #999; }
+        .loading { text-align: center; padding: 30px; font-size: 1rem; color: #999; }
 
-        /* ซ่อนส่วนที่ไม่ต้องการเมื่อแคปรูป หรือ พิมพ์ */
-        @media print {
-            .no-print, .btn-home, .tabs, .controls-group { display: none !important; }
-            body { background: white; -webkit-print-color-adjust: exact; }
-            .data-table-container { display: block !important; break-inside: avoid; margin-bottom: 20px; border: 1px solid #ccc; }
-            .card { border: 1px solid #ccc; }
-        }
-
-        /* CSS พิเศษสำหรับโหมดแชร์รวมรายวัน */
+        /* CSS for Snapshot/Print Mode */
         .force-show-all .data-table-container { 
-            display: block !important; /* บังคับแสดงทุกตาราง */
-            margin-bottom: 25px; 
+            display: block !important; 
+            margin-bottom: 15px; 
             border: 1px solid #e0e0e0;
         }
-        /* เพิ่มหัวข้อสาขาเหนือตารางเมื่อแชร์รวม */
         .force-show-all .data-table-container::before {
-            content: attr(data-label); /* ดึงชื่อสาขาจาก attribute */
-            display: block;
-            padding: 10px 15px;
-            background: #f1f3f5;
-            font-weight: bold;
-            color: #495057;
-            border-bottom: 1px solid #e0e0e0;
+            content: attr(data-label);
+            display: block; padding: 8px 12px;
+            background: #f1f3f5; font-weight: bold; color: #495057;
+            border-bottom: 1px solid #e0e0e0; font-size: 0.9rem;
+        }
+
+        @media print {
+            .no-print, .btn-home, .tabs, .controls-group { display: none !important; }
+            body { background: white; -webkit-print-color-adjust: exact; padding: 0; }
+            .container { padding: 0; max-width: 100%; }
+            .data-table-container { display: block !important; break-inside: avoid; border: 1px solid #ccc; margin-bottom: 10px; }
+            .summary-grid { gap: 5px; margin-bottom: 15px; }
+            .card { border: 1px solid #ccc; padding: 5px 10px; box-shadow: none; }
+            .card .amount { font-size: 1.2rem; }
         }
         
         @media (max-width: 600px) {
             .header h1 { font-size: 1.2rem; width: 100%; }
-            .summary-grid { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; } /* มือถือเรียงลงมา */
             .controls-group { justify-content: flex-start; width: 100%; }
         }
     </style>
@@ -123,7 +125,7 @@
     <div class="header">
         <div style="display:flex; align-items:center; gap:10px;">
             <a href="index.html" class="btn-home no-capture"><i class="fas fa-arrow-left"></i> กลับ</a>
-            <h1>📊 สรุปยอดขายรวม <span id="displayMode" style="font-size: 0.9rem; color: #666;"></span></h1>
+            <h1>📊 สรุปยอดขายรวม <span id="displayMode" style="font-size: 0.8rem; color: #666; font-weight:normal;"></span></h1>
         </div>
         
         <div class="controls-group no-capture">
@@ -132,8 +134,8 @@
             <span class="filter-label">วันที่:</span>
             <input type="date" id="datePicker" onchange="applyDailyFilter()">
             
-            <button class="btn-action btn-share" onclick="shareImage()"><i class="fas fa-share-alt"></i> แชร์รูป (หน้านี้)</button>
-            <button class="btn-action btn-share-daily" onclick="shareDailyAllImage()"><i class="fas fa-camera-retro"></i> 📸 แชร์รวมรายวัน</button>
+            <button class="btn-action btn-share" onclick="shareImage()"><i class="fas fa-share-alt"></i> แชร์รูป</button>
+            <button class="btn-action btn-share-daily" onclick="shareDailyAllImage()"><i class="fas fa-camera-retro"></i> รายวันรวม</button>
             <button class="btn-action btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์</button>
         </div>
     </div>
@@ -169,7 +171,7 @@
     <div id="tab-sk" class="data-table-container" data-label="💖 สมาร์ทคิดส์ (SK)"><div class="loading">กำลังโหลด...</div></div>
     <div id="tab-sb" class="data-table-container" data-label="🟠 สคูลบัส (SB)"><div class="loading">กำลังโหลด...</div></div>
     
-    <div style="text-align: center; color: #999; font-size: 0.8rem; margin-top: 20px;">
+    <div style="text-align: center; color: #999; font-size: 0.7rem; margin-top: 15px;">
         ข้อมูล ณ วันที่: <span id="printDate"></span>
     </div>
 
@@ -287,7 +289,7 @@
         document.querySelector(`.t-${id}`).classList.add('active');
     }
 
-    // --- ฟังก์ชันแคปหน้าจอปกติ (หน้าที่เปิดอยู่) ---
+    // --- ฟังก์ชันแคปหน้าจอปกติ ---
     async function shareImage() {
         const btn = document.querySelector('.btn-share');
         const originalText = btn.innerHTML;
@@ -306,7 +308,7 @@
         }
     }
 
-    // --- ฟังก์ชันใหม่: แคปหน้าจอรวดเดียว 3 สาขา (สำหรับรายวัน) ---
+    // --- ฟังก์ชันใหม่: แคปหน้าจอรวดเดียว 3 สาขา ---
     async function shareDailyAllImage() {
         const datePicker = document.getElementById('datePicker');
         if (!datePicker.value) {
@@ -323,37 +325,29 @@
         const headerTitle = document.querySelector('.header h1');
         const originalTitleText = headerTitle.innerHTML;
 
-        // เตรียมสภาพแวดล้อมสำหรับแคป
-        toHide.forEach(el => el.style.display = 'none'); // ซ่อนปุ่ม
-        captureArea.classList.add('force-show-all'); // บังคับแสดงทุกตาราง
+        toHide.forEach(el => el.style.display = 'none'); 
+        captureArea.classList.add('force-show-all'); 
 
-        // เปลี่ยนหัวข้อชั่วคราวให้ชัดเจนขึ้น
         const dateStr = new Date(datePicker.value).toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
         headerTitle.innerHTML = `📊 สรุปยอดขาย 3 สาขา (ประจำวันที่ ${dateStr})`;
 
         try {
-            // รอ browser render แป๊บนึงเพื่อให้ class force-show-all ทำงาน
             await new Promise(resolve => setTimeout(resolve, 200));
-
             const canvas = await html2canvas(captureArea, {
                 scale: 2, useCORS: true, backgroundColor: "#f4f6f9"
             });
             
-            // คืนค่าสภาพแวดล้อม (สำคัญมาก)
             captureArea.classList.remove('force-show-all');
             headerTitle.innerHTML = originalTitleText;
-
             processCanvas(canvas, `daily_summary_all_${datePicker.value}.png`, btn, originalText, toHide);
 
         } catch (err) {
-             // คืนค่ากรณี error
             captureArea.classList.remove('force-show-all');
             headerTitle.innerHTML = originalTitleText;
             handleCaptureError(err, btn, originalText, toHide);
         }
     }
 
-    // ฟังก์ชันย่อยสำหรับประมวลผลภาพหลังแคปเสร็จ (ใช้ร่วมกัน)
     function processCanvas(canvas, filename, btn, originalText, toHide) {
         canvas.toBlob(async (blob) => {
             const file = new File([blob], filename, { type: "image/png" });
@@ -373,7 +367,6 @@
         }, 'image/png');
     }
 
-    // ฟังก์ชันย่อยสำหรับจัดการ Error (ใช้ร่วมกัน)
     function handleCaptureError(err, btn, originalText, toHide) {
         alert("❌ สร้างรูปภาพล้มเหลว: " + err.message);
         toHide.forEach(el => el.style.display = '');
