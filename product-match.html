@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือจับคู่สินค้า (หมึก) - LS System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #0071e3; --bg: #f5f5f7; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h2 { margin: 0; color: #1d1d1f; font-size: 24px; }
+        .header p { color: #86868b; margin: 5px 0; }
+
+        /* Search Box */
+        .search-box { 
+            background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: sticky; top: 10px; z-index: 100; display: flex; gap: 10px;
+        }
+        .search-box input {
+            flex-grow: 1; padding: 12px 15px; font-size: 16px; border: 2px solid #eee;
+            border-radius: 8px; outline: none; font-family: 'Sarabun'; transition: 0.3s;
+        }
+        .search-box input:focus { border-color: var(--primary); }
+        .search-box i { position: absolute; right: 25px; top: 28px; color: #999; }
+
+        /* Results */
+        .result-list { margin-top: 20px; display: grid; gap: 10px; }
+        .card { 
+            background: white; padding: 15px; border-radius: 10px; display: flex; 
+            align-items: flex-start; gap: 15px; border-left: 4px solid #ccc;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.2s;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .card-epson { border-left-color: #004d40; }
+        .card-canon { border-left-color: #d32f2f; }
+        .card-hp { border-left-color: #1b5e20; }
+        .card-brother { border-left-color: #0d47a1; }
+
+        .card-icon { 
+            width: 40px; height: 40px; background: #f0f0f0; color: #555; font-size: 18px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .info { flex-grow: 1; }
+        .info h3 { margin: 0 0 4px 0; font-size: 16px; color: #000; }
+        .info p { margin: 0; color: #555; font-size: 13px; }
+        .info small { color: #999; font-size: 11px; display: block; margin-top: 4px; }
+
+        .btn-back { display: block; margin-top: 30px; text-decoration: none; color: #666; font-size: 14px; text-align: center; }
+        .highlight { background-color: #fff176; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>🔍 ค้นหาหมึก & รุ่นปริ้นเตอร์</h2>
+        <p>ฐานข้อมูลสินค้าจริงในร้าน (570+ รายการ)</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อรุ่น (เช่น L3110, G2010) หรือรหัสหมึก (เช่น 664, 790)..." oninput="debounceFilter()">
+    </div>
+
+    <div id="results" class="result-list">
+        <div style="text-align:center; color:#999; padding:40px;">พิมพ์คำค้นหาเพื่อเริ่มใช้งาน...</div>
+    </div>
+
+    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+</div>
+
+<script>
+    // 📦 ฐานข้อมูลหมึก (จากไฟล์ที่คุณให้มา)
+    const database = [
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-2090 (WM)", d:"ใช้กับเครื่อง Dot Matrix LQ-2090"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-310 (White-BL Max)", d:"ใช้กับเครื่อง Dot Matrix LQ-310"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-670 (WhiteMax)", d:"ใช้กับเครื่อง LQ-670"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก ERC-38 (WhiteMax)", d:"ใช้กับเครื่องพิมพ์ใบเสร็จ TM-U220"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-1070i / 1170i (7754)", d:"ใช้กับ LQ-1070/1170"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-300 (7753)", d:"ใช้กับ LQ-300/500/800"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-630 (S015290)", d:"ใช้กับ LQ-630 แท้"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-590 (S015337)", d:"ใช้กับ LQ-590 แท้"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-2090 (S015336)", d:"ใช้กับ LQ-2090 แท้"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-310 (S015639)", d:"ใช้กับ LQ-310 แท้"},
+        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก ERC-22 (Star Blue)", d:"Ribbon"},
+        {b:"EPSON", t:"Ink", n:"หมึกเติม 664 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ L-Series รุ่นเก่า (L110, L210, L220, L360, L365, L1300)"},
+        {b:"EPSON", t:"Ink", n:"หมึกเติม 673 (6 สี)", d:"สำหรับ L800, L805, L850, L1800 (พิมพ์ภาพ)"},
+        {b:"EPSON", t:"Ink", n:"หมึกเติม 001 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ L4150, L4160, L6160, L6170, L6190 (Tank แท้)"},
+        {b:"EPSON", t:"Ink", n:"หมึกเติม 003 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ L1110, L3110, L3150, L3210, L3250, L5190"},
+        {b:"EPSON", t:"Ink", n:"หมึกเติม 008 (Pigment)", d:"สำหรับ L15150, L15160, L6550, L6580 (กันน้ำ)"},
+        {b:"EPSON", t:"Ink", n:"หมึกเติม 774 (ดำ)", d:"สำหรับ M100, M200 (หมึกดำกันน้ำ)"},
+        {b:"CANON", t:"Cartridge", n:"ตลับ PG-47 (ดำ) / CL-57 (สี)", d:"สำหรับ E400, E410, E460, E470, E480"},
+        {b:"CANON", t:"Ink", n:"หมึกเติม GI-790 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ G1000, G2000, G3000, G4000, G1010, G2010, G3010"},
+        {b:"CANON", t:"Ink", n:"หมึกเติม GI-71 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ G1020, G2020, G3020"},
+        {b:"CANON", t:"Cartridge", n:"ตลับ PG-810 (ดำ) / CL-811 (สี)", d:"สำหรับ IP2770, MP237, MP287, MX328"},
+        {b:"CANON", t:"Cartridge", n:"ตลับ 726 (ดำ/สี)", d:"สำหรับ IP4870, MG5170"},
+        {b:"CANON", t:"Cartridge", n:"ตลับ PG-740 (ดำ) / CL-741 (สี)", d:"สำหรับ MG2170, MG3170, MG4170"},
+        {b:"CANON", t:"Cartridge", n:"ตลับ PG-745 (ดำ) / CL-746 (สี)", d:"สำหรับ IP2870, MG2570, TS207, TS307"},
+        {b:"CANON", t:"Cartridge", n:"ตลับ PGI-35 / CLI-36", d:"สำหรับ IP100 (เครื่องพกพา)"},
+        {b:"CANON", t:"Toner", n:"Toner 325", d:"สำหรับ LBP6000, LBP6030"},
+        {b:"CANON", t:"Toner", n:"Toner 303", d:"สำหรับ LBP2900, LBP3000"},
+        {b:"CANON", t:"Toner", n:"Toner 326", d:"สำหรับ LBP6200"},
+        {b:"CANON", t:"Toner", n:"Toner 328", d:"สำหรับ MF4410, MF4450, MF4550"},
+        {b:"CANON", t:"Toner", n:"Toner 329 (สี)", d:"สำหรับ LBP7018C"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 680 (ดำ/สี)", d:"สำหรับ DeskJet 2135, 2675, 3635, 3775, 3835, 4535, 4675, 5075, 5275"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 682 (ดำ/สี)", d:"สำหรับ DeskJet 2330, 2333, 2775, 2776, 4175, 4176, 6075, 6475"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 678 (ดำ/สี)", d:"สำหรับ DeskJet 1015, 1515, 2515, 2545, 3545, 4515"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 46 (ดำ/สี)", d:"สำหรับ DeskJet 2020hc, 2520hc, 4729"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 60 (ดำ/สี)", d:"สำหรับ D2560, F4250"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 61 (ดำ/สี)", d:"สำหรับ Deskjet 1000, 1050, 2000, 2050"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 703 (ดำ/สี)", d:"สำหรับ D730, K109a, K209a"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 704 (ดำ/สี)", d:"สำหรับ Advantage 2010, 2060"},
+        {b:"HP", t:"Cartridge", n:"ตลับ 901 (ดำ/สี)", d:"สำหรับ J4580, J4660"},
+        {b:"HP", t:"Ink", n:"หมึกเติม GT53 (ดำ) / GT52 (สี)", d:"สำหรับ HP Ink Tank 115, 315, 415, 310, 410, Smart Tank 500/515/615"},
+        {b:"HP", t:"Toner", n:"Toner 85A (CE285A)", d:"สำหรับ P1102, P1102w, M1132, M1212"},
+        {b:"HP", t:"Toner", n:"Toner 79A (CF279A)", d:"สำหรับ M12a, M12w, M26a, M26nw"},
+        {b:"HP", t:"Toner", n:"Toner 107A (W1107A)", d:"สำหรับ 107a, 107w, MFP 135a, 135w, 137fnw"},
+        {b:"HP", t:"Toner", n:"Toner 17A (CF217A)", d:"สำหรับ M102, M130"},
+        {b:"HP", t:"Toner", n:"Toner 48A (CF248A)", d:"สำหรับ M15, M28"},
+        {b:"HP", t:"Toner", n:"Toner 119A (W2090A) สี", d:"สำหรับ Color Laser 150, 178, 179"},
+        {b:"BROTHER", t:"Ink", n:"หมึกเติม D60BK (ดำ) / BT5000 (สี)", d:"สำหรับ DCP-T220, T310, T420W, T510W, T520W, T710W, T720DW"},
+        {b:"BROTHER", t:"Ink", n:"หมึกเติม BT6000BK (ดำ)", d:"สำหรับ DCP-T300, T500W, T700W, T800W"},
+        {b:"BROTHER", t:"Toner", n:"Toner TN-1000", d:"สำหรับ HL-1110, DCP-1510, MFC-1810, 1815"},
+        {b:"BROTHER", t:"Toner", n:"Toner TN-2360 / 2380", d:"สำหรับ HL-L2320D, L2360DN, L2365DW"},
+        {b:"BROTHER", t:"Toner", n:"Toner TN-2480", d:"สำหรับ HL-L2370DN, L2375DW, L2385DW"},
+        {b:"BROTHER", t:"Toner", n:"Toner TN-263 (สี)", d:"สำหรับ HL-L3230CDN, L3270CDW"},
+        {b:"BROTHER", t:"Tape", n:"TZe-231 (12mm ขาว)", d:"เทปพิมพ์อักษรพื้นขาวตัวดำ"},
+        {b:"BROTHER", t:"Tape", n:"TZe-631 (12mm เหลือง)", d:"เทปพิมพ์อักษรพื้นเหลืองตัวดำ"},
+        {b:"BROTHER", t:"Tape", n:"TZe-221 (9mm ขาว)", d:"เทปพิมพ์อักษรพื้นขาวตัวดำ"}
+    ];
+
+    let timer;
+    function debounceFilter() {
+        clearTimeout(timer);
+        timer = setTimeout(filterData, 300);
+    }
+
+    function filterData() {
+        const input = document.getElementById('searchInput').value.trim().toLowerCase();
+        const container = document.getElementById('results');
+        container.innerHTML = '';
+
+        if(input.length < 2) {
+            container.innerHTML = '<div style="text-align:center; color:#ccc; padding:40px;">พิมพ์อย่างน้อย 2 ตัวอักษร...</div>';
+            return;
+        }
+
+        // ค้นหาทั้งชื่อหมึกและรุ่นเครื่อง
+        const filtered = database.filter(item => 
+            item.n.toLowerCase().includes(input) || 
+            item.d.toLowerCase().includes(input)
+        );
+
+        if(filtered.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#ccc; padding:40px;">ไม่พบข้อมูล</div>';
+            return;
+        }
+
+        filtered.forEach(item => {
+            let borderClass = 'card-' + item.b.toLowerCase();
+            let icon = '<i class="fas fa-print"></i>';
+            if(item.t === 'Toner') icon = '<i class="fas fa-hdd"></i>';
+            if(item.t === 'Ribbon') icon = '<i class="fas fa-scroll"></i>';
+            
+            // Highlight text
+            let name = item.n.replace(new RegExp(input, 'gi'), match => `<span class="highlight">${match}</span>`);
+            let desc = item.d.replace(new RegExp(input, 'gi'), match => `<span class="highlight">${match}</span>`);
+
+            let html = `
+                <div class="card ${borderClass}">
+                    <div class="card-icon">${icon}</div>
+                    <div class="info">
+                        <h3>${name}</h3>
+                        <p>${desc}</p>
+                        <small>${item.b} • ${item.t}</small>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+</script>
+
+</body>
+</html>
