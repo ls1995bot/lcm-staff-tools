@@ -74,64 +74,83 @@
 </div>
 
 <script>
-    // 📦 ฐานข้อมูลหมึก (จากไฟล์ที่คุณให้มา)
-    const database = [
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-2090 (WM)", d:"ใช้กับเครื่อง Dot Matrix LQ-2090"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-310 (White-BL Max)", d:"ใช้กับเครื่อง Dot Matrix LQ-310"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-670 (WhiteMax)", d:"ใช้กับเครื่อง LQ-670"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก ERC-38 (WhiteMax)", d:"ใช้กับเครื่องพิมพ์ใบเสร็จ TM-U220"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-1070i / 1170i (7754)", d:"ใช้กับ LQ-1070/1170"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-300 (7753)", d:"ใช้กับ LQ-300/500/800"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-630 (S015290)", d:"ใช้กับ LQ-630 แท้"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-590 (S015337)", d:"ใช้กับ LQ-590 แท้"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-2090 (S015336)", d:"ใช้กับ LQ-2090 แท้"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก LQ-310 (S015639)", d:"ใช้กับ LQ-310 แท้"},
-        {b:"EPSON", t:"Ribbon", n:"ตลับหมึก ERC-22 (Star Blue)", d:"Ribbon"},
-        {b:"EPSON", t:"Ink", n:"หมึกเติม 664 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ L-Series รุ่นเก่า (L110, L210, L220, L360, L365, L1300)"},
-        {b:"EPSON", t:"Ink", n:"หมึกเติม 673 (6 สี)", d:"สำหรับ L800, L805, L850, L1800 (พิมพ์ภาพ)"},
-        {b:"EPSON", t:"Ink", n:"หมึกเติม 001 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ L4150, L4160, L6160, L6170, L6190 (Tank แท้)"},
-        {b:"EPSON", t:"Ink", n:"หมึกเติม 003 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ L1110, L3110, L3150, L3210, L3250, L5190"},
-        {b:"EPSON", t:"Ink", n:"หมึกเติม 008 (Pigment)", d:"สำหรับ L15150, L15160, L6550, L6580 (กันน้ำ)"},
-        {b:"EPSON", t:"Ink", n:"หมึกเติม 774 (ดำ)", d:"สำหรับ M100, M200 (หมึกดำกันน้ำ)"},
-        {b:"CANON", t:"Cartridge", n:"ตลับ PG-47 (ดำ) / CL-57 (สี)", d:"สำหรับ E400, E410, E460, E470, E480"},
-        {b:"CANON", t:"Ink", n:"หมึกเติม GI-790 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ G1000, G2000, G3000, G4000, G1010, G2010, G3010"},
-        {b:"CANON", t:"Ink", n:"หมึกเติม GI-71 (ดำ/ฟ้า/ชมพู/เหลือง)", d:"สำหรับ G1020, G2020, G3020"},
-        {b:"CANON", t:"Cartridge", n:"ตลับ PG-810 (ดำ) / CL-811 (สี)", d:"สำหรับ IP2770, MP237, MP287, MX328"},
-        {b:"CANON", t:"Cartridge", n:"ตลับ 726 (ดำ/สี)", d:"สำหรับ IP4870, MG5170"},
-        {b:"CANON", t:"Cartridge", n:"ตลับ PG-740 (ดำ) / CL-741 (สี)", d:"สำหรับ MG2170, MG3170, MG4170"},
-        {b:"CANON", t:"Cartridge", n:"ตลับ PG-745 (ดำ) / CL-746 (สี)", d:"สำหรับ IP2870, MG2570, TS207, TS307"},
-        {b:"CANON", t:"Cartridge", n:"ตลับ PGI-35 / CLI-36", d:"สำหรับ IP100 (เครื่องพกพา)"},
-        {b:"CANON", t:"Toner", n:"Toner 325", d:"สำหรับ LBP6000, LBP6030"},
-        {b:"CANON", t:"Toner", n:"Toner 303", d:"สำหรับ LBP2900, LBP3000"},
-        {b:"CANON", t:"Toner", n:"Toner 326", d:"สำหรับ LBP6200"},
-        {b:"CANON", t:"Toner", n:"Toner 328", d:"สำหรับ MF4410, MF4450, MF4550"},
-        {b:"CANON", t:"Toner", n:"Toner 329 (สี)", d:"สำหรับ LBP7018C"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 680 (ดำ/สี)", d:"สำหรับ DeskJet 2135, 2675, 3635, 3775, 3835, 4535, 4675, 5075, 5275"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 682 (ดำ/สี)", d:"สำหรับ DeskJet 2330, 2333, 2775, 2776, 4175, 4176, 6075, 6475"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 678 (ดำ/สี)", d:"สำหรับ DeskJet 1015, 1515, 2515, 2545, 3545, 4515"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 46 (ดำ/สี)", d:"สำหรับ DeskJet 2020hc, 2520hc, 4729"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 60 (ดำ/สี)", d:"สำหรับ D2560, F4250"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 61 (ดำ/สี)", d:"สำหรับ Deskjet 1000, 1050, 2000, 2050"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 703 (ดำ/สี)", d:"สำหรับ D730, K109a, K209a"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 704 (ดำ/สี)", d:"สำหรับ Advantage 2010, 2060"},
-        {b:"HP", t:"Cartridge", n:"ตลับ 901 (ดำ/สี)", d:"สำหรับ J4580, J4660"},
-        {b:"HP", t:"Ink", n:"หมึกเติม GT53 (ดำ) / GT52 (สี)", d:"สำหรับ HP Ink Tank 115, 315, 415, 310, 410, Smart Tank 500/515/615"},
-        {b:"HP", t:"Toner", n:"Toner 85A (CE285A)", d:"สำหรับ P1102, P1102w, M1132, M1212"},
-        {b:"HP", t:"Toner", n:"Toner 79A (CF279A)", d:"สำหรับ M12a, M12w, M26a, M26nw"},
-        {b:"HP", t:"Toner", n:"Toner 107A (W1107A)", d:"สำหรับ 107a, 107w, MFP 135a, 135w, 137fnw"},
-        {b:"HP", t:"Toner", n:"Toner 17A (CF217A)", d:"สำหรับ M102, M130"},
-        {b:"HP", t:"Toner", n:"Toner 48A (CF248A)", d:"สำหรับ M15, M28"},
-        {b:"HP", t:"Toner", n:"Toner 119A (W2090A) สี", d:"สำหรับ Color Laser 150, 178, 179"},
-        {b:"BROTHER", t:"Ink", n:"หมึกเติม D60BK (ดำ) / BT5000 (สี)", d:"สำหรับ DCP-T220, T310, T420W, T510W, T520W, T710W, T720DW"},
-        {b:"BROTHER", t:"Ink", n:"หมึกเติม BT6000BK (ดำ)", d:"สำหรับ DCP-T300, T500W, T700W, T800W"},
-        {b:"BROTHER", t:"Toner", n:"Toner TN-1000", d:"สำหรับ HL-1110, DCP-1510, MFC-1810, 1815"},
-        {b:"BROTHER", t:"Toner", n:"Toner TN-2360 / 2380", d:"สำหรับ HL-L2320D, L2360DN, L2365DW"},
-        {b:"BROTHER", t:"Toner", n:"Toner TN-2480", d:"สำหรับ HL-L2370DN, L2375DW, L2385DW"},
-        {b:"BROTHER", t:"Toner", n:"Toner TN-263 (สี)", d:"สำหรับ HL-L3230CDN, L3270CDW"},
-        {b:"BROTHER", t:"Tape", n:"TZe-231 (12mm ขาว)", d:"เทปพิมพ์อักษรพื้นขาวตัวดำ"},
-        {b:"BROTHER", t:"Tape", n:"TZe-631 (12mm เหลือง)", d:"เทปพิมพ์อักษรพื้นเหลืองตัวดำ"},
-        {b:"BROTHER", t:"Tape", n:"TZe-221 (9mm ขาว)", d:"เทปพิมพ์อักษรพื้นขาวตัวดำ"}
-    ];
+// 🧩 ฐานข้อมูลไส้ปากกา (จากสินค้าที่มีขายจริง)
+const database = [
+
+  // ===== ARTIFACT / EASY FLOW =====
+  { b:"ARTIFACT", t:"Refill", n:"ไส้ปากกาดำ EASY FLOW 9000", d:"ลูกลื่น Easy Flow หมึกไหลลื่น" },
+  { b:"ARTIFACT", t:"Refill", n:"ไส้ปากกาน้ำเงิน 9000 Medium", d:"ลูกลื่น Easy Flow 9000" },
+  { b:"ARTIFACT", t:"Refill", n:"ไส้ปากกาลูกลื่น 3 ระบบ สีแดง", d:"แกนสั้น เหล็ก" },
+  { b:"ARTIFACT", t:"Refill", n:"ไส้ปากกาลูกลื่น 3 ระบบ สีน้ำเงิน", d:"แกนสั้น เหล็ก" },
+
+  // ===== PENTEL =====
+  { b:"Pentel", t:"Refill", n:"BHM6 (SUPERBALL)", d:"ไส้ปากกาลูกลื่น Pentel" },
+  { b:"Pentel", t:"Refill", n:"YR5-CX 0.5 น้ำเงิน", d:"Pentel FLOATUN 0.5mm" },
+  { b:"Pentel", t:"Refill", n:"YR8-CX 0.8 น้ำเงิน", d:"Pentel FLOATUN 0.8mm" },
+  { b:"Pentel", t:"Refill", n:"YR10-CX 1.0 น้ำเงิน", d:"Pentel FLOATUN 1.0mm" },
+
+  { b:"Pentel", t:"Refill", n:"K106 ดำ", d:"KF6-A / KF6-AO" },
+  { b:"Pentel", t:"Refill", n:"K106 แดง", d:"KF6-B" },
+  { b:"Pentel", t:"Refill", n:"K106 น้ำเงิน", d:"KF6-CO (2C)" },
+
+  { b:"Pentel", t:"Refill", n:"LRN4-C 0.4 น้ำเงิน", d:"Energel 0.4mm" },
+
+  // Energel (ด้ามใส)
+  { b:"Pentel", t:"Refill", n:"LRN5TL-A ดำ 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-B แดง 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-BG แดงเข้ม 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-C น้ำเงิน 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-CA น้ำเงินเข้ม 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-F ส้ม 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-N2 เทาใส 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-P ชมพู 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-S3 Turquoise 0.5", d:"Energel ด้ามใส" },
+  { b:"Pentel", t:"Refill", n:"LRN5TL-V ม่วง 0.5", d:"Energel ด้ามใส" },
+
+  // Permanent
+  { b:"Pentel", t:"Refill", n:"LRP5-AX ดำ 0.5", d:"Permanent" },
+  { b:"Pentel", t:"Refill", n:"LRP5-BX แดง 0.5", d:"Permanent" },
+  { b:"Pentel", t:"Refill", n:"LRP5-CX น้ำเงิน 0.5", d:"Permanent" },
+  { b:"Pentel", t:"Refill", n:"LRP7-AX ดำ 0.7", d:"Permanent" },
+  { b:"Pentel", t:"Refill", n:"LRP7-BX แดง 0.7", d:"Permanent" },
+  { b:"Pentel", t:"Refill", n:"LRP7-CX น้ำเงิน 0.7", d:"Permanent" },
+
+  // Rolling
+  { b:"Pentel", t:"Refill", n:"MG6S 0.6", d:"ไส้โรลลิ่ง Pentel" },
+  { b:"Pentel", t:"Refill", n:"MGN6S-A ดำ", d:"โรลลิ่ง" },
+  { b:"Pentel", t:"Refill", n:"MGN6S-C น้ำเงิน", d:"โรลลิ่ง" },
+  { b:"Pentel", t:"Refill", n:"MG8-C น้ำเงิน", d:"โรลลิ่ง รุ่นใหม่" },
+
+  // ===== PILOT / FRIXION =====
+  { b:"Pilot", t:"Refill", n:"RF-8F แดง", d:"Pilot ลูกลื่น" },
+
+  { b:"Pilot", t:"Refill", n:"Frixion 0.5 3in1", d:"ดำ/แดง/น้ำเงิน" },
+  { b:"Pilot", t:"Refill", n:"Frixion 0.38 (แพค/สีเดี่ยว)", d:"ลบได้" },
+  { b:"Pilot", t:"Refill", n:"Frixion 0.7 ดำ", d:"แพค 3" },
+  { b:"Pilot", t:"Refill", n:"Frixion 0.7 น้ำเงิน", d:"แพค 3/9" },
+
+  // ===== UNI =====
+  { b:"Uni", t:"Refill", n:"UMR-83 0.38", d:"น้ำเงิน / น้ำเงินเข้ม / แดง" },
+  { b:"Uni", t:"Refill", n:"UMR-85 0.5", d:"ดำ / แดง / น้ำเงิน / น้ำเงินเข้ม" },
+  { b:"Uni", t:"Refill", n:"URN-180-05", d:"ลบได้" },
+
+  // ===== ZEBRA =====
+  { b:"Zebra", t:"Refill", n:"RJF5 0.5", d:"ดำ / แดง / น้ำเงิน" },
+  { b:"Zebra", t:"Refill", n:"BR-1B-F", d:"ลูกลื่น ดำ / น้ำเงิน" },
+  { b:"Zebra", t:"Refill", n:"BR-8A-4C", d:"ดำ / แดง / น้ำเงิน" },
+
+  // ===== PARKER / CROSS =====
+  { b:"Parker", t:"Refill", n:"ลูกลื่น Parker", d:"ดำ / น้ำเงิน (กลาง/เล็ก)" },
+  { b:"Parker", t:"Refill", n:"Rollerball Parker", d:"น้ำเงิน" },
+  { b:"Cross", t:"Refill", n:"#8511-8514", d:"ลูกลื่น กลาง/เล็ก" },
+  { b:"Cross", t:"Refill", n:"#8521 / #8523", d:"Rollerball" },
+
+  // ===== FOUNTAIN PEN =====
+  { b:"HERO", t:"Ink", n:"หลอดหมึกซึม", d:"แพค 6" },
+  { b:"M&G", t:"Ink", n:"หลอดหมึกซึม AIC47606-A", d:"แพค 10" },
+
+];
+
 
     let timer;
     function debounceFilter() {
