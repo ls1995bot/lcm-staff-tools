@@ -163,20 +163,21 @@
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null, isDirty = false;
     const SAVE_DELAY = 30000; 
-    const KEY = 'cashApp_SB'; // SB Key
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyFW2pLaVWYxLhGzUYqplBU7iKoI1OmY8OU_nNOW1vkFQVpPCZdIlljugS7W3iEt6yk/exec';
+    const KEY = 'cashApp_LS'; // เปลี่ยน KEY ตามสาขา (LS, SK, SB)
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
         buildTable('tableMorn', 'm'); 
         buildTable('tableEve', 'e'); 
         buildQR(qrRows); 
         buildOps(3, true); 
+        
         const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); 
         const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
         [curY, curM] = document.getElementById('monthPicker').value.split('-').map(Number);
+        
         curD = now.getDate(); renderTabs(); loadDay(curD);
         
-        // Navigation Logic Fix
         document.addEventListener('keydown', handleNav);
         document.addEventListener('wheel', (e) => { 
             if (document.activeElement.classList.contains('num-input')) { e.target.blur(); }
@@ -193,16 +194,11 @@
         calc();
     }
 
+    // --- Smart Navigation Logic ---
     function handleNav(e) { 
         if(!e.target.classList.contains('num-input')) return;
-        
-        // Enter = Down
-        if(e.key === 'Enter' || e.key === 'ArrowDown') { 
-            e.preventDefault(); moveFocusVertical(e.target, 1); 
-        } 
-        else if(e.key === 'ArrowUp') { 
-            e.preventDefault(); moveFocusVertical(e.target, -1); 
-        }
+        if(e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); moveFocusVertical(e.target, 1); } 
+        else if(e.key === 'ArrowUp') { e.preventDefault(); moveFocusVertical(e.target, -1); }
         else if(e.key === 'ArrowLeft') {
             if(e.target.value === '' || e.target.selectionStart === 0) { e.preventDefault(); moveFocusHorizontal(e.target, -1); }
         }
@@ -220,15 +216,13 @@
         if (targetRow) {
             const targetTd = targetRow.children[colIndex];
             if (targetTd) {
-                // Fix: Select only .num-input to avoid checkboxes
-                const targetInput = targetTd.querySelector('.num-input');
+                const targetInput = targetTd.querySelector('input.num-input');
                 if (targetInput) { targetInput.focus(); targetInput.select(); }
             }
         }
     }
 
     function moveFocusHorizontal(currentInput, direction) {
-        // This selector naturally excludes checkboxes (no .num-input class)
         const allInputs = Array.from(document.querySelectorAll('.num-input:not([disabled])'));
         const currentIndex = allInputs.indexOf(currentInput);
         const targetIndex = currentIndex + direction;
@@ -237,6 +231,7 @@
         }
     }
 
+    // --- Build Tables ---
     function buildTable(id, p) {
         const tb = document.getElementById(id); if(!tb) return;
         let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
@@ -254,26 +249,31 @@
         for(let i=1;i<=r;i++) {
             let row=`<tr>`; 
             for(let c=1;c<=6;c++) {
-                // Added tabindex="-1" to skip checkbox on Tab
-                row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" tabindex="-1" id="qc_${c}_${i}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${i}" oninput="validateNumber(this)"></div></td>`;
+                row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${i}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${i}" oninput="validateNumber(this)"></div></td>`;
             }
             t.insertAdjacentHTML('beforeend', row+'</tr>');
         }
     }
 
+    // --- Add/Del Rows (Fix: Append instead of Rebuild) ---
     function addQrRow() { 
         qrRows++; 
         const t = document.getElementById('tbQR');
         let row = `<tr>`; 
         for(let c=1;c<=6;c++) {
-            // Added tabindex="-1"
-            row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" tabindex="-1" id="qc_${c}_${qrRows}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${qrRows}" oninput="validateNumber(this)"></div></td>`;
+            row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${qrRows}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${qrRows}" oninput="validateNumber(this)"></div></td>`;
         }
         t.insertAdjacentHTML('beforeend', row+'</tr>');
         calc();
     }
 
-    function delQrRow() { if (qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
+    function delQrRow() { 
+        if (qrRows > 1) { 
+            document.getElementById('tbQR').deleteRow(-1); 
+            qrRows--; 
+            calc(); 
+        } 
+    }
 
     function buildOps(n, def) { 
         const tb = document.getElementById('tbOps'); if(!tb) return;
@@ -289,11 +289,13 @@
 
     function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
     
+    // --- Core Functions ---
     function switchDay(newD) {
         if (newD === curD) return; 
         if (isDirty) {
             if(confirm(`⚠️ คุณยังไม่ได้บันทึกยอดของวันที่ ${curD}\nต้องการบันทึกก่อนเปลี่ยนวันหรือไม่?`)) {
-                if(!validateName()) return; forceSave(); 
+                if(!validateName()) return; 
+                forceSave(); 
             } else { if(saveTimer) clearTimeout(saveTimer); }
         } else { if(saveTimer) clearTimeout(saveTimer); }
         isDirty = false; loadDay(newD); renderTabs();
@@ -356,19 +358,47 @@
         return d; 
     }
     
+    // --- Fix: Auto-Expand QR Rows ---
     function setForm(d) { 
         document.getElementById('posVal').value = d.pos||''; document.getElementById('empName').value = d.emp||''; 
-        const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
+        
+        // Restore Ops
+        const rows = document.getElementById('tbOps').rows; 
+        if(d.ops) {
+            // Add rows if needed
+            while(document.getElementById('tbOps').rows.length < d.ops.length) addOpsRow('');
+            d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
+        }
+
+        // Restore Coins
         denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
-        if(d.qr) for(let key in d.qr) { 
-            let [c,r]=key.split(','); let el=document.getElementById(`q_${c}_${r}`); let ck=document.getElementById(`qc_${c}_${r}`);
-            if(el) { if(typeof d.qr[key] === 'object') { el.value = d.qr[key].v || ''; if(ck) ck.checked = d.qr[key].k || false; } else { el.value = d.qr[key] || ''; } } 
+        
+        // Restore QR (FIXED HERE)
+        if(d.qr) {
+            // Find max row needed
+            let maxRow = 6;
+            for(let key in d.qr) {
+                let [c, r] = key.split(',').map(Number);
+                if(r > maxRow) maxRow = r;
+            }
+            // Expand table if needed
+            while(qrRows < maxRow) addQrRow();
+
+            // Fill Data
+            for(let key in d.qr) { 
+                let [c,r]=key.split(','); 
+                let el=document.getElementById(`q_${c}_${r}`); let ck=document.getElementById(`qc_${c}_${r}`);
+                if(el) {
+                    if(typeof d.qr[key] === 'object') { el.value = d.qr[key].v || ''; if(ck) ck.checked = d.qr[key].k || false; } 
+                    else { el.value = d.qr[key] || ''; }
+                } 
+            } 
         } 
         calc(false); 
     }
 
     async function recoverFromCloud() {
-        const k = getKey(curD); const shopName = "ใบส่งเงิน SB"; 
+        const k = getKey(curD); const shopName = "ใบส่งเงิน LS"; 
         try {
             const btn = document.getElementById('recoverBtn'); const oldTxt = btn.innerHTML; btn.innerHTML = '<span>⏳...</span>'; btn.disabled = true;
             const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}`);
@@ -393,16 +423,16 @@
     function silentCloudSync() { 
         if(!curD || document.getElementById('posVal').disabled) return;
         const k = getKey(curD); const form = getForm(); 
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SB", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
     }
 
     function forceSave() { 
         if(!curD || !validateName()) return;
         const k = getKey(curD); const form = getForm(); 
-        const finalData = { targetTab: "ใบส่งเงิน SB", date: k, shop: "สคูลบัส", emp: form.emp, pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; 
+        const finalData = { targetTab: "ใบส่งเงิน LS", date: k, shop: "แหลมฉบังเครื่องเขียน", emp: form.emp, pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SB", emp: form.emp, raw: JSON.stringify(form) };
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp, raw: JSON.stringify(form) };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
         db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
@@ -414,12 +444,11 @@
     function loadDay(d) { 
         curD = d; 
         document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; } }); 
-        document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); 
+        document.getElementById('tbOps').innerHTML = ''; 
+        qrRows = 6; buildQR(qrRows); // Reset QR rows to default
         const k = getKey(d); 
         if(db[k]) { 
-            if(db[k].ops) buildOps(db[k].ops.length, false); 
-            if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
-            setForm(db[k]); 
+            setForm(db[k]); // setForm will now handle expanding rows
         } else { buildOps(3, true); calc(false); }
         checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
     }
@@ -443,7 +472,7 @@
         document.getElementById('unlockBtn').style.display = 'none';
     }
 
-    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SB_Backup_${getKey(curD)}.json`; a.click(); }
+    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_Backup_${getKey(curD)}.json`; a.click(); }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ เรียบร้อย"); } catch(e){ alert("❌ ไฟล์ผิดพลาด"); } }; r.readAsText(e.files[0]); }
 
     init();
