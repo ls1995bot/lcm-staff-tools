@@ -31,17 +31,14 @@
         th, td { padding: 3px; border-bottom: 1px solid #eee; vertical-align: middle; }
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         
-        /* Input Design */
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
         input:focus { outline: 2px solid var(--primary); background: #fff8e1; }
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
         .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
         
-        /* Hide Spinner */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
-        /* Checkbox Style */
         .qr-cell { display: flex; align-items: center; gap: 5px; }
         .qr-check { width: 18px !important; height: 18px !important; margin: 0 !important; cursor: pointer; }
         .qr-input { flex-grow: 1; }
@@ -163,7 +160,9 @@
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null, isDirty = false;
     const SAVE_DELAY = 30000; 
-    const KEY = 'cashApp_LS'; // เปลี่ยน KEY ตามสาขา (LS, SK, SB)
+    
+    // 🔴 SETTINGS FOR SB (SCHOOL BUS)
+    const KEY = 'cashApp_SB'; 
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
@@ -194,7 +193,6 @@
         calc();
     }
 
-    // --- Smart Navigation Logic ---
     function handleNav(e) { 
         if(!e.target.classList.contains('num-input')) return;
         if(e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); moveFocusVertical(e.target, 1); } 
@@ -231,7 +229,6 @@
         }
     }
 
-    // --- Build Tables ---
     function buildTable(id, p) {
         const tb = document.getElementById(id); if(!tb) return;
         let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
@@ -255,7 +252,6 @@
         }
     }
 
-    // --- Add/Del Rows (Fix: Append instead of Rebuild) ---
     function addQrRow() { 
         qrRows++; 
         const t = document.getElementById('tbQR');
@@ -289,7 +285,6 @@
 
     function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
     
-    // --- Core Functions ---
     function switchDay(newD) {
         if (newD === curD) return; 
         if (isDirty) {
@@ -358,14 +353,12 @@
         return d; 
     }
     
-    // --- Fix: Auto-Expand QR Rows ---
     function setForm(d) { 
         document.getElementById('posVal').value = d.pos||''; document.getElementById('empName').value = d.emp||''; 
         
         // Restore Ops
         const rows = document.getElementById('tbOps').rows; 
         if(d.ops) {
-            // Add rows if needed
             while(document.getElementById('tbOps').rows.length < d.ops.length) addOpsRow('');
             d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
         }
@@ -373,18 +366,15 @@
         // Restore Coins
         denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
         
-        // Restore QR (FIXED HERE)
+        // Restore QR
         if(d.qr) {
-            // Find max row needed
             let maxRow = 6;
             for(let key in d.qr) {
                 let [c, r] = key.split(',').map(Number);
                 if(r > maxRow) maxRow = r;
             }
-            // Expand table if needed
             while(qrRows < maxRow) addQrRow();
 
-            // Fill Data
             for(let key in d.qr) { 
                 let [c,r]=key.split(','); 
                 let el=document.getElementById(`q_${c}_${r}`); let ck=document.getElementById(`qc_${c}_${r}`);
@@ -398,12 +388,19 @@
     }
 
     async function recoverFromCloud() {
-        const k = getKey(curD); const shopName = "ใบส่งเงิน LS"; 
+        const k = getKey(curD); 
+        const shopName = "ใบส่งเงิน SB"; // 🔴 FILTER NAME
+        
+        const btn = document.getElementById('recoverBtn'); 
+        const oldTxt = '<span>🔄 ดึงข้อมูล</span><small>กู้คืนจาก Cloud</small>'; 
+
         try {
-            const btn = document.getElementById('recoverBtn'); const oldTxt = btn.innerHTML; btn.innerHTML = '<span>⏳...</span>'; btn.disabled = true;
-            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}`);
+            btn.innerHTML = '<span>⏳ โหลด...</span>'; btn.disabled = true;
+            const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}&t=${new Date().getTime()}`);
             const data = await resp.json();
+            
             btn.innerHTML = oldTxt; btn.disabled = false;
+
             if (data.status === "error") { alert("❌ " + data.msg); return; }
             let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ:\n----------------\n`;
             data.list.forEach((item, i) => { msg += `[ ${i + 1} ] 👤 ${item.user} 🕒 ${item.time}\n`; });
@@ -417,23 +414,25 @@
                     alert("✅ เรียบร้อย");
                 }
             }
-        } catch (e) { alert("❌ Error: " + e.message); document.getElementById('recoverBtn').disabled = false; }
+        } catch (e) { alert("❌ Error: " + e.message); btn.innerHTML = oldTxt; btn.disabled = false; }
     }
 
     function silentCloudSync() { 
         if(!curD || document.getElementById('posVal').disabled) return;
         const k = getKey(curD); const form = getForm(); 
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SB", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
     }
 
     function forceSave() { 
         if(!curD || !validateName()) return;
         const k = getKey(curD); const form = getForm(); 
-        const finalData = { targetTab: "ใบส่งเงิน LS", date: k, shop: "แหลมฉบังเครื่องเขียน", emp: form.emp, pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; 
+        const finalData = { targetTab: "ใบส่งเงิน SB", date: k, shop: "สคูลบัส (ชุดนักเรียน)", emp: form.emp, pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
-        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน LS", emp: form.emp, raw: JSON.stringify(form) };
+        
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SB", emp: form.emp, raw: JSON.stringify(form) };
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
+        
         db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
         isDirty = false; 
@@ -445,11 +444,9 @@
         curD = d; 
         document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; } }); 
         document.getElementById('tbOps').innerHTML = ''; 
-        qrRows = 6; buildQR(qrRows); // Reset QR rows to default
+        qrRows = 6; buildQR(qrRows);
         const k = getKey(d); 
-        if(db[k]) { 
-            setForm(db[k]); // setForm will now handle expanding rows
-        } else { buildOps(3, true); calc(false); }
+        if(db[k]) { setForm(db[k]); } else { buildOps(3, true); calc(false); }
         checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
     }
 
@@ -472,7 +469,7 @@
         document.getElementById('unlockBtn').style.display = 'none';
     }
 
-    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LS_Backup_${getKey(curD)}.json`; a.click(); }
+    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SB_Backup_${getKey(curD)}.json`; a.click(); }
     function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ เรียบร้อย"); } catch(e){ alert("❌ ไฟล์ผิดพลาด"); } }; r.readAsText(e.files[0]); }
 
     init();
