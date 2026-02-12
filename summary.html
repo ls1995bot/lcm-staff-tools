@@ -18,7 +18,31 @@
             --sb: #e67e22; --sb-light: #fff5eb;
         }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; background: var(--bg); }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--bg); filter: blur(5px); pointer-events: none; transition: 0.3s; }
+        .container.unlocked { filter: none; pointer-events: auto; }
+        
+        /* Lock Screen */
+        .lock-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .lock-box {
+            background: white; padding: 30px; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
+            border: 1px solid #eee; width: 90%; max-width: 320px;
+        }
+        .lock-icon { font-size: 3rem; color: #333; margin-bottom: 15px; }
+        .lock-input {
+            width: 100%; padding: 12px; font-size: 1.2rem; text-align: center;
+            border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px;
+            font-family: 'Sarabun'; letter-spacing: 5px; outline: none; box-sizing: border-box;
+        }
+        .lock-input:focus { border-color: #023f88; }
+        .lock-btn {
+            width: 100%; padding: 12px; background: #023f88; color: white;
+            border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer;
+        }
         
         /* Header & Controls */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
@@ -103,9 +127,9 @@
         }
 
         @media print {
-            .no-print, .btn-home, .tabs, .controls-group { display: none !important; }
+            .no-print, .btn-home, .tabs, .controls-group, .lock-overlay { display: none !important; }
             body { background: white; -webkit-print-color-adjust: exact; padding: 0; }
-            .container { padding: 0; max-width: 100%; }
+            .container { padding: 0; max-width: 100%; filter: none !important; }
             .data-table-container { display: block !important; break-inside: avoid; border: 1px solid #ccc; margin-bottom: 10px; }
             .summary-grid { gap: 5px; margin-bottom: 15px; }
             .card { border: 1px solid #ccc; padding: 5px 10px; box-shadow: none; }
@@ -120,6 +144,15 @@
     </style>
 </head>
 <body>
+
+<div class="lock-overlay" id="lockScreen">
+    <div class="lock-box">
+        <div class="lock-icon"><i class="fas fa-lock"></i></div>
+        <h3 style="margin-top:0; margin-bottom:15px; color:#333;">กรุณาใส่รหัสผ่าน</h3>
+        <input type="password" id="passInput" class="lock-input" placeholder="****" maxlength="4" oninput="checkPass()">
+        <a href="index.html" style="font-size:0.9rem; color:#666; text-decoration:none; margin-top:15px; display:inline-block;">⬅️ กลับหน้าหลัก</a>
+    </div>
+</div>
 
 <div class="container" id="captureArea">
     <div class="header">
@@ -186,6 +219,17 @@
     document.getElementById('monthPicker').value = now.toISOString().slice(0, 7);
     document.getElementById('printDate').innerText = now.toLocaleDateString('th-TH');
 
+    // --- Unlock Logic ---
+    function checkPass() {
+        const val = document.getElementById('passInput').value;
+        if (val === '1234') {
+            document.getElementById('lockScreen').style.display = 'none';
+            document.querySelector('.container').classList.add('unlocked');
+            init(); // Load data after unlock
+        }
+    }
+
+    // แก้ init() ให้ไม่โหลดอัตโนมัติ รอปลดล็อกก่อน
     function init() { loadDashboard(); }
 
     async function loadDashboard() {
@@ -373,7 +417,7 @@
         btn.innerHTML = originalText;
     }
 
-    init();
+    // ⛔ ลบ init() ท้ายสุดออก (ให้ทำงานผ่าน checkPass แทน)
 </script>
 
 </body>
