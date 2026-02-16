@@ -160,8 +160,8 @@
     
     // 🔴 SETTINGS FOR SK (SMART KIDS)
     const KEY = 'cashApp_SK'; 
-    // ⚠️⚠️⚠️ ใส่ URL ของ SCRIPT A (การเงิน) ที่นี่ ⚠️⚠️⚠️
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbz_YOUR_SCRIPT_A_URL_HERE/exec';
+    // ⚠️⚠️⚠️ ใส่ URL ของ SCRIPT A ที่นี่ ⚠️⚠️⚠️
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
         buildTable('tableMorn', 'm'); 
@@ -305,46 +305,64 @@
         if(triggerAutoSave && !document.getElementById('posVal').disabled) { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(silentCloudSync, SAVE_DELAY); }
     }
 
-    // --- NEW getForm & setForm (Same as LS) ---
+    // --- Fix: Robust getForm (Loops all cells) ---
     function getForm() { 
         let opsData = []; 
         const rows = document.getElementById('tbOps').rows; 
         for(let i=0; i<rows.length; i++) {
             opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value });
         }
-        const d = { pos: document.getElementById('posVal').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; 
+        const d = { 
+            pos: document.getElementById('posVal').value, 
+            emp: document.getElementById('empName').value, 
+            qr_r: qrRows, // Important: Save current rows
+            ops: opsData, 
+            m: {}, e: {}, qr: {} 
+        }; 
         denoms.forEach(x => { d.m[x] = document.getElementById(`mv_${x}`).value; d.e[x] = document.getElementById(`ev_${x}`).value; }); 
         
+        // Loop ALL cells (1..6 columns, 1..qrRows rows)
         for(let r=1; r<=qrRows; r++) {
             for(let c=1; c<=6; c++) { 
-                let elVal = document.getElementById(`q_${c}_${r}`); let elChk = document.getElementById(`qc_${c}_${r}`);
-                if (!elVal || !elChk) continue;
-                let v = elVal.value; let k = elChk.checked;
+                let elVal = document.getElementById(`q_${c}_${r}`); 
+                let elChk = document.getElementById(`qc_${c}_${r}`);
+                if (!elVal || !elChk) continue; // Safety check
+                
+                let v = elVal.value; 
+                let k = elChk.checked;
+                // Save if has value OR checked OR is first row (to preserve structure)
                 if(v || k || r===1) { d.qr[`${c},${r}`] = {v:v, k:k}; }
             } 
         }
         return d; 
     }
     
+    // --- Fix: Robust setForm (Auto expands rows) ---
     function setForm(d) { 
         document.getElementById('posVal').value = d.pos||''; document.getElementById('empName').value = d.emp||''; 
         
+        // Restore Ops
         const rows = document.getElementById('tbOps').rows; 
         document.getElementById('tbOps').innerHTML = ''; 
         if(d.ops && d.ops.length > 0) {
             d.ops.forEach(o => { addOpsRow(o.n); const lastRow = document.getElementById('tbOps').lastChild; lastRow.querySelector('.op-time').value = o.t; lastRow.querySelector('.op-val').value = o.v; });
         } else { buildOps(3, true); }
 
+        // Restore Coins
         denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value = d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value = d.e[x]||''; }); 
         
+        // Restore QR
         if(d.qr) {
             let maxRow = 6;
+            // 1. Determine max rows needed
             if(d.qr_r) maxRow = d.qr_r; 
             else { for(let key in d.qr) { let r = parseInt(key.split(',')[1]); if(r > maxRow) maxRow = r; } }
             
+            // 2. Rebuild table
             qrRows = 0; document.getElementById('tbQR').innerHTML = '';
             for(let i=0; i<maxRow; i++) addQrRow();
 
+            // 3. Fill data
             for(let key in d.qr) { 
                 let [c,r] = key.split(','); 
                 let el = document.getElementById(`q_${c}_${r}`); let ck = document.getElementById(`qc_${c}_${r}`);
@@ -354,6 +372,7 @@
                 } 
             } 
         } else {
+            // New entry
             qrRows = 0; document.getElementById('tbQR').innerHTML = ''; for(let i=0; i<6; i++) addQrRow();
         }
         calc(false); 
@@ -364,10 +383,13 @@
         const btn = document.getElementById('recoverBtn'); const oldTxt = '<span>🔄 ดึงข้อมูล</span><small>กู้คืนจาก Cloud</small>'; 
         try {
             btn.innerHTML = '<span>⏳ โหลด...</span>'; btn.disabled = true;
+            // Fetch with current date (if user selected yesterday in UI, curD will be yesterday)
             const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}&t=${new Date().getTime()}`);
             const data = await resp.json();
             btn.innerHTML = oldTxt; btn.disabled = false;
+            
             if (data.status === "error") { alert("❌ " + data.msg); return; }
+            
             let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ:\n----------------\n`;
             data.list.forEach((item, i) => { msg += `[ ${i + 1} ] 👤 ${item.user} 🕒 ${item.time}\n`; });
             msg += `----------------\nใส่ตัวเลขเพื่อเลือก:`;
@@ -376,7 +398,10 @@
                 const idx = parseInt(choice)-1;
                 if(data.list[idx] && confirm(`ดึงข้อมูลของ ${data.list[idx].user}?`)) {
                     const cloudData = JSON.parse(data.list[idx].raw);
-                    setForm(cloudData); db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db)); alert("✅ เรียบร้อย");
+                    setForm(cloudData); 
+                    db[k] = cloudData; 
+                    localStorage.setItem(KEY, JSON.stringify(db)); 
+                    alert("✅ เรียบร้อย\n(ข้อมูล QR กลับมาครบถ้วน)");
                 }
             }
         } catch (e) { alert("❌ Error: " + e.message); btn.innerHTML = oldTxt; btn.disabled = false; }
@@ -395,7 +420,7 @@
         const statusEl = document.getElementById('saveStatus');
         statusEl.innerText = "⏳ กำลังส่ง..."; statusEl.style.opacity = 1;
 
-        // Save Target: ใบส่งเงิน SK
+        // Save Summary
         const finalData = { 
             targetTab: "ใบส่งเงิน SK", 
             date: k, shop: "สมาร์ทคิดส์ สหพัฒน์", 
@@ -403,6 +428,7 @@
             actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
             diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
         }; 
+        // Save Backup (Contains full JSON)
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp, raw: JSON.stringify(form) };
 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) })
