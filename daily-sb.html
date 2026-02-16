@@ -368,4 +368,86 @@
             const data = await resp.json();
             btn.innerHTML = oldTxt; btn.disabled = false;
             if (data.status === "error") { alert("❌ " + data.msg); return; }
-            let msg = `🔎 พบข้อมูลสำรอง ${data.list.length}
+            let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ:\n----------------\n`;
+            data.list.forEach((item, i) => { msg += `[ ${i + 1} ] 👤 ${item.user} 🕒 ${item.time}\n`; });
+            msg += `----------------\nใส่ตัวเลขเพื่อเลือก:`;
+            const choice = prompt(msg);
+            if(choice) {
+                const idx = parseInt(choice)-1;
+                if(data.list[idx] && confirm(`ดึงข้อมูลของ ${data.list[idx].user}?`)) {
+                    const cloudData = JSON.parse(data.list[idx].raw);
+                    setForm(cloudData); db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db)); alert("✅ เรียบร้อย");
+                }
+            }
+        } catch (e) { alert("❌ Error: " + e.message); btn.innerHTML = oldTxt; btn.disabled = false; }
+    }
+
+    function silentCloudSync() { 
+        if(!curD || document.getElementById('posVal').disabled) return;
+        const k = getKey(curD); const form = getForm(); 
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SB", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
+    }
+
+    function forceSave() { 
+        if(!curD || !validateName()) return;
+        const k = getKey(curD); const form = getForm(); 
+        const statusEl = document.getElementById('saveStatus');
+        statusEl.innerText = "⏳ กำลังส่ง..."; statusEl.style.opacity = 1;
+
+        const finalData = { 
+            targetTab: "ใบส่งเงิน SB", 
+            date: k, shop: "สคูลบัส", 
+            emp: form.emp, pos: form.pos || 0, 
+            actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
+            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
+        }; 
+        const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SB", emp: form.emp, raw: JSON.stringify(form) };
+
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) })
+        .then(() => {
+             fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
+             db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
+             statusEl.innerText = "✅ บันทึกแล้ว"; setTimeout(() => { statusEl.style.opacity = 0; }, 2000); isDirty = false; 
+        })
+        .catch(err => { statusEl.innerText = "❌ ส่งไม่ผ่าน"; alert("เน็ตหลุด? บันทึกลงเครื่องแล้ว แต่ยังไม่ขึ้น Cloud"); });
+    }
+
+    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); }
+    
+    function loadDay(d) { 
+        curD = d; 
+        document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; } }); 
+        document.getElementById('tbOps').innerHTML = ''; 
+        qrRows = 6; buildQR(qrRows);
+        const k = getKey(d); 
+        if(db[k]) { setForm(db[k]); } else { buildOps(3, true); calc(false); }
+        checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
+    }
+
+    function checkReadOnlyMode() {
+        const today = new Date().getDate(); const thisMonth = new Date().getMonth() + 1; const selMonth = curM;
+        const lock = (selMonth < thisMonth) || (selMonth === thisMonth && curD < today) || (selMonth > thisMonth) || (selMonth === thisMonth && curD > today);
+        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
+        inputs.forEach(i => i.disabled = lock);
+        document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
+        document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
+        document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
+        if(lock && saveTimer) clearTimeout(saveTimer);
+    }
+
+    function unlockEditing() {
+        if(!confirm("⚠️ ต้องการแก้ไขข้อมูลย้อนหลัง?")) return;
+        document.querySelectorAll('input').forEach(i => i.disabled = false);
+        document.getElementById('saveBtn').style.display = 'inline-flex';
+        document.getElementById('recoverBtn').style.display = 'inline-flex';
+        document.getElementById('unlockBtn').style.display = 'none';
+    }
+
+    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SB_Backup_${getKey(curD)}.json`; a.click(); }
+    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ เรียบร้อย"); } catch(e){ alert("❌ ไฟล์ผิดพลาด"); } }; r.readAsText(e.files[0]); }
+
+    init();
+</script>
+</body>
+</html>
