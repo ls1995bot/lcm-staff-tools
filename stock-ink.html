@@ -2,152 +2,119 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>เช็คสต็อคหมึก (เทียบยอด)</title>
+    <title>เช็คสต็อคหมึก</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --primary: #023f88; --bg: #f4f6f8; --read-only: #e9ecef; }
-        
-        body { 
-            font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; 
-            background-color: var(--bg); display: flex; height: 100vh; overflow: hidden;
-            font-size: 11px; 
-        }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+    <style>
+        :root { --primary: #023f88; --bg: #f4f6f9; --read-only: #f1f3f5; --line: #06c755; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background-color: var(--bg); display: flex; height: 100vh; overflow: hidden; font-size: 11px; }
+        
+        /* 🚫 ลบลูกศรในช่อง Number และป้องกันการ Scroll เลข */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
         /* --- Sidebar --- */
-        #sidebar {
-            width: 260px; background: white; border-right: 1px solid #ccc;
-            padding: 20px; display: flex; flex-direction: column; gap: 15px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10;
-        }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; }
+        #sidebar { width: 260px; background: white; border-right: 1px solid #ccc; padding: 15px; display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 2px; font-size: 12px; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; margin-bottom: 5px; }
         
-        .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
-        .btn-save { background: #28a745; color: white; height: 45px; font-size: 16px; margin-top: auto; }
-        .btn-print { background: var(--primary); color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; }
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 13px; }
+        .btn-save { background: #28a745; color: white; height: 45px; font-size: 16px; margin-top: 5px; }
+        .btn-print { background: var(--primary); color: white; margin-top: 5px; }
+        .btn-clear { background: #fff0f0; color: #d32f2f; border: 1px solid #ffcdd2; font-size: 11px; padding: 6px; }
+        .btn-share { background: white; color: var(--line); border: 1px solid var(--line); font-size: 11px; padding: 6px; } 
+        .btn-back { background: #6c757d; color: white; text-decoration: none; margin-top: auto; padding: 8px; font-size: 12px; }
 
         /* --- Main Content --- */
-        #content { flex-grow: 1; padding: 20px; overflow: auto; display: flex; justify-content: center; }
+        #content { flex-grow: 1; padding: 15px; overflow: auto; display: flex; justify-content: center; position: relative; }
+        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.85); z-index: 99; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; color: #555; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+        #loader.show { opacity: 1; pointer-events: all; }
 
-        /* A4 Layout for Screen */
-        .page-container {
-            width: 297mm; height: 210mm; 
-            background: white; box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            padding: 10mm; box-sizing: border-box;
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10mm;
-        }
-
+        .page-container { width: 297mm; min-height: 210mm; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); padding: 8mm; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
         .panel { display: flex; flex-direction: column; height: 100%; }
-        .panel-header { 
-            text-align: center; font-weight: bold; font-size: 16px; 
-            padding: 5px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #000;
-        }
-        
+        .panel-header { text-align: center; font-weight: bold; font-size: 13px; padding: 4px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #000; }
         .panel-left .panel-header { background: #ccc; color: #555; }
-        .panel-left table th { background: #999; color: white; }
         .panel-left input { background: var(--read-only); color: #666; pointer-events: none; }
-
         .panel-right .panel-header { background: var(--primary); color: white; }
-        .panel-right table th { background: var(--primary); color: white; }
         
-        /* Table Styles */
-        .stock-table { width: 100%; border-collapse: collapse; }
-        .stock-table th { padding: 2px 4px; border: 1px solid #999; font-size: 9px; height: 14px; }
-        .stock-table td { padding: 0; border: 1px solid #ccc; height: 16px; }
+        .stock-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .stock-table th { padding: 2px; border: 1px solid #666; font-size: 8px; background: #0d2e5c; color: white; }
+        .stock-table td { padding: 0; border: 1px solid #ccc; height: 16px; overflow: hidden; }
+        .row-header td { background: #eee; font-weight: bold; text-align: center; color: #333; font-size: 9px; border: 1px solid #999; height: 15px; }
         
-        .row-header td { background: #eee; font-weight: bold; text-align: center; color: #333; height: 14px; line-height: 14px; font-size: 10px; border: 1px solid #999; }
-        
-        input.cell { 
-            width: 100%; height: 100%; border: none; text-align: center; 
-            font-family: 'Sarabun'; font-size: 10px; font-weight: bold; background: transparent;
-        }
-        input.cell:focus { background: #e3f2fd; outline: 2px solid var(--primary); }
+        input.cell { width: 100%; height: 100%; border: none; text-align: center; font-family: 'Sarabun'; font-size: 10px; font-weight: bold; background: transparent; outline: none; }
+        input.cell:focus { background: #fffde7; }
 
-        .diff-pos { color: blue; }
-        .diff-neg { color: red; }
+        .diff-box { text-align: center; font-weight: bold; font-size: 9px; }
+        .txt-missing { color: red; }
+        .txt-surplus { color: blue; }
 
-        /* Color Badges */
-        .badge { display: inline-block; width: 12px; height: 10px; line-height: 10px; text-align: center; font-size: 8px; font-weight: bold; border-radius: 2px; margin-right: 2px; border: 1px solid rgba(0,0,0,0.1); }
-        .b-k { background: #222; color: #fff; }    
-        .b-c { background: #00B0F0; color: #000; } 
-        .b-m { background: #FF00FF; color: #fff; } 
-        .b-y { background: #FFFF00; color: #000; } 
-        .b-w { background: #fff; color: #000; border:1px solid #ccc; }
-        .b-r { background: #d32f2f; color: #fff; }
+        .badge { display: inline-block; width: 11px; height: 9px; line-height: 9px; text-align: center; font-size: 7px; font-weight: bold; border-radius: 2px; margin-right: 1px; border: 1px solid rgba(0,0,0,0.1); }
+        .b-k { background: #222; color: #fff; } .b-c { background: #00B0F0; color: #000; } .b-m { background: #FF00FF; color: #fff; } .b-y { background: #FFFF00; color: #000; } .b-w { background: #fff; color: #000; border:1px solid #ccc; } .b-r { background: #d32f2f; color: #fff; }
         .tri-box { display: inline-flex; margin-right: 2px; border: 1px solid #ccc; vertical-align: middle; }
-        .tri-box span { width: 4px; height: 10px; display: block; }
+        .tri-box span { width: 3px; height: 9px; display: block; }
 
-        /* Loading */
-        #loader { 
-            position: absolute; top:0; left:0; width:100%; height:100%; 
-            background: rgba(255,255,255,0.8); z-index: 99; 
-            display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold;
-        }
-
-        /* PRINT A5 */
+        /* --- 🖨️ PRINT SETTINGS --- */
         @media print {
-            @page { size: A5 landscape; margin: 0; }
-            body { background: white; display: block; }
-            #sidebar, #loader { display: none !important; }
-            #content { padding: 0; overflow: visible; display: block; }
-            .page-container { width: 100%; height: 100%; display: block; box-shadow: none; padding: 3mm; }
-            .panel-left { display: none; }
-            .panel-right { width: 100%; }
-            .panel-header { background: white !important; color: black !important; border: none; font-size: 16px; text-align: left; padding: 0; margin-bottom: 2mm; }
-            .panel-header::before { content: "ใบนับสต็อคหมึก - "; }
-            .stock-table th { background: #ddd !important; color: black !important; border: 1px solid #000; }
-            .stock-table td { border: 1px solid #000; }
-            .row-header td { background: #eee !important; color: black !important; border: 1px solid #000; -webkit-print-color-adjust: exact; }
+            @page { margin: 3mm; } 
+            body { background: white; display: block; overflow: visible; width: 100%; }
+            #sidebar, #loader, .panel-left { display: none !important; }
+            #content { padding: 0; display: flex; justify-content: center; align-items: flex-start; }
+            .page-container { width: 100%; box-shadow: none; padding: 0; border:none; display: block; }
+            .panel-right { width: 100%; background: white !important; }
+            
+            /* ลดขนาดฟอนต์หัวข้อตอนพิมพ์ */
+            .panel-header { 
+                background: white !important; color: black !important; border: none; 
+                font-size: 10px; text-align: left; margin-bottom: 2px; padding: 0;
+            }
+            .panel-header span { font-weight: bold; border-bottom: 1px solid #000; }
+
+            .inner-table-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+            .stock-table th { background: #eee !important; color: black !important; border: 1px solid #000; font-size: 7px; height: 11px; }
+            .stock-table td { border: 1px solid #000; height: 10.5px; font-size: 8px; }
+            .row-header td { background: #f5f5f5 !important; color: black !important; border: 1px solid #000; font-size: 8px; height: 10.5px; }
+            input.cell { font-size: 8px; height: 100%; }
+            .badge { width: 9px; height: 8px; font-size: 6px; }
+            * { -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
-        <div style="text-align:center;">
-            <img src="logo-ls.jpg" style="width:60px; border-radius:50%;">
-            <h3>เช็คสต็อคหมึก</h3>
+        <div style="text-align:center;"><img src="logo-ls.jpg" style="width:40px; border-radius:50%;"><h3>สต็อกหมึก</h3></div>
+        <div class="form-group"><label>📅 วันที่เช็คสต็อก:</label><input type="date" id="checkDate" class="form-control" onchange="loadDayData()"></div>
+        <div class="form-group"><label>👤 พนักงาน:</label><input type="text" id="staffName" class="form-control" placeholder="ชื่อผู้ตรวจ..."></div>
+        
+        <button class="btn btn-save" onclick="saveStock()" id="btnSave"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
+        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์เป็น A5</button>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:5px;">
+            <button class="btn btn-share" onclick="shareToLine()"><i class="fab fa-line"></i> แชร์ LINE</button>
+            <button class="btn btn-clear" onclick="clearTodayOnly()"><i class="fas fa-eraser"></i> ล้างค่าวันนี้</button>
         </div>
         
-        <div class="form-group">
-            <label>📅 วันที่บันทึก:</label>
-            <input type="date" id="checkDate" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>👤 พนักงาน:</label>
-            <input type="text" id="staffName" class="form-control" placeholder="ชื่อผู้ตรวจ...">
-        </div>
-
-        <div style="font-size:12px; color:#666; margin-top:10px; background:#fff3cd; padding:10px; border-radius:4px;">
-            💡 <b>ระบบเทียบยอด:</b><br>
-            ระบบจะดึงยอดล่าสุดที่มีการบันทึกมาแสดง (แม้เมื่อวานหยุด ก็จะดึงของวันเสาร์มาให้)
-        </div>
-
-        <button class="btn btn-save" onclick="saveStock()" id="btnSave"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
-        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์ (A5)</button>
         <a href="index.html" class="btn btn-back">🏠 กลับหน้าหลัก</a>
     </div>
 
     <div id="content">
-        <div id="loader">⏳ กำลังดึงข้อมูลประวัติ...</div>
+        <div id="loader">⏳ กำลังซิงค์ข้อมูล...</div>
         
         <div class="page-container">
             <div class="panel panel-left">
-                <div class="panel-header" id="label-yesterday">ประวัติล่าสุด (รอโหลด...)</div>
-                <div class="inner-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                <div class="panel-header" id="label-yesterday">ยอดเดิมในระบบ</div>
+                <div class="inner-table-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px;">
                     <div id="table-old-1"></div>
                     <div id="table-old-2"></div>
                 </div>
             </div>
 
-            <div class="panel panel-right">
-                <div class="panel-header" id="label-today">บันทึกยอดวันนี้</div>
-                <div class="inner-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+            <div class="panel panel-right" id="captureTarget">
+                <div class="panel-header" id="label-today">ใบนับสต็อคหมึก : <span id="printDateDisp">...</span></div>
+                <div class="inner-table-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3px;">
                     <div id="table-new-1"></div>
                     <div id="table-new-2"></div>
                 </div>
@@ -156,10 +123,8 @@
     </div>
 
     <script>
-        // ⚠️⚠️⚠️ SCRIPT B URL ⚠️⚠️⚠️
         const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbzZ5st-egIEWV8M3UVbBMs2yzP5NNV28BDKRliAcc7jWZyY-UMCiJk_Q959eOinM4eDJA/exec';
 
-        // --- Data Definitions (Full Set) ---
         const B = '<span class="badge b-k">B</span>';
         const C = '<span class="badge b-c">C</span>';
         const M = '<span class="badge b-m">M</span>';
@@ -168,212 +133,195 @@
         const R = '<span class="badge b-r">R</span>'; 
         const TRI = '<span class="tri-box"><span style="background:#00B0F0"></span><span style="background:#FF00FF"></span><span style="background:#FFFF00"></span></span>';
 
-        // Column 1 Items
+        // --- FULL Data ---
         const data_col1 = [
-            { h: "BROTHER" },
+            { h: "BROTHER", c: "bg-brother" },
             { n: `${B} D60`, k: "br_d60" }, { n: `${B} 6000`, k: "br_6000" },
             { n: `${C} 5000`, k: "br_5000c" }, { n: `${M} 5000`, k: "br_5000m" }, { n: `${Y} 5000`, k: "br_5000y" },
-            { n: `${B} D100`, k: "br_d100bk" },
-            { n: `${C} D100`, k: "br_d100c" }, { n: `${M} D100`, k: "br_d100m" }, { n: `${Y} D100`, k: "br_d100y" },
+            { n: `${B} D100`, k: "br_d100bk" }, { n: `${C} D100`, k: "br_d100c" }, { n: `${M} D100`, k: "br_d100m" }, { n: `${Y} D100`, k: "br_d100y" },
             { n: `${B} 3619XL`, k: "br_3619bk" }, { n: `${C} 3619XL`, k: "br_3619c" }, { n: `${M} 3619XL`, k: "br_3619m" }, { n: `${Y} 3619XL`, k: "br_3619y" },
             { n: `${B} 462XL`, k: "br_462bk" }, { n: `${C} 462XL`, k: "br_462c" }, { n: `${M} 462XL`, k: "br_462m" }, { n: `${Y} 462XL`, k: "br_462y" },
-            { n: "TN1000 (แท้)", k: "tn1000_real" }, { n: "DR1000 (แท้)", k: "dr1000_real" },
-            { n: "TN1000 (เทียบ)", k: "tn1000_fake" }, { n: "DR1000 (เทียบ)", k: "dr1000_fake" },
-            { h: "CANON" },
+            { n: "TN1000 (แท้)", k: "tn1000_real" }, { n: "DR1000 (แท้)", k: "dr1000_real" }, { n: "TN1000 (เทียบ)", k: "tn1000_fake" }, { n: "DR1000 (เทียบ)", k: "dr1000_fake" },
+            { h: "CANON", c: "bg-canon" },
             { n: `${B} 47`, k: "ca_47" }, { n: `${TRI} 57`, k: "ca_57" },
             { n: `${B} 740`, k: "ca_740" }, { n: `${TRI} 741`, k: "ca_741" },
             { n: `${B} 745`, k: "ca_745" }, { n: `${TRI} 746`, k: "ca_746" },
             { n: `${B} 810`, k: "ca_810" }, { n: `${TRI} 811`, k: "ca_811" },
             { n: `${B} 88`, k: "ca_88" }, { n: `${TRI} 98`, k: "ca_98" },
             { n: `${B} 71`, k: "ca_71bk" }, { n: `${C} 71`, k: "ca_71c" }, { n: `${M} 71`, k: "ca_71m" }, { n: `${Y} 71`, k: "ca_71y" },
-            { n: `${B} 790`, k: "ca_790bk" }, { n: `${C} 790`, k: "ca_790c" }, { n: `${M} 790`, k: "ca_790m" }, { n: `${Y} 790`, k: "ca_790y" },
-            { h: "BROTHER (TZE)" },
-            { n: `${W} 221 (9 ขาว)`, k: "tz_221" }, { n: `${R} 421 (9 แดง)`, k: "tz_421" }, { n: `${C} 521 (9 ฟ้า)`, k: "tz_521" }, { n: `${Y} 621 (9 หล)`, k: "tz_621" },
-            { n: `${W} 231 (12 ขาว)`, k: "tz_231" }, { n: `${R} 431 (12 แดง)`, k: "tz_431" }, { n: `${Y} 631 (12 หล)`, k: "tz_631" },
-            { n: `${W} 251 (24 ขาว)`, k: "tz_251" }
+            { n: `${B} 790`, k: "ca_790bk" }, { n: `${C} 790`, k: "ca_790c" }, { n: `${M} 790`, k: "ca_790m" }, { n: `${Y} 790`, k: "ca_790y" }
         ];
 
-        // Column 2 Items
         const data_col2 = [
-            { h: "EPSON" },
+            { h: "EPSON", c: "bg-epson" },
             { n: `${B} 001`, k: "ep_001bk" }, { n: `${C} 001`, k: "ep_001c" }, { n: `${M} 001`, k: "ep_001m" }, { n: `${Y} 001`, k: "ep_001y" },
             { n: `${B} 003`, k: "ep_003bk" }, { n: `${C} 003`, k: "ep_003c" }, { n: `${M} 003`, k: "ep_003m" }, { n: `${Y} 003`, k: "ep_003y" },
             { n: `${B} 008`, k: "ep_008bk" }, { n: `${C} 008`, k: "ep_008c" }, { n: `${M} 008`, k: "ep_008m" }, { n: `${Y} 008`, k: "ep_008y" },
             { n: `${B} 664`, k: "ep_664bk" }, { n: `${C} 664`, k: "ep_664c" }, { n: `${M} 664`, k: "ep_664m" }, { n: `${Y} 664`, k: "ep_664y" },
             { n: `${B} 774`, k: "ep_774" },
-            { n: "LQ300", k: "rib_300" }, { n: "LQ310", k: "rib_310" }, { n: "LQ590", k: "rib_590" }, 
-            { n: "LQ630", k: "rib_630" }, { n: "LQ2090", k: "rib_2090" }, { n: "LQ2180", k: "rib_2180" },
-            { n: "ERC-38", k: "erc_38" },
-            { h: "HP" },
+            { n: "LQ300", k: "rib_300" }, { n: "LQ310", k: "rib_310" }, { n: "LQ590", k: "rib_590" }, { n: "LQ630", k: "rib_630" }, { n: "LQ2090", k: "rib_2090" }, { n: "LQ2180", k: "rib_2180" }, { n: "ERC-38", k: "erc_38" },
+            { h: "HP", c: "bg-hp" },
             { n: `${B} 678`, k: "hp_678bk" }, { n: `${TRI} 678`, k: "hp_678col" },
             { n: `${B} 680`, k: "hp_680bk" }, { n: `${TRI} 680`, k: "hp_680col" },
             { n: `${B} 682`, k: "hp_682bk" }, { n: `${TRI} 682`, k: "hp_682col" },
-            { n: `${B} GT53`, k: "hp_gt53" }, 
-            { n: `${C} GT52`, k: "hp_gt52c" }, { n: `${M} GT52`, k: "hp_gt52m" }, { n: `${Y} GT52`, k: "hp_gt52y" },
-            { n: "79A", k: "hp_79a" },
-            { n: "107A", k: "hp_107a" },
-            { n: "85A", k: "hp_85a" },
+            { n: `${B} GT53`, k: "hp_gt53" }, { n: `${C} GT52`, k: "hp_gt52c" }, { n: `${M} GT52`, k: "hp_gt52m" }, { n: `${Y} GT52`, k: "hp_gt52y" },
+            { n: "79A", k: "hp_79a" }, { n: "107A", k: "hp_107a" }, { n: "85A", k: "hp_85a" },
             { n: `${B} 320A`, k: "hp_320a" }, { n: `${C} 321A`, k: "hp_321a" }, { n: `${Y} 322A`, k: "hp_322a" }, { n: `${M} 323A`, k: "hp_323a" },
-            { h: "เพิ่มเติม" },
-            { n: "", k: "xtra_1" }, { n: "", k: "xtra_2" }, { n: "", k: "xtra_3" }
+            { h: "TZE TAPE", c: "bg-tape" },
+            { n: `${W} 221 (9)`, k: "tz_221" }, { n: `${R} 421 (9)`, k: "tz_421" }, { n: `${C} 521 (9)`, k: "tz_521" }, { n: `${Y} 621 (9)`, k: "tz_621" },
+            { n: `${W} 231 (12)`, k: "tz_231" }, { n: `${R} 431 (12)`, k: "tz_431" }, { n: `${Y} 631 (12)`, k: "tz_631" }, { n: `${W} 251 (24)`, k: "tz_251" }
         ];
 
-        // Init
-        document.getElementById('checkDate').valueAsDate = new Date();
-        renderTable(data_col1, 'table-old-1', 'old');
-        renderTable(data_col2, 'table-old-2', 'old');
-        renderTable(data_col1, 'table-new-1', 'new');
-        renderTable(data_col2, 'table-new-2', 'new');
-        
-        loadHistory();
-
         function renderTable(data, containerId, prefix) {
-            let html = `
-                <table class="stock-table">
-                    <thead>
-                        <tr>
-                            <th width="30%">รุ่น</th>
-                            <th width="14%">ช.1</th><th width="14%">สต็อค</th><th width="14%">รวม</th>
-                            <th width="14%">คอม</th><th width="14%">ผลต่าง</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
+            let html = `<table class="stock-table"><thead><tr><th style="width:36%">รุ่น</th><th style="width:12%">ช.1</th><th style="width:12%">สต็อก</th><th style="width:12%">รวม</th><th style="width:12%">คอม</th><th style="width:16%">+/-</th></tr></thead><tbody>`;
             data.forEach(p => {
-                if(p.h) {
-                    html += `<tr class="row-header"><td colspan="6">${p.h}</td></tr>`;
-                } else {
-                    let readonly = prefix === 'old' ? 'readonly' : '';
-                    let onInput = prefix === 'new' ? `oninput="calc('${p.k}')"` : '';
-                    let name = p.n || '&nbsp;'; // Handle empty name for extra rows
-                    
-                    html += `
-                        <tr>
-                            <td style="padding-left:2px;">${name}</td>
-                            <td><input type="number" id="${prefix}_s1_${p.k}" class="cell" ${readonly} ${onInput}></td>
-                            <td><input type="number" id="${prefix}_st_${p.k}" class="cell" ${readonly} ${onInput}></td>
-                            <td style="background:#eee;"><input type="text" id="${prefix}_sum_${p.k}" class="cell" readonly></td>
-                            <td><input type="number" id="${prefix}_pos_${p.k}" class="cell" ${readonly} ${onInput}></td>
-                            <td><input type="text" id="${prefix}_diff_${p.k}" class="cell" readonly></td>
-                        </tr>
-                    `;
+                if(p.h) html += `<tr class="row-header"><td colspan="6">${p.h}</td></tr>`;
+                else {
+                    let r = prefix === 'old' ? 'readonly' : '';
+                    let o = prefix === 'new' ? `oninput="calc('${p.k}')"` : '';
+                    html += `<tr><td style="padding-left:2px;">${p.n||'&nbsp;'}</td><td><input type="number" id="${prefix}_s1_${p.k}" class="cell" ${r} ${o}></td><td><input type="number" id="${prefix}_st_${p.k}" class="cell" ${r} ${o}></td><td><input type="text" id="${prefix}_sum_${p.k}" class="cell" readonly></td><td><input type="number" id="${prefix}_pos_${p.k}" class="cell" ${r} ${o}></td><td><div id="${prefix}_diff_${p.k}" class="diff-box"></div></td></tr>`;
                 }
             });
             html += `</tbody></table>`;
             document.getElementById(containerId).innerHTML = html;
         }
 
-        // --- Calc Logic ---
-        window.calc = function(key) {
-            const s1 = parseFloat(document.getElementById(`new_s1_${key}`).value) || 0;
-            const st = parseFloat(document.getElementById(`new_st_${key}`).value) || 0;
-            const posEl = document.getElementById(`new_pos_${key}`);
-            const diffEl = document.getElementById(`new_diff_${key}`);
-            
-            const total = s1 + st;
-            document.getElementById(`new_sum_${key}`).value = total > 0 ? total : '';
+        // --- ⌨️ Keyboard Navigation ---
+        document.addEventListener('keydown', function(e) {
+            const active = document.activeElement;
+            if (!active.classList.contains('cell') || active.readOnly) return;
+            const inputs = Array.from(document.querySelectorAll('.panel-right input.cell:not([readonly])'));
+            const index = inputs.indexOf(active);
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault();
+            if (e.key === 'Enter' || (e.key === 'ArrowDown' && e.ctrlKey)) { e.preventDefault(); const next = inputs[index + 3]; if (next) { next.focus(); next.select(); } }
+            else if (e.key === 'ArrowUp' && e.ctrlKey) { e.preventDefault(); const prev = inputs[index - 3]; if (prev) { prev.focus(); prev.select(); } }
+            else if (e.key === 'ArrowRight' || e.key === 'Tab') { if(e.key === 'ArrowRight') { const next = inputs[index + 1]; if (next) { next.focus(); next.select(); } } }
+            else if (e.key === 'ArrowLeft') { const prev = inputs[index - 1]; if (prev) { prev.focus(); prev.select(); } }
+        });
 
-            if(posEl.value !== '') {
-                const pos = parseFloat(posEl.value) || 0;
-                const diff = pos - total;
-                diffEl.value = diff;
-                diffEl.className = 'cell ' + (diff >= 0 ? 'diff-pos' : 'diff-neg');
-            } else {
-                diffEl.value = '';
-            }
+        window.calc = function(k, prefix = 'new') {
+            const s1 = parseFloat(document.getElementById(`${prefix}_s1_${k}`).value)||0;
+            const st = parseFloat(document.getElementById(`${prefix}_st_${k}`).value)||0;
+            const pos = document.getElementById(`${prefix}_pos_${k}`).value;
+            const sum = s1 + st;
+            document.getElementById(`${prefix}_sum_${k}`).value = sum || '';
+            const diffBox = document.getElementById(`${prefix}_diff_${k}`);
+            if(pos !== '') {
+                const d = parseFloat(pos) - sum;
+                diffBox.innerText = (d > 0 ? '+' : '') + d;
+                diffBox.className = 'diff-box ' + (d < 0 ? 'txt-surplus' : (d > 0 ? 'txt-missing' : ''));
+            } else diffBox.innerText = '';
         }
 
-        // --- Load History ---
-        async function loadHistory() {
-            try {
-                const res = await fetch(`${CLOUD_URL}?mode=get_history&type=INK&t=${Date.now()}`);
-                const json = await res.json();
-                
-                document.getElementById('loader').style.display = 'none';
+        function updateHeaderDate() {
+            const val = document.getElementById('checkDate').value;
+            if(!val) return;
+            const d = new Date(val);
+            document.getElementById('printDateDisp').innerText = d.toLocaleDateString('th-TH');
+        }
 
-                if(json.status === 'success' && json.list.length > 0) {
-                    const lastData = json.list[0]; 
-                    document.getElementById('label-yesterday').innerText = `ประวัติ: ${lastData.date} (${lastData.staff})`;
-                    
-                    // Fill Left Table
-                    const items = lastData.data; 
-                    for(const [key, val] of Object.entries(items)) {
-                        if(document.getElementById(`old_s1_${key}`)) {
-                            document.getElementById(`old_s1_${key}`).value = val.s1 || '';
-                            document.getElementById(`old_st_${key}`).value = val.st || '';
-                            document.getElementById(`old_pos_${key}`).value = val.pos || '';
-                            
-                            const tot = (parseFloat(val.s1)||0) + (parseFloat(val.st)||0);
-                            document.getElementById(`old_sum_${key}`).value = tot || '';
-                            if(val.pos !== undefined && val.pos !== "") {
-                                document.getElementById(`old_diff_${key}`).value = (val.pos - tot);
-                            }
-                        }
-                    }
+        // --- 🔄 Load Data Logic (Specific Day + Previous Day) ---
+        async function loadDayData() {
+            const selectedDate = document.getElementById('checkDate').value;
+            const loader = document.getElementById('loader');
+            loader.classList.add('show');
+
+            // 1. ล้างค่าปัจจุบันก่อน
+            clearTodayFields();
+
+            try {
+                // A: ดึงข้อมูล "วันปัจจุบัน" ที่เลือก (ถ้ามีบันทึกแล้วให้โชว์ฝั่งขวา)
+                const resCur = await fetch(`${CLOUD_URL}?mode=get_specific_day&type=INK&date=${selectedDate}&t=${Date.now()}`);
+                const jsonCur = await resCur.json();
+                if(jsonCur.status === 'success') {
+                    document.getElementById('staffName').value = jsonCur.staff || '';
+                    fillTable(jsonCur.data, 'new');
+                }
+
+                // B: ดึงข้อมูล "วันก่อนหน้า" (เพื่อโชว์ฝั่งซ้าย)
+                const resPrev = await fetch(`${CLOUD_URL}?mode=get_previous&type=INK&date=${selectedDate}&t=${Date.now()}`);
+                const jsonPrev = await resPrev.json();
+                if(jsonPrev.status === 'success') {
+                    document.getElementById('label-yesterday').innerText = `ยอดเดิม: ${jsonPrev.date}`;
+                    fillTable(jsonPrev.data, 'old');
                 } else {
-                    document.getElementById('label-yesterday').innerText = "ยังไม่มีประวัติ";
+                    document.getElementById('label-yesterday').innerText = "ไม่พบยอดก่อนหน้า";
+                    clearTable('old');
                 }
-            } catch(e) {
-                console.error(e);
-                document.getElementById('loader').innerText = "❌ เชื่อมต่อไม่ได้";
+            } catch(e) { console.error(e); }
+            loader.classList.remove('show');
+            updateHeaderDate();
+        }
+
+        function fillTable(data, prefix) {
+            for(const [k, v] of Object.entries(data)) {
+                if(document.getElementById(`${prefix}_s1_${k}`)) {
+                    document.getElementById(`${prefix}_s1_${k}`).value = v.s1 || '';
+                    document.getElementById(`${prefix}_st_${k}`).value = v.st || '';
+                    document.getElementById(`${prefix}_pos_${k}`).value = v.pos || '';
+                    calc(k, prefix);
+                }
             }
         }
 
-        // --- Save Data ---
+        function clearTodayFields() {
+            document.querySelectorAll('.panel-right input.cell:not([readonly])').forEach(i => i.value = '');
+            document.querySelectorAll('.panel-right input[readonly]').forEach(i => i.value = '');
+            document.querySelectorAll('.panel-right .diff-box').forEach(d => d.innerText = '');
+        }
+
+        function clearTable(prefix) {
+            document.querySelectorAll(`.panel-${prefix==='old'?'left':'right'} input.cell`).forEach(i => i.value = '');
+            document.querySelectorAll(`.panel-${prefix==='old'?'left':'right'} .diff-box`).forEach(d => d.innerText = '');
+        }
+
+        function clearTodayOnly() {
+            if(confirm("ล้างเฉพาะค่าที่กรอกในฝั่งขวาใช่หรือไม่?")) clearTodayFields();
+        }
+
         async function saveStock() {
+            const staff = document.getElementById('staffName').value.trim();
+            if(!staff) { alert("⛔ ใส่ชื่อพนักงานด้วยครับ"); return; }
             const btn = document.getElementById('btnSave');
-            const staff = document.getElementById('staffName').value;
-            const date = document.getElementById('checkDate').value;
-
-            if(!staff) { alert("กรุณาใส่ชื่อพนักงาน"); return; }
-
-            btn.innerText = "⏳ กำลังบันทึก..."; btn.disabled = true;
-
+            btn.innerText = "⏳ บันทึก..."; btn.disabled = true;
             let items = {};
-            let hasData = false;
-
-            // Loop all items
             [...data_col1, ...data_col2].forEach(p => {
-                if(p.k) {
-                    const s1 = document.getElementById(`new_s1_${p.k}`).value;
-                    const st = document.getElementById(`new_st_${p.k}`).value;
-                    const pos = document.getElementById(`new_pos_${p.k}`).value;
-                    
-                    if(s1 || st || pos) { 
-                        items[p.k] = { 
-                            s1: parseFloat(s1)||0, 
-                            st: parseFloat(st)||0, 
-                            pos: parseFloat(pos)||0 
-                        };
-                        hasData = true;
-                    }
-                }
+                if(!p.k) return;
+                const s1 = document.getElementById(`new_s1_${p.k}`).value;
+                const st = document.getElementById(`new_st_${p.k}`).value;
+                const pos = document.getElementById(`new_pos_${p.k}`).value;
+                if(s1||st||pos) items[p.k] = { s1:s1, st:st, pos:pos };
             });
-
-            if(!hasData && !confirm("ไม่มีข้อมูลตัวเลขเลย จะบันทึกยอดว่างเปล่า?")) {
-                btn.innerHTML = '<i class="fas fa-save"></i> บันทึกข้อมูล'; btn.disabled = false; return;
-            }
-
             try {
-                await fetch(CLOUD_URL, {
-                    method: 'POST', mode: 'no-cors',
-                    body: JSON.stringify({ 
-                        mode: "save_stock", 
-                        type: "INK", 
-                        date: date, 
-                        staff: staff, 
-                        items: items 
-                    })
-                });
-                alert("✅ บันทึกเรียบร้อย!");
-                location.reload();
-            } catch(e) {
-                alert("❌ Error: " + e.message);
-                btn.innerHTML = '<i class="fas fa-save"></i> บันทึกข้อมูล'; btn.disabled = false;
-            }
+                await fetch(CLOUD_URL, { method:'POST', mode:'no-cors', body: JSON.stringify({ mode:"save_stock", type:"INK", date:document.getElementById('checkDate').value, staff:staff, items:items }) });
+                alert("✅ บันทึกสำเร็จ!");
+                loadDayData(); // รีโหลดเพื่ออัปเดตสถานะ
+            } catch(e) { alert("❌ Error"); }
+            btn.innerText="บันทึกข้อมูล"; btn.disabled=false;
         }
-    </script>
 
+        function shareToLine() {
+            const target = document.getElementById('captureTarget');
+            const btn = document.querySelector('.btn-share');
+            btn.innerHTML = '⏳ สร้างรูป...'; btn.disabled = true;
+            html2canvas(target, { scale: 2, useCORS: true }).then(canvas => {
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], `Stock_Ink.png`, { type: "image/png" });
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        try { await navigator.share({ files: [file], title: 'สต็อคหมึก' }); } catch (err) {}
+                    } else {
+                        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Stock_Ink.png`; a.click();
+                    }
+                    btn.innerHTML = '<i class="fab fa-line"></i> แชร์ LINE'; btn.disabled = false;
+                });
+            });
+        }
+
+        // --- Init ---
+        document.getElementById('checkDate').valueAsDate = new Date();
+        renderTable(data_col1, 'table-old-1', 'old'); renderTable(data_col2, 'table-old-2', 'old');
+        renderTable(data_col1, 'table-new-1', 'new'); renderTable(data_col2, 'table-new-2', 'new');
+        loadDayData();
+    </script>
 </body>
 </html>
