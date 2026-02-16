@@ -32,11 +32,13 @@
         th { background: #f8f9fa; color: #666; font-size: 0.7rem; }
         
         input { width: 100%; padding: 3px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; text-align: right; box-sizing: border-box; }
-        input:focus { outline: 2px solid var(--primary); background: #fff0f6; }
+        input:focus { outline: 2px solid var(--primary); background: #fff0f5; }
         input:disabled { background: #eee; color: #999; cursor: not-allowed; }
         .input-error { border: 2px solid red !important; background: #ffe6e6 !important; }
 
-        /* Checkbox Style */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
         .qr-cell { display: flex; align-items: center; gap: 5px; }
         .qr-check { width: 18px !important; height: 18px !important; margin: 0 !important; cursor: pointer; }
         .qr-input { flex-grow: 1; }
@@ -141,13 +143,10 @@
         </div>
 
         <div class="guide-box no-print">
-            <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
-            <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
-            <div class="guide-step"><h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5><p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมทั้งหมดให้ทันที</p></div>
-            <div class="guide-step"><h5>3. การบันทึกยอดโอน (QR Code)</h5><p>กรอกยอดเงินที่ลูกค้าโอนแต่ละรายการในตาราง หมวดที่ 4 และอย่าลืม <b>"ติ๊กถูก"</b> เมื่อตรวจสอบยอดในแอปธนาคารเรียบร้อยแล้ว</p></div>
-            <div class="guide-step"><h5>4. สรุปผลต่างยอดขาย</h5><p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ในช่องสุดท้าย ระบบจะเปรียบเทียบกับยอดขายจริง หากยอดตรงกันผลต่างจะเป็นสีเขียว (0.00)</p></div>
-            <div class="guide-step"><h5>5. บันทึกลงเครื่อง</h5><p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อให้ระบบจำข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> ทุกครั้งก่อนปิดเครื่องเพื่อสำรองข้อมูล กันข้อมูลหาย</p></div>
-            <div class="guide-step"><h5>6. การเรียกดูข้อมูลเก่า</h5><p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลังได้ทุกเมื่อ</p></div>
+            <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งาน</h3>
+            <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนจากด้านบน และคลิกวันที่จากแถบเมนูล่างสุด ระบบจะจำข้อมูลแยกรายวัน</p></div>
+            <div class="guide-step"><h5>2. บันทึกยอด</h5><p>นับเงินทอน (เช้า) และยอดปิดร้าน (เย็น) กรอกในช่อง "ยอดรวม" ระบบคำนวณให้อัตโนมัติ</p></div>
+            <div class="guide-step"><h5>3. บันทึก Cloud</h5><p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อส่งข้อมูลขึ้นระบบ Cloud (ดูย้อนหลังได้จากทุกเครื่อง)</p></div>
         </div>
     </div>
 </div>
@@ -159,9 +158,10 @@
     let db = {}, curY, curM, curD, qrRows = 6, saveTimer = null, isDirty = false;
     const SAVE_DELAY = 30000; 
     
-    // 🔴 แก้จุดที่ 1: ชื่อ Key สำหรับในเครื่อง (ต้องไม่ซ้ำกับสาขาอื่น)
+    // 🔴 SETTINGS FOR SK (SMART KIDS)
     const KEY = 'cashApp_SK'; 
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
+    // ⚠️⚠️⚠️ ใส่ URL ของ SCRIPT A ที่นี่ ⚠️⚠️⚠️
+    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbz_YOUR_SCRIPT_A_URL_HERE/exec';
 
     function init() {
         buildTable('tableMorn', 'm'); 
@@ -181,58 +181,42 @@
         }, {passive: false});
     }
 
+    // --- Core Functions (Logic Same as LS) ---
     function validateNumber(input) {
         const start = input.selectionStart;
         const clean = input.value.replace(/[^0-9.]/g, ''); 
-        if (clean !== input.value) {
-            input.value = clean;
-            if(start !== null) input.setSelectionRange(start - 1, start - 1); 
-        }
+        if (clean !== input.value) { input.value = clean; if(start !== null) input.setSelectionRange(start-1, start-1); }
         calc();
     }
 
-    function handleNav(e) { 
+    function handleNav(e) { /* ... Navigation Logic ... */ 
         if(!e.target.classList.contains('num-input')) return;
         if(e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); moveFocusVertical(e.target, 1); } 
         else if(e.key === 'ArrowUp') { e.preventDefault(); moveFocusVertical(e.target, -1); }
-        else if(e.key === 'ArrowLeft') {
-            if(e.target.value === '' || e.target.selectionStart === 0) { e.preventDefault(); moveFocusHorizontal(e.target, -1); }
-        }
-        else if(e.key === 'ArrowRight') {
-            if(e.target.value === '' || e.target.selectionStart === e.target.value.length) { e.preventDefault(); moveFocusHorizontal(e.target, 1); }
+        else if(e.key === 'ArrowLeft') { if(e.target.value===''||e.target.selectionStart===0) { e.preventDefault(); moveFocusHorizontal(e.target, -1); } }
+        else if(e.key === 'ArrowRight') { if(e.target.value===''||e.target.selectionStart===e.target.value.length) { e.preventDefault(); moveFocusHorizontal(e.target, 1); } }
+    }
+    function moveFocusVertical(curr, dir) {
+        const td = curr.closest('td'), tr = curr.closest('tr'), tb = curr.closest('table');
+        if (!tb || !tr || !td) return;
+        const colIdx = Array.from(tr.children).indexOf(td);
+        const rows = Array.from(tb.rows);
+        const targetRow = rows[rows.indexOf(tr) + dir];
+        if (targetRow && targetRow.children[colIdx]) {
+            const target = targetRow.children[colIdx].querySelector('input.num-input');
+            if (target) { target.focus(); target.select(); }
         }
     }
-
-    function moveFocusVertical(currentInput, direction) {
-        const currentTd = currentInput.closest('td'); const currentTr = currentInput.closest('tr'); const currentTable = currentInput.closest('table');
-        if (!currentTable || !currentTr || !currentTd) return;
-        const colIndex = Array.from(currentTr.children).indexOf(currentTd);
-        const rows = Array.from(currentTable.rows); const currentRowIndex = rows.indexOf(currentTr);
-        const targetRow = rows[currentRowIndex + direction];
-        if (targetRow) {
-            const targetTd = targetRow.children[colIndex];
-            if (targetTd) {
-                const targetInput = targetTd.querySelector('input.num-input');
-                if (targetInput) { targetInput.focus(); targetInput.select(); }
-            }
-        }
-    }
-
-    function moveFocusHorizontal(currentInput, direction) {
-        const allInputs = Array.from(document.querySelectorAll('.num-input:not([disabled])'));
-        const currentIndex = allInputs.indexOf(currentInput);
-        const targetIndex = currentIndex + direction;
-        if(targetIndex >= 0 && targetIndex < allInputs.length) {
-            const target = allInputs[targetIndex]; target.focus(); target.select();
-        }
+    function moveFocusHorizontal(curr, dir) {
+        const all = Array.from(document.querySelectorAll('.num-input:not([disabled])'));
+        const idx = all.indexOf(curr) + dir;
+        if(idx >= 0 && idx < all.length) { all[idx].focus(); all[idx].select(); }
     }
 
     function buildTable(id, p) {
         const tb = document.getElementById(id); if(!tb) return;
         let html = '<thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody>';
-        denoms.forEach(d => { 
-            html += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="text" inputmode="decimal" class="num-input" id="${p}v_${d}" oninput="validateNumber(this)"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`; 
-        });
+        denoms.forEach(d => { html += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="text" inputmode="decimal" class="num-input" id="${p}v_${d}" oninput="validateNumber(this)"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`; });
         tb.innerHTML = html + '</tbody>';
     }
 
@@ -243,9 +227,7 @@
         for(let c=1;c<=6;c++) h.insertAdjacentHTML('beforeend', `<th id="qr_col_sum_${c}">0.00</th>`);
         for(let i=1;i<=r;i++) {
             let row=`<tr>`; 
-            for(let c=1;c<=6;c++) {
-                row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${i}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${i}" oninput="validateNumber(this)"></div></td>`;
-            }
+            for(let c=1;c<=6;c++) row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${i}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${i}" oninput="validateNumber(this)"></div></td>`;
             t.insertAdjacentHTML('beforeend', row+'</tr>');
         }
     }
@@ -254,20 +236,12 @@
         qrRows++; 
         const t = document.getElementById('tbQR');
         let row = `<tr>`; 
-        for(let c=1;c<=6;c++) {
-            row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${qrRows}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${qrRows}" oninput="validateNumber(this)"></div></td>`;
-        }
+        for(let c=1;c<=6;c++) row+=`<td><div class="qr-cell"><input type="checkbox" class="qr-check" id="qc_${c}_${qrRows}"><input type="text" inputmode="decimal" class="num-input qr-input" id="q_${c}_${qrRows}" oninput="validateNumber(this)"></div></td>`;
         t.insertAdjacentHTML('beforeend', row+'</tr>');
         calc();
     }
 
-    function delQrRow() { 
-        if (qrRows > 1) { 
-            document.getElementById('tbQR').deleteRow(-1); 
-            qrRows--; 
-            calc(); 
-        } 
-    }
+    function delQrRow() { if (qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
 
     function buildOps(n, def) { 
         const tb = document.getElementById('tbOps'); if(!tb) return;
@@ -304,12 +278,7 @@
     
     function validateName() {
         const empInput = document.getElementById('empName');
-        if (!empInput.value.trim()) {
-            alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึก");
-            empInput.classList.add('input-error'); empInput.focus();
-            empInput.addEventListener('input', function() { this.classList.remove('input-error'); }, {once:true});
-            return false;
-        }
+        if (!empInput.value.trim()) { alert("⛔ กรุณาระบุ 'ชื่อพนักงาน' ก่อนบันทึก"); empInput.classList.add('input-error'); empInput.focus(); empInput.addEventListener('input', function() { this.classList.remove('input-error'); }, {once:true}); return false; }
         return true;
     }
 
@@ -333,74 +302,72 @@
         else { box.style.background='#fff3cd'; txt.innerText='⚠️ เกิน'; val.innerText='+'+fmt(diff); } 
         
         isDirty = true; 
-        if(triggerAutoSave && !document.getElementById('posVal').disabled) {
-            if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(silentCloudSync, SAVE_DELAY);
-        }
+        if(triggerAutoSave && !document.getElementById('posVal').disabled) { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(silentCloudSync, SAVE_DELAY); }
     }
 
+    // --- Fix: New getForm logic ---
     function getForm() { 
-        let opsData = []; const rows = document.getElementById('tbOps').rows; 
-        for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
+        let opsData = []; 
+        const rows = document.getElementById('tbOps').rows; 
+        for(let i=0; i<rows.length; i++) {
+            opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value });
+        }
         const d = { pos: document.getElementById('posVal').value, emp: document.getElementById('empName').value, qr_r: qrRows, ops: opsData, m: {}, e: {}, qr: {} }; 
-        denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); 
-        for(let r=1; r<=qrRows; r++) for(let c=1; c<=6; c++) { 
-            let v=document.getElementById(`q_${c}_${r}`).value; 
-            let k=document.getElementById(`qc_${c}_${r}`).checked;
-            if(v || k) d.qr[`${c},${r}`] = {v:v, k:k}; 
-        } 
+        denoms.forEach(x => { d.m[x] = document.getElementById(`mv_${x}`).value; d.e[x] = document.getElementById(`ev_${x}`).value; }); 
+        
+        for(let r=1; r<=qrRows; r++) {
+            for(let c=1; c<=6; c++) { 
+                let elVal = document.getElementById(`q_${c}_${r}`); let elChk = document.getElementById(`qc_${c}_${r}`);
+                if (!elVal || !elChk) continue;
+                let v = elVal.value; let k = elChk.checked;
+                if(v || k || r===1) { d.qr[`${c},${r}`] = {v:v, k:k}; }
+            } 
+        }
         return d; 
     }
     
+    // --- Fix: setForm to auto-expand rows ---
     function setForm(d) { 
         document.getElementById('posVal').value = d.pos||''; document.getElementById('empName').value = d.emp||''; 
         
-        // Restore Ops
         const rows = document.getElementById('tbOps').rows; 
-        if(d.ops) {
-            while(document.getElementById('tbOps').rows.length < d.ops.length) addOpsRow('');
-            d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
-        }
+        document.getElementById('tbOps').innerHTML = ''; 
+        if(d.ops && d.ops.length > 0) {
+            d.ops.forEach(o => { addOpsRow(o.n); const lastRow = document.getElementById('tbOps').lastChild; lastRow.querySelector('.op-time').value = o.t; lastRow.querySelector('.op-val').value = o.v; });
+        } else { buildOps(3, true); }
 
-        // Restore Coins
-        denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
+        denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value = d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value = d.e[x]||''; }); 
         
-        // Restore QR
         if(d.qr) {
             let maxRow = 6;
-            for(let key in d.qr) {
-                let [c, r] = key.split(',').map(Number);
-                if(r > maxRow) maxRow = r;
-            }
-            while(qrRows < maxRow) addQrRow();
+            if(d.qr_r) maxRow = d.qr_r; 
+            else { for(let key in d.qr) { let r = parseInt(key.split(',')[1]); if(r > maxRow) maxRow = r; } }
+            
+            qrRows = 0; document.getElementById('tbQR').innerHTML = '';
+            for(let i=0; i<maxRow; i++) addQrRow();
 
             for(let key in d.qr) { 
-                let [c,r]=key.split(','); 
-                let el=document.getElementById(`q_${c}_${r}`); let ck=document.getElementById(`qc_${c}_${r}`);
-                if(el) {
+                let [c,r] = key.split(','); 
+                let el = document.getElementById(`q_${c}_${r}`); let ck = document.getElementById(`qc_${c}_${r}`);
+                if(el && d.qr[key]) {
                     if(typeof d.qr[key] === 'object') { el.value = d.qr[key].v || ''; if(ck) ck.checked = d.qr[key].k || false; } 
                     else { el.value = d.qr[key] || ''; }
                 } 
             } 
-        } 
+        } else {
+            qrRows = 0; document.getElementById('tbQR').innerHTML = ''; for(let i=0; i<6; i++) addQrRow();
+        }
         calc(false); 
     }
 
     async function recoverFromCloud() {
-        const k = getKey(curD); 
-        // 🔴 แก้จุดที่ 2: ชื่อร้านสำหรับ Filter ใน Cloud
-        const shopName = "ใบส่งเงิน SK"; 
-        
-        const btn = document.getElementById('recoverBtn'); 
-        const oldTxt = '<span>🔄 ดึงข้อมูล</span><small>กู้คืนจาก Cloud</small>'; 
-
+        const k = getKey(curD); const shopName = "ใบส่งเงิน SK"; 
+        const btn = document.getElementById('recoverBtn'); const oldTxt = '<span>🔄 ดึงข้อมูล</span><small>กู้คืนจาก Cloud</small>'; 
         try {
             btn.innerHTML = '<span>⏳ โหลด...</span>'; btn.disabled = true;
-            // เพิ่ม &t=... เพื่อแก้ Cache
             const resp = await fetch(`${CLOUD_URL}?mode=recover&shop=${encodeURIComponent(shopName)}&date=${k}&t=${new Date().getTime()}`);
             const data = await resp.json();
-            
             btn.innerHTML = oldTxt; btn.disabled = false;
-
             if (data.status === "error") { alert("❌ " + data.msg); return; }
             let msg = `🔎 พบข้อมูลสำรอง ${data.list.length} รายการ:\n----------------\n`;
             data.list.forEach((item, i) => { msg += `[ ${i + 1} ] 👤 ${item.user} 🕒 ${item.time}\n`; });
@@ -410,8 +377,7 @@
                 const idx = parseInt(choice)-1;
                 if(data.list[idx] && confirm(`ดึงข้อมูลของ ${data.list[idx].user}?`)) {
                     const cloudData = JSON.parse(data.list[idx].raw);
-                    setForm(cloudData); db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db));
-                    alert("✅ เรียบร้อย");
+                    setForm(cloudData); db[k] = cloudData; localStorage.setItem(KEY, JSON.stringify(db)); alert("✅ เรียบร้อย");
                 }
             }
         } catch (e) { alert("❌ Error: " + e.message); btn.innerHTML = oldTxt; btn.disabled = false; }
@@ -420,7 +386,6 @@
     function silentCloudSync() { 
         if(!curD || document.getElementById('posVal').disabled) return;
         const k = getKey(curD); const form = getForm(); 
-        // 🔴 แก้จุดที่ 3: ชื่อร้านสำหรับ Auto Save
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp || "Auto", raw: JSON.stringify(form) }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
     }
@@ -428,53 +393,16 @@
     function forceSave() { 
         if(!curD || !validateName()) return;
         const k = getKey(curD); const form = getForm(); 
-        // 🔴 แก้จุดที่ 4: ชื่อร้านสำหรับ Save จริง
-        const finalData = { targetTab: "ใบส่งเงิน SK", date: k, shop: "สมาร์ทคิดส์ สหพัฒน์", emp: form.emp, pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; 
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(finalData) }); 
-        
+        const statusEl = document.getElementById('saveStatus');
+        statusEl.innerText = "⏳ กำลังส่ง..."; statusEl.style.opacity = 1;
+
+        const finalData = { 
+            targetTab: "ใบส่งเงิน SK", 
+            date: k, shop: "สมาร์ทคิดส์ สหพัฒน์", 
+            emp: form.emp, pos: form.pos || 0, 
+            actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
+            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
+        }; 
         const backupData = { mode: "backup", date: k, shop: "ใบส่งเงิน SK", emp: form.emp, raw: JSON.stringify(form) };
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) });
-        
-        db[k] = form; localStorage.setItem(KEY, JSON.stringify(db));
-        const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); 
-        isDirty = false; 
-    }
 
-    function manualSave() { if(saveTimer) clearTimeout(saveTimer); forceSave(); if(document.getElementById('empName').value.trim()) alert("💾 บันทึกเรียบร้อย"); }
-    
-    function loadDay(d) { 
-        curD = d; 
-        document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; } }); 
-        document.getElementById('tbOps').innerHTML = ''; 
-        qrRows = 6; buildQR(qrRows);
-        const k = getKey(d); 
-        if(db[k]) { setForm(db[k]); } else { buildOps(3, true); calc(false); }
-        checkReadOnlyMode(); updatePrintInfo(); isDirty = false; 
-    }
-
-    function checkReadOnlyMode() {
-        const today = new Date().getDate(); const thisMonth = new Date().getMonth() + 1; const selMonth = curM;
-        const lock = (selMonth < thisMonth) || (selMonth === thisMonth && curD < today) || (selMonth > thisMonth) || (selMonth === thisMonth && curD > today);
-        const inputs = document.querySelectorAll('input:not([type="month"]):not([type="file"])');
-        inputs.forEach(i => i.disabled = lock);
-        document.getElementById('saveBtn').style.display = lock ? 'none' : 'inline-flex';
-        document.getElementById('recoverBtn').style.display = lock ? 'none' : 'inline-flex';
-        document.getElementById('unlockBtn').style.display = lock ? 'inline-flex' : 'none';
-        if(lock && saveTimer) clearTimeout(saveTimer);
-    }
-
-    function unlockEditing() {
-        if(!confirm("⚠️ ต้องการแก้ไขข้อมูลย้อนหลัง?")) return;
-        document.querySelectorAll('input').forEach(i => i.disabled = false);
-        document.getElementById('saveBtn').style.display = 'inline-flex';
-        document.getElementById('recoverBtn').style.display = 'inline-flex';
-        document.getElementById('unlockBtn').style.display = 'none';
-    }
-
-    function exportFile() { if(!validateName()) return; forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `SK_Backup_${getKey(curD)}.json`; a.click(); }
-    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ เรียบร้อย"); } catch(e){ alert("❌ ไฟล์ผิดพลาด"); } }; r.readAsText(e.files[0]); }
-
-    init();
-</script>
-</body>
-</html>
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(final
