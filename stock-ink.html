@@ -2,29 +2,29 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>เช็คสต็อคหมึก</title>
+    <title>เช็คสต็อคหมึก (บันทึกรูปภาพ & ระบบนำทาง)</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root { --primary: #023f88; --bg: #f4f6f9; --read-only: #f1f3f5; --line: #06c755; }
+        :root { --primary: #023f88; --bg: #f4f6f9; --read-only: #f1f3f5; --purple: #673ab7; }
         body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background-color: var(--bg); display: flex; height: 100vh; overflow: hidden; font-size: 11px; }
         
-        /* 🚫 ลบลูกศรในช่อง Number และป้องกันการ Scroll เลข */
+        /* 🚫 บล็อกลูกศรและ Spinner ในช่อง Number */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
         /* --- Sidebar --- */
-        #sidebar { width: 260px; background: white; border-right: 1px solid #ccc; padding: 15px; display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; }
+        #sidebar { width: 260px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 2px; font-size: 12px; }
         .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; margin-bottom: 5px; }
         
         .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 13px; }
         .btn-save { background: #28a745; color: white; height: 45px; font-size: 16px; margin-top: 5px; }
         .btn-print { background: var(--primary); color: white; margin-top: 5px; }
-        .btn-clear { background: #fff0f0; color: #d32f2f; border: 1px solid #ffcdd2; font-size: 11px; padding: 6px; }
-        .btn-share { background: white; color: var(--line); border: 1px solid var(--line); font-size: 11px; padding: 6px; } 
+        .btn-img { background: white; color: var(--purple); border: 1px solid var(--purple); } 
+        .btn-clear { background: #fff0f0; color: #d32f2f; border: 1px solid #ffcdd2; font-size: 11px; }
         .btn-back { background: #6c757d; color: white; text-decoration: none; margin-top: auto; padding: 8px; font-size: 12px; }
 
         /* --- Main Content --- */
@@ -61,23 +61,16 @@
             @page { margin: 3mm; } 
             body { background: white; display: block; overflow: visible; width: 100%; }
             #sidebar, #loader, .panel-left { display: none !important; }
-            #content { padding: 0; display: flex; justify-content: center; align-items: flex-start; }
+            #content { padding: 0; display: block; width: 100%; }
             .page-container { width: 100%; box-shadow: none; padding: 0; border:none; display: block; }
             .panel-right { width: 100%; background: white !important; }
-            
-            /* ลดขนาดฟอนต์หัวข้อตอนพิมพ์ */
-            .panel-header { 
-                background: white !important; color: black !important; border: none; 
-                font-size: 10px; text-align: left; margin-bottom: 2px; padding: 0;
-            }
+            .panel-header { background: white !important; color: black !important; border: none; font-size: 10px; text-align: left; margin-bottom: 2px; padding: 0; }
             .panel-header span { font-weight: bold; border-bottom: 1px solid #000; }
-
             .inner-table-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
             .stock-table th { background: #eee !important; color: black !important; border: 1px solid #000; font-size: 7px; height: 11px; }
             .stock-table td { border: 1px solid #000; height: 10.5px; font-size: 8px; }
             .row-header td { background: #f5f5f5 !important; color: black !important; border: 1px solid #000; font-size: 8px; height: 10.5px; }
             input.cell { font-size: 8px; height: 100%; }
-            .badge { width: 9px; height: 8px; font-size: 6px; }
             * { -webkit-print-color-adjust: exact; }
         }
     </style>
@@ -87,13 +80,13 @@
     <div id="sidebar">
         <div style="text-align:center;"><img src="logo-ls.jpg" style="width:40px; border-radius:50%;"><h3>สต็อกหมึก</h3></div>
         <div class="form-group"><label>📅 วันที่เช็คสต็อก:</label><input type="date" id="checkDate" class="form-control" onchange="loadDayData()"></div>
-        <div class="form-group"><label>👤 พนักงาน:</label><input type="text" id="staffName" class="form-control" placeholder="ชื่อผู้ตรวจ..."></div>
+        <div class="form-group"><label>👤 พนักงาน:</label><input type="text" id="staffName" class="form-control" placeholder="ระบุชื่อ..."></div>
         
         <button class="btn btn-save" onclick="saveStock()" id="btnSave"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
         <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์เป็น A5</button>
         
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:5px;">
-            <button class="btn btn-share" onclick="shareToLine()"><i class="fab fa-line"></i> แชร์ LINE</button>
+            <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกรูป</button>
             <button class="btn btn-clear" onclick="clearTodayOnly()"><i class="fas fa-eraser"></i> ล้างค่าวันนี้</button>
         </div>
         
@@ -125,6 +118,7 @@
     <script>
         const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbzZ5st-egIEWV8M3UVbBMs2yzP5NNV28BDKRliAcc7jWZyY-UMCiJk_Q959eOinM4eDJA/exec';
 
+        // --- Data Definitions ---
         const B = '<span class="badge b-k">B</span>';
         const C = '<span class="badge b-c">C</span>';
         const M = '<span class="badge b-m">M</span>';
@@ -133,7 +127,6 @@
         const R = '<span class="badge b-r">R</span>'; 
         const TRI = '<span class="tri-box"><span style="background:#00B0F0"></span><span style="background:#FF00FF"></span><span style="background:#FFFF00"></span></span>';
 
-        // --- FULL Data ---
         const data_col1 = [
             { h: "BROTHER", c: "bg-brother" },
             { n: `${B} D60`, k: "br_d60" }, { n: `${B} 6000`, k: "br_6000" },
@@ -192,12 +185,16 @@
             if (!active.classList.contains('cell') || active.readOnly) return;
             const inputs = Array.from(document.querySelectorAll('.panel-right input.cell:not([readonly])'));
             const index = inputs.indexOf(active);
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault();
+            
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault(); 
+
             if (e.key === 'Enter' || (e.key === 'ArrowDown' && e.ctrlKey)) { e.preventDefault(); const next = inputs[index + 3]; if (next) { next.focus(); next.select(); } }
             else if (e.key === 'ArrowUp' && e.ctrlKey) { e.preventDefault(); const prev = inputs[index - 3]; if (prev) { prev.focus(); prev.select(); } }
             else if (e.key === 'ArrowRight' || e.key === 'Tab') { if(e.key === 'ArrowRight') { const next = inputs[index + 1]; if (next) { next.focus(); next.select(); } } }
             else if (e.key === 'ArrowLeft') { const prev = inputs[index - 1]; if (prev) { prev.focus(); prev.select(); } }
         });
+
+        document.addEventListener('wheel', function(e) { if (document.activeElement.type === 'number') document.activeElement.blur(); });
 
         window.calc = function(k, prefix = 'new') {
             const s1 = parseFloat(document.getElementById(`${prefix}_s1_${k}`).value)||0;
@@ -220,34 +217,19 @@
             document.getElementById('printDateDisp').innerText = d.toLocaleDateString('th-TH');
         }
 
-        // --- 🔄 Load Data Logic (Specific Day + Previous Day) ---
         async function loadDayData() {
             const selectedDate = document.getElementById('checkDate').value;
             const loader = document.getElementById('loader');
             loader.classList.add('show');
-
-            // 1. ล้างค่าปัจจุบันก่อน
             clearTodayFields();
-
             try {
-                // A: ดึงข้อมูล "วันปัจจุบัน" ที่เลือก (ถ้ามีบันทึกแล้วให้โชว์ฝั่งขวา)
                 const resCur = await fetch(`${CLOUD_URL}?mode=get_specific_day&type=INK&date=${selectedDate}&t=${Date.now()}`);
                 const jsonCur = await resCur.json();
-                if(jsonCur.status === 'success') {
-                    document.getElementById('staffName').value = jsonCur.staff || '';
-                    fillTable(jsonCur.data, 'new');
-                }
-
-                // B: ดึงข้อมูล "วันก่อนหน้า" (เพื่อโชว์ฝั่งซ้าย)
+                if(jsonCur.status === 'success') { document.getElementById('staffName').value = jsonCur.staff || ''; fillTable(jsonCur.data, 'new'); }
                 const resPrev = await fetch(`${CLOUD_URL}?mode=get_previous&type=INK&date=${selectedDate}&t=${Date.now()}`);
                 const jsonPrev = await resPrev.json();
-                if(jsonPrev.status === 'success') {
-                    document.getElementById('label-yesterday').innerText = `ยอดเดิม: ${jsonPrev.date}`;
-                    fillTable(jsonPrev.data, 'old');
-                } else {
-                    document.getElementById('label-yesterday').innerText = "ไม่พบยอดก่อนหน้า";
-                    clearTable('old');
-                }
+                if(jsonPrev.status === 'success') { document.getElementById('label-yesterday').innerText = `ยอดเดิม: ${jsonPrev.date}`; fillTable(jsonPrev.data, 'old'); }
+                else { document.getElementById('label-yesterday').innerText = "ไม่พบยอดก่อนหน้า"; clearTable('old'); }
             } catch(e) { console.error(e); }
             loader.classList.remove('show');
             updateHeaderDate();
@@ -275,45 +257,38 @@
             document.querySelectorAll(`.panel-${prefix==='old'?'left':'right'} .diff-box`).forEach(d => d.innerText = '');
         }
 
-        function clearTodayOnly() {
-            if(confirm("ล้างเฉพาะค่าที่กรอกในฝั่งขวาใช่หรือไม่?")) clearTodayFields();
-        }
+        function clearTodayOnly() { if(confirm("ล้างค่าที่กรอกฝั่งขวา?")) clearTodayFields(); }
 
         async function saveStock() {
             const staff = document.getElementById('staffName').value.trim();
-            if(!staff) { alert("⛔ ใส่ชื่อพนักงานด้วยครับ"); return; }
+            if(!staff) { alert("⛔ ใส่ชื่อพนักงาน"); return; }
             const btn = document.getElementById('btnSave');
             btn.innerText = "⏳ บันทึก..."; btn.disabled = true;
             let items = {};
-            [...data_col1, ...data_col2].forEach(p => {
-                if(!p.k) return;
+            [...data_col1, ...data_col2].forEach(p => { if(p.k) {
                 const s1 = document.getElementById(`new_s1_${p.k}`).value;
                 const st = document.getElementById(`new_st_${p.k}`).value;
                 const pos = document.getElementById(`new_pos_${p.k}`).value;
                 if(s1||st||pos) items[p.k] = { s1:s1, st:st, pos:pos };
-            });
+            }});
             try {
                 await fetch(CLOUD_URL, { method:'POST', mode:'no-cors', body: JSON.stringify({ mode:"save_stock", type:"INK", date:document.getElementById('checkDate').value, staff:staff, items:items }) });
-                alert("✅ บันทึกสำเร็จ!");
-                loadDayData(); // รีโหลดเพื่ออัปเดตสถานะ
+                alert("✅ บันทึกสำเร็จ!"); loadDayData();
             } catch(e) { alert("❌ Error"); }
             btn.innerText="บันทึกข้อมูล"; btn.disabled=false;
         }
 
-        function shareToLine() {
+        function saveAsImage() {
             const target = document.getElementById('captureTarget');
-            const btn = document.querySelector('.btn-share');
+            const btn = document.querySelector('.btn-img');
+            const dateVal = document.getElementById('checkDate').value;
             btn.innerHTML = '⏳ สร้างรูป...'; btn.disabled = true;
-            html2canvas(target, { scale: 2, useCORS: true }).then(canvas => {
-                canvas.toBlob(async (blob) => {
-                    const file = new File([blob], `Stock_Ink.png`, { type: "image/png" });
-                    if (navigator.share && navigator.canShare({ files: [file] })) {
-                        try { await navigator.share({ files: [file], title: 'สต็อคหมึก' }); } catch (err) {}
-                    } else {
-                        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Stock_Ink.png`; a.click();
-                    }
-                    btn.innerHTML = '<i class="fab fa-line"></i> แชร์ LINE'; btn.disabled = false;
-                });
+            html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Stock_Ink_${dateVal}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                btn.innerHTML = '<i class="fas fa-image"></i> บันทึกรูป'; btn.disabled = false;
             });
         }
 
