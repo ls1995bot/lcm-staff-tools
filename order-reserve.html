@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ใบมัดจำสินค้า — แหลมฉบังเครื่องเขียน</title>
-    <link rel="icon" href="logo-ls.png.png">
+    <link rel="icon" href="logo-ls.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
-        :root { --primary: #023f88; --bg: #f4f6f9; --border: #ccdceb; --sale-red: #d35400; }
+        :root { --primary: #023f88; --bg: #f4f6f9; --border: #ccdceb; --purple: #673ab7; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #2c3e50; }
         .container { max-width: 1350px; margin: 0 auto; }
         .main-layout { display: grid; grid-template-columns: 35% 63.5%; gap: 1.5%; align-items: start; }
         
+        /* Toolbar */
         .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; } 
-        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 125px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
-        .btn-main span { font-size: 1rem; font-weight: bold; margin-bottom: 2px; }
+        .btn-main { cursor: pointer; padding: 8px 5px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); font-family: 'Sarabun'; color: white; display: flex; flex-direction: column; align-items: center; width: 120px; height: 55px; justify-content: center; transition: 0.2s; text-decoration: none; box-sizing: border-box; }
+        .btn-main span { font-size: 0.95rem; font-weight: bold; margin-bottom: 2px; }
         .btn-main small { font-size: 0.65rem; opacity: 0.9; white-space: nowrap; }
 
         .app-header { background: var(--primary); color: white; padding: 12px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
@@ -27,14 +30,14 @@
         .h-items { border-left: 5px solid var(--primary); color: var(--primary); }
         .h-total { border-left: 5px solid #27ae60; color: #218838; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; table-layout: fixed; }
         th, td { padding: 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background: #f8f9fa; color: #666; font-size: 0.8rem; }
+        th { background: #f8f9fa; color: #666; font-size: 0.85rem; }
         
-        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun'; text-align: left; box-sizing: border-box; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun'; font-size: 1rem; text-align: left; box-sizing: border-box; outline: none; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; text-align: right; }
-        input:focus { outline: 2px solid var(--primary); background: #f0f7ff; }
+        input:focus { border: 2px solid var(--primary); background: #f0f7ff; }
 
         .form-row { display: flex; flex-direction: column; gap: 5px; padding: 10px 15px; }
         .form-label { font-size: 0.85rem; font-weight: bold; color: #555; }
@@ -42,58 +45,35 @@
         .sum-row { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px dashed #ddd; font-weight: 600; font-size: 1rem; align-items: center; }
         .sum-final { background: #27ae60; color: white; padding: 12px; border-radius: 6px; margin: 10px 15px; font-weight: 800; font-size: 1.2rem; }
 
-        .btn-shortcut { padding: 5px 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: 0.2s; }
-        .btn-shortcut:hover { background: var(--primary); color: white; }
+        .btn-shortcut { padding: 5px 10px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
 
-        #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
-        
+        #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s; }
+
+        /* --- Print & Capture Wrapper --- */
+        #captureWrapper { position: absolute; left: -9999px; top: 0; } 
         .print-only { display: none; }
         @media print {
             @page { size: A4 portrait; margin: 0; }
-            body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            body { background: white; padding: 0; -webkit-print-color-adjust: exact; }
             .no-print { display: none !important; }
             .print-only { display: block; }
-            .print-page { 
-                width: 210mm; height: 297mm; 
-                padding: 5mm 12mm; /* ปรับลด Padding ขอบกระดาษ */
-                box-sizing: border-box; display: flex; flex-direction: column; 
-                justify-content: flex-start; gap: 2mm; overflow: hidden; 
-            }
-            .bill-box { 
-                height: 135mm; /* ขยายความสูงใบมัดจำหลังเอาเส้นกรอบออก */
-                position: relative; box-sizing: border-box; overflow: hidden;
-                padding-top: 5mm;
-            }
-            
-            /* ลายน้ำ */
-            .print-logo-watermark {
-                position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
-                width: 70mm; opacity: 0.08; z-index: -1;
-            }
-            
-            .bill-header { display: flex; justify-content: space-between; align-items: flex-start; }
-            .bill-title { font-size: 22pt; font-weight: 800; color: #000; text-decoration: underline; margin: 0; }
-            
-            /* รอยประตัดแบ่งครึ่ง */
-            .cut-line { 
-                border-top: 1.5px dashed #444; width: 100%; text-align: center; 
-                height: 8mm; display: flex; align-items: center; justify-content: center; 
-                color: #444; font-size: 9pt; font-weight: bold;
-            }
-            
-            table.print-table { width: 100%; border-collapse: collapse; margin: 5px 0; font-size: 10.5pt; }
-            table.print-table th { border: 1px solid #000; padding: 4px; background: #f0f0f0 !important; font-weight: bold; }
-            table.print-table td { border: 1px solid #000; padding: 4px; height: 20px; }
-            .dotted-line { border-bottom: 1px dotted #000; display: inline-block; padding: 0 5px; font-weight: bold; }
-            
-            /* ส่วนล่าง ลงชื่อ */
-            .sign-section { 
-                display: flex; justify-content: space-around; 
-                margin-top: 25px; text-align: center; font-size: 10.5pt; 
-            }
         }
 
-        @media (max-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
+        /* Bill Design */
+        .print-page { width: 210mm; padding: 8mm 15mm; box-sizing: border-box; display: flex; flex-direction: column; gap: 4mm; background: white; }
+        .bill-box { position: relative; padding: 8px; border: 1px solid #eee; border-radius: 5px; min-height: 125mm; display: flex; flex-direction: column; box-sizing: border-box; }
+        .print-logo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70mm; opacity: 0.06; z-index: 0; pointer-events: none; }
+        
+        .bill-header { display: flex; justify-content: space-between; align-items: flex-start; z-index: 1; }
+        .bill-title { font-size: 24pt; font-weight: 800; text-decoration: underline; margin: 0; color: #000; }
+        .cut-line { border-top: 1.5px dashed #666; width: 100%; text-align: center; height: 10mm; display: flex; align-items: center; justify-content: center; color: #666; font-size: 10pt; font-weight: bold; }
+        
+        table.print-table { width: 100%; border-collapse: collapse; margin: 8px 0; z-index: 1; }
+        table.print-table th { border: 1px solid #000; padding: 4px; background: #f0f0f0 !important; font-weight: bold; font-size: 11pt; }
+        table.print-table td { border: 1px solid #000; padding: 4px; font-size: 11pt; height: 20px; }
+        
+        .dotted-line { border-bottom: 1px dotted #000; display: inline-block; padding: 0 5px; font-weight: bold; }
+        .sign-section { display: flex; justify-content: space-around; margin-top: auto; padding-bottom: 5px; text-align: center; font-size: 11pt; }
     </style>
 </head>
 <body>
@@ -101,19 +81,19 @@
 <div class="container no-print">
     <div class="app-header">
         <div style="display:flex; align-items:center; gap:12px;">
-            <img src="logo-ls.png.png" class="shop-logo">
+            <img src="logo-ls.jpg" class="shop-logo">
             <div>
                 <div style="font-size:1.2rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div>
-                <div style="font-size:0.8rem; opacity:0.9;">ระบบบันทึกใบมัดจำสินค้า</div>
+                <div style="font-size:0.8rem; opacity:0.9;">ระบบใบมัดจำสินค้า</div>
             </div>
         </div>
         <div class="toolbar">
             <span id="saveStatus">💾 จำแล้ว!</span>
-            <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
+            <button class="btn-main" style="background:var(--purple);" onclick="saveAsImage()"><span>📸 รูปภาพ</span><small>บันทึกเป็นรูป</small></button>
             <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ส่งข้อมูล</small></button>
             <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองลงคอม</small></button>
-            <button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()"><span>📥 เปิด</span><small>ดูข้อมูลเก่า</small></button>
-            <input type="file" id="fileInput" style="display:none;" onchange="importFile(this)">
+            <button class="btn-main" style="background:#6c757d;" onclick="location.reload()"><span>🔄 ใหม่</span><small>ล้างข้อมูล</small></button>
+            <a href="index.html" class="btn-main" style="background:#444; width:70px;"><span>🏠</span><small>กลับ</small></a>
         </div>
     </div>
 
@@ -121,54 +101,39 @@
         <div class="col-left">
             <div class="card">
                 <div class="card-head h-info">ข้อมูลลูกค้า</div>
-                <div class="form-row">
-                    <span class="form-label">ได้รับเงินมัดจำจากคุณ (ชื่อลูกค้า):</span>
-                    <input type="text" id="custName" placeholder="ระบุชื่อลูกค้า..." oninput="calc()">
-                </div>
-                <div class="form-row">
-                    <span class="form-label">เบอร์โทรศัพท์:</span>
-                    <input type="text" id="custTel" placeholder="0xx-xxx-xxxx" oninput="calc()">
-                </div>
-                <div class="form-row">
-                    <span class="form-label">ชื่อบริษัทลูกค้า:</span>
-                    <input type="text" id="custCompany" placeholder="ระบุชื่อบริษัท..." oninput="calc()">
-                </div>
+                <div class="form-row"><span class="form-label">ชื่อลูกค้า:</span><input type="text" id="custName" placeholder="..." oninput="calc()"></div>
+                <div class="form-row"><span class="form-label">เบอร์โทรศัพท์:</span><input type="text" id="custTel" placeholder="0xx-xxx-xxxx" oninput="calc()"></div>
+                <div class="form-row"><span class="form-label">บริษัท/หน่วยงาน (ถ้ามี):</span><input type="text" id="custCompany" placeholder="..." oninput="calc()"></div>
                 <div class="form-row" style="flex-direction:row; gap:10px;">
-                    <div style="flex:1;">
-                        <span class="form-label">วันที่รับเรื่อง:</span>
-                        <input type="date" id="receivedDate" oninput="calc()">
-                    </div>
-                    <div style="flex:1;">
-                        <span class="form-label">กำหนดรับสินค้า:</span>
-                        <input type="text" id="pickupDate" placeholder="ระบุวันที่..." oninput="calc()">
-                    </div>
+                    <div style="flex:1;"><span class="form-label">วันที่:</span><input type="date" id="receivedDate" oninput="calc()"></div>
+                    <div style="flex:1;"><span class="form-label">กำหนดรับสินค้า:</span><input type="text" id="pickupDate" placeholder="ระบุวันที่..." oninput="calc()"></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-head h-total">การรับชำระ</div>
-                <div class="sum-row"><span>รวมเป็นเงิน (ราคาเต็ม):</span><span id="sumTotal">0.00</span></div>
+                <div class="card-head h-total">การชำระเงิน</div>
+                <div class="sum-row"><span>รวมราคาเต็ม:</span><span id="sumTotal" style="font-weight: 800;">0.00</span></div>
                 <div class="form-row">
-                    <span class="form-label">คำนวณยอดมัดจำด่วน:</span>
+                    <span class="form-label">ทางลัดมัดจำ:</span>
                     <div style="display:flex; gap:5px;">
                         <button class="btn-shortcut" onclick="setDepositPercent(30)">30%</button>
                         <button class="btn-shortcut" onclick="setDepositPercent(50)">50%</button>
-                        <button class="btn-shortcut" onclick="setDepositPercent(100)">จ่ายเต็ม 100%</button>
+                        <button class="btn-shortcut" onclick="setDepositPercent(100)">จ่ายเต็ม</button>
                     </div>
                 </div>
                 <div class="sum-row" style="color:blue;">
-                    <span>ได้รับมัดจำไว้เป็นเงิน:</span>
-                    <input type="number" id="depositAmt" value="0" style="width:120px; font-weight:bold; color:blue;" oninput="calc()">
+                    <span>เงินมัดจำที่ได้รับ:</span>
+                    <input type="number" id="depositAmt" value="0" style="width:130px; font-weight:bold; color:blue;" oninput="calc()">
                 </div>
                 <div class="sum-final">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>คงเหลือ:</span>
+                        <span>ยอดคงเหลือ:</span>
                         <span id="balanceAmt">0.00</span>
                     </div>
                 </div>
                 <div style="padding:10px 15px;">
-                    <button class="btn-main" style="width:100%; background:#2c3e50; height:50px;" onclick="window.print()">
-                        <span>🖨️ พิมพ์ใบมัดจำ (A4 ไร้ขอบ)</span>
+                    <button class="btn" style="width:100%; background:var(--primary); color:white; height:50px; font-weight:800; font-size:1.1rem; border:none; border-radius:8px; cursor:pointer;" onclick="window.print()">
+                        <i class="fas fa-print"></i> พิมพ์ใบมัดจำ (A4)
                     </button>
                 </div>
             </div>
@@ -179,12 +144,12 @@
                 <div class="card-head h-items">
                     <span>รายการสินค้า</span>
                     <div style="display:flex; gap:5px;">
-                        <button class="btn-sm btn-add" onclick="addRow()">+ เพิ่ม</button>
-                        <button class="btn-sm btn-del" onclick="delRow()">- ลบ</button>
+                        <button class="btn-shortcut" onclick="addRow()">+ เพิ่มแถว</button>
+                        <button class="btn-shortcut" onclick="delRow()">- ลบแถว</button>
                     </div>
                 </div>
                 <table id="itemsTable">
-                    <thead><tr><th width="10%">ลำดับ</th><th width="50%">รายการสินค้า</th><th width="15%">ราคา/หน่วย</th><th width="10%">จำนวน</th><th width="15%">รวม</th></tr></thead>
+                    <thead><tr><th width="10%">ที่</th><th width="50%">รายการสินค้า</th><th width="15%">ราคา/หน่วย</th><th width="10%">จำนวน</th><th width="15%">รวม</th></tr></thead>
                     <tbody id="itemsBody"></tbody>
                 </table>
             </div>
@@ -192,19 +157,22 @@
     </div>
 </div>
 
-<div class="print-only">
+<div id="captureWrapper">
     <div class="print-page" id="printArea"></div>
 </div>
 
+<div class="print-only">
+    <div id="printContainer"></div>
+</div>
+
 <script>
-    let itemRows = 5;
-    const KEY = 'cashApp_OrderReserve_V59';
+    let itemRows = 6;
+    const KEY = 'cashApp_OrderReserve_V60';
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() {
         buildItems(itemRows);
-        const now = new Date();
-        document.getElementById('receivedDate').valueAsDate = now;
+        document.getElementById('receivedDate').valueAsDate = new Date();
         document.addEventListener('keydown', handleNav);
         calc();
     }
@@ -219,11 +187,11 @@
         const body = document.getElementById('itemsBody');
         const r = document.createElement('tr');
         r.innerHTML = `
-            <td style="text-align:center; font-weight:bold;">${i}</td>
+            <td style="text-align:center; font-weight:bold; color:#888;">${i}</td>
             <td><input type="text" class="i-name" placeholder="..." oninput="calc()"></td>
-            <td><input type="number" class="i-price" value="" oninput="calc()"></td>
-            <td><input type="number" class="i-qty" value="" oninput="calc()"></td>
-            <td class="i-subtotal" style="text-align:right; font-weight:bold; padding-right:15px;">0.00</td>
+            <td><input type="number" class="i-price" oninput="calc()"></td>
+            <td><input type="number" class="i-qty" oninput="calc()"></td>
+            <td class="i-subtotal" style="text-align:right; font-weight:bold; padding-right:15px; color:var(--primary);">0.00</td>
         `;
         body.appendChild(r);
     }
@@ -233,17 +201,28 @@
 
     function handleNav(e) {
         if(e.target.tagName !== 'INPUT') return;
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); navigate(e.target, e.key); }
-        if (e.key === 'Enter') { e.preventDefault(); navigate(e.target, 'ArrowDown'); }
+        const all = Array.from(document.querySelectorAll('.no-print input'));
+        const idx = all.indexOf(e.target);
+        if (e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); navigate(idx, 1, e.key === 'Enter'); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); navigate(idx, -1); }
+        else if (e.key === 'ArrowRight' && e.target.selectionEnd === e.target.value.length) { navigate(idx, 1); }
+        else if (e.key === 'ArrowLeft' && e.target.selectionStart === 0) { navigate(idx, -1); }
+        if(['ArrowUp','ArrowDown'].includes(e.key) && e.target.type === 'number') e.preventDefault();
     }
 
-    function navigate(el, key) {
-        const all = Array.from(document.querySelectorAll('.no-print input:not([type="hidden"])'));
-        const idx = all.indexOf(el);
-        let dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1;
-        const next = idx + dir;
-        if(next >= 0 && next < all.length) all[next].focus();
+    function navigate(currentIdx, direction, isEnter) {
+        const all = Array.from(document.querySelectorAll('.no-print input'));
+        let nextIdx = currentIdx + direction;
+        if(isEnter) {
+            const isItemRow = document.activeElement.classList.contains('i-name') || 
+                             document.activeElement.classList.contains('i-price') || 
+                             document.activeElement.classList.contains('i-qty');
+            if(isItemRow) nextIdx = currentIdx + 3; // ลงล่างช่องเดิม
+        }
+        if(all[nextIdx]) all[nextIdx].focus();
     }
+
+    document.addEventListener('wheel', function(e) { if (document.activeElement.type === 'number') document.activeElement.blur(); });
 
     function setDepositPercent(p) {
         const total = parseFloat(document.getElementById('sumTotal').innerText.replace(/,/g, '')) || 0;
@@ -251,7 +230,7 @@
         calc();
     }
 
-    function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
+    function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
 
     function calc() {
         let grandTotal = 0;
@@ -262,19 +241,18 @@
             r.querySelector('.i-subtotal').innerText = fmt(sub);
             grandTotal += sub;
         });
-
         const deposit = parseFloat(document.getElementById('depositAmt').value) || 0;
         document.getElementById('sumTotal').innerText = fmt(grandTotal);
         document.getElementById('balanceAmt').innerText = fmt(grandTotal - deposit);
-        
         updatePrintPreview();
-        triggerSave();
+        triggerAutoSave();
     }
 
     function updatePrintPreview() {
         const name = document.getElementById('custName').value || "................................";
         const tel = document.getElementById('custTel').value || "....................";
-        const rDate = document.getElementById('receivedDate').value;
+        const rDateRaw = document.getElementById('receivedDate').value;
+        const rDate = rDateRaw ? new Date(rDateRaw).toLocaleDateString('th-TH') : "..../..../....";
         const pickup = document.getElementById('pickupDate').value || "....................";
         const total = document.getElementById('sumTotal').innerText;
         const deposit = fmt(parseFloat(document.getElementById('depositAmt').value) || 0);
@@ -283,77 +261,117 @@
         let rowsHTML = "";
         document.querySelectorAll('#itemsBody tr').forEach((r, i) => {
             const n = r.querySelector('.i-name').value;
-            const p = r.querySelector('.i-price').value;
-            const q = r.querySelector('.i-qty').value;
+            const p = parseFloat(r.querySelector('.i-price').value) || 0;
+            const q = parseFloat(r.querySelector('.i-qty').value) || 0;
             const sub = r.querySelector('.i-subtotal').innerText;
-            if(n || p) rowsHTML += `<tr><td align="center">${i+1}</td><td>${n}</td><td align="right">${p}</td><td align="center">${q}</td><td align="right">${sub}</td></tr>`;
+            if(n) rowsHTML += `<tr><td align="center">${i+1}</td><td>${n}</td><td align="right">${p > 0 ? fmt(p) : ''}</td><td align="center">${q > 0 ? q : ''}</td><td align="right">${sub}</td></tr>`;
         });
 
-        const billTemplate = (type) => `
+        const billTemplate = (copyName) => `
             <div class="bill-box">
-                <img src="logo-ls.png.png" class="print-logo-watermark">
+                <img src="logo-ls.jpg" class="print-logo-watermark">
                 <div class="bill-header">
                     <div style="width:65%;">
-                        <div style="font-size:12pt; font-weight:bold;">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div>
-                        <div style="font-size:8.5pt;">88/9-12 ม.9 ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี 20230 Tel: 038-330-262</div>
+                        <div style="font-size:14pt; font-weight:800; color:var(--primary);">บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</div>
+                        <div style="font-size:9.5pt; font-weight:bold; line-height:1.4; color:#000;">
+                            เลขผู้เสียภาษี: 0-2055-56039-21-4 (สำนักงานใหญ่)<br>
+                            88/9-12 หมู่ที่ 9 ถนนสุขุมวิท ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี 20230<br>
+                            โทร: 038-330262 | LINE: @210wryqt
+                        </div>
                     </div>
                     <div style="text-align:right;">
                         <div class="bill-title">ใบมัดจำสินค้า</div>
-                        <div style="font-size:9.5pt; font-weight:bold; margin-top:2px;">วันที่ <span class="dotted-line" style="min-width:90px;">${rDate}</span></div>
+                        <div style="font-size:10pt; font-weight:bold; margin-top:5px;">วันที่: <span class="dotted-line" style="min-width:100px;">${rDate}</span></div>
+                        <div style="font-size:8.5pt; color:#666; margin-top:3px;">(${copyName})</div>
                     </div>
                 </div>
-                <div style="margin:8px 0; font-size:11pt; line-height:1.6;">
-                    ทางร้านได้รับเงินมัดจำค่าสินค้า จาก <span class="dotted-line" style="min-width:270px;">${name}</span> เบอร์ <span class="dotted-line" style="min-width:140px;">${tel}</span>
-                    <br>เพื่อเป็นเงินมัดจำสินค้า ตามรายการต่อไปนี้:
+                <div style="margin:10px 0; font-size:11.5pt; line-height:1.8; color:#000;">
+                    ได้รับเงินมัดจำค่าสินค้า จากคุณ <span class="dotted-line" style="min-width:280px;">${name}</span> โทร <span class="dotted-line" style="min-width:140px;">${tel}</span>
+                    <br>เพื่อเป็นเงินมัดจำสั่งซื้อสินค้า ตามรายการดังต่อไปนี้:
                 </div>
                 <table class="print-table">
-                    <thead><tr><th width="8%">ลำดับ</th><th>รายการสินค้า</th><th width="15%">ราคา/หน่วย</th><th width="10%">จำนวน</th><th width="18%">รวม</th></tr></thead>
-                    <tbody>${rowsHTML || '<tr><td></td><td></td><td></td><td></td><td></td></tr>'.repeat(5)}</tbody>
+                    <thead><tr><th width="8%">ที่</th><th>รายการสินค้า</th><th width="18%">ราคา/หน่วย</th><th width="10%">จำนวน</th><th width="20%">รวมเงิน</th></tr></thead>
+                    <tbody>${rowsHTML || '<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>'.repeat(5)}</tbody>
                 </table>
-                <div style="display:flex; justify-content:flex-end; margin-top:2px;"><div style="font-size:11.5pt;"><b>รวมเป็นเงิน</b> &nbsp;&nbsp; <span class="dotted-line" style="min-width:110px; text-align:right;">${total}</span></div></div>
-                <div style="margin-top:4px; font-size:11pt; line-height:1.9;">
-                    ได้รับมัดจำไว้ เป็นจำนวนเงิน <span class="dotted-line" style="min-width:150px; text-align:right;">${deposit}</span> บาท<br>
-                    จากราคาเต็ม <span class="dotted-line" style="min-width:150px; text-align:right;">${total}</span> บาท<br>
-                    คงเหลือ <span class="dotted-line" style="min-width:150px; text-align:right;">${balance}</span> บาท &nbsp;&nbsp;&nbsp; กำหนดรับสินค้า <span class="dotted-line" style="min-width:170px;">${pickup}</span>
+                <div style="display:flex; justify-content:flex-end; font-size:12.5pt; font-weight:bold; margin-top:5px;">
+                    รวมเป็นเงินทั้งสิ้น: &nbsp; <span class="dotted-line" style="min-width:120px; text-align:right;">${total}</span>
+                </div>
+                <div style="margin-top:8px; font-size:11.5pt; line-height:2.2; color:#000;">
+                    ได้รับมัดจำไว้ เป็นจำนวนเงิน <span class="dotted-line" style="min-width:160px; text-align:right;">${deposit}</span> บาท<br>
+                    ยอดคงเหลือชำระวันรับของ <span class="dotted-line" style="min-width:160px; text-align:right;">${balance}</span> บาท &nbsp;&nbsp; กำหนดรับสินค้า <span class="dotted-line" style="min-width:180px;">${pickup}</span>
                 </div>
                 <div class="sign-section">
-                    <div><br>(_______________________)<br>ลงชื่อ (ลูกค้า)</div>
-                    <div><br>(_______________________)<br>ลงชื่อ (พนักงานขาย)</div>
+                    <div><br>(_______________________)<br>ลงชื่อผู้มัดจำ</div>
+                    <div><br>(_______________________)<br>ลงชื่อผู้รับเงิน</div>
                 </div>
             </div>
         `;
 
-        document.getElementById('printArea').innerHTML = billTemplate("สำหรับร้านค้า") + `<div class="cut-line">✂️ ตัดตามรอยประ ✂️</div>` + billTemplate("สำหรับลูกค้า");
+        const fullHTML = billTemplate("ต้นฉบับ - สำหรับร้าน") + `<div class="cut-line">✂️ รอยประสำหรับตัดแบ่ง (ขนาด A5) ✂️</div>` + billTemplate("สำเนา - สำหรับลูกค้า");
+        document.getElementById('printArea').innerHTML = fullHTML;
+        document.getElementById('printContainer').innerHTML = fullHTML;
+    }
+
+    function saveAsImage() {
+        const target = document.getElementById('printArea');
+        const btn = document.querySelector('.btn-main[onclick="saveAsImage()"]');
+        const name = document.getElementById('custName').value || 'New_Deposit';
+        btn.innerHTML = '<span>⏳..</span><small>สร้างรูป...</small>'; btn.disabled = true;
+
+        html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `ใบมัดจำ_${name}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            btn.innerHTML = '<span>📸 รูปภาพ</span><small>บันทึกเป็นรูป</small>'; btn.disabled = false;
+        });
     }
 
     let saveTimer;
-    function triggerSave() { clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, 500); }
-    function forceSave() {
-        const formData = {
-            cust: document.getElementById('custName').value,
-            tel: document.getElementById('custTel').value,
-            company: document.getElementById('custCompany').value,
-            date: document.getElementById('receivedDate').value,
-            pickup: document.getElementById('pickupDate').value,
-            deposit: document.getElementById('depositAmt').value,
+    function triggerAutoSave() { clearTimeout(saveTimer); saveTimer = setTimeout(autoSave, 1000); }
+    function autoSave() {
+        const data = {
+            cust: document.getElementById('custName').value, tel: document.getElementById('custTel').value,
+            company: document.getElementById('custCompany').value, date: document.getElementById('receivedDate').value,
+            pickup: document.getElementById('pickupDate').value, deposit: document.getElementById('depositAmt').value,
             items: Array.from(document.querySelectorAll('#itemsBody tr')).map(r => ({
                 n: r.querySelector('.i-name').value, p: r.querySelector('.i-price').value, q: r.querySelector('.i-qty').value
             }))
         };
-        localStorage.setItem(KEY + '_current', JSON.stringify(formData));
+        localStorage.setItem(KEY, JSON.stringify(data));
         const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => el.style.opacity = 0, 1000);
-        
-        const summary = { 
-            type: "DEPOSIT",
-            date: formData.date, shop: "ใบมัดจำ (แหลมฉบัง)", emp: formData.cust || "มัดจำใหม่", 
-            pos: formData.deposit || 0, actual: document.getElementById('sumTotal').innerText.replace(/,/g, ''), diff: document.getElementById('balanceAmt').innerText.replace(/,/g, '') 
-        };
-        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summary) });
     }
 
-    function manualSave() { forceSave(); alert("💾 บันทึกและส่งข้อมูลเรียบร้อยแล้ว"); }
-    function exportFile() { forceSave(); const data = localStorage.getItem(KEY + '_current'); const b = new Blob([data], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `Deposit_${document.getElementById('custName').value || 'New'}.json`; a.click(); }
-    function importFile(e) { const r = new FileReader(); r.onload = x => { const data = JSON.parse(x.target.result); document.getElementById('custName').value = data.cust; document.getElementById('custTel').value = data.tel; document.getElementById('custCompany').value = data.company||''; document.getElementById('receivedDate').value = data.date; document.getElementById('pickupDate').value = data.pickup; document.getElementById('depositAmt').value = data.deposit; buildItems(data.items.length); data.items.forEach((it, i) => { const r = document.getElementById('itemsBody').rows[i]; r.querySelector('.i-name').value = it.n; r.querySelector('.i-price').value = it.p; r.querySelector('.i-qty').value = it.q; }); calc(); alert("✅ ดึงข้อมูลเก่าเรียบร้อย"); }; r.readAsText(e.files[0]); }
+    function manualSave() {
+        autoSave();
+        const data = JSON.parse(localStorage.getItem(KEY));
+        const summary = {
+            type: "DEPOSIT", targetTab: "ใบมัดจำค่าสินค้า", date: data.date, shop: "LS แหลมฉบัง", emp: data.cust || "มัดจำสินค้า",
+            pos: data.deposit, actual: document.getElementById('sumTotal').innerText.replace(/,/g, ''),
+            diff: document.getElementById('balanceAmt').innerText.replace(/,/g, '')
+        };
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summary) });
+        alert("💾 บันทึกและส่งข้อมูล Cloud (Script A) เรียบร้อย");
+    }
+
+    function exportFile() {
+        const data = localStorage.getItem(KEY);
+        const b = new Blob([data], {type: "application/json"});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+        a.download = `Deposit_${document.getElementById('custName').value || 'Record'}.json`; a.click();
+    }
+
+    function importFile(e) { 
+        const r = new FileReader(); r.onload = x => { 
+            const data = JSON.parse(x.target.result); 
+            document.getElementById('custName').value = data.cust; document.getElementById('custTel').value = data.tel; 
+            document.getElementById('custCompany').value = data.company||''; document.getElementById('receivedDate').value = data.date; 
+            document.getElementById('pickupDate').value = data.pickup; document.getElementById('depositAmt').value = data.deposit; 
+            buildItems(data.items.length); 
+            data.items.forEach((it, i) => { const r = document.getElementById('itemsBody').rows[i]; r.querySelector('.i-name').value = it.n; r.querySelector('.i-price').value = it.p; r.querySelector('.i-qty').value = it.q; }); 
+            calc(); alert("✅ ดึงข้อมูลเก่าเรียบร้อย"); 
+        }; r.readAsText(e.files[0]); 
+    }
 
     init();
 </script>
