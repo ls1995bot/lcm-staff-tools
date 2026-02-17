@@ -16,6 +16,7 @@
             --sk: #ff0588; --sk-light: #fff0f6;
             --sb: #e67e22; --sb-light: #fff5eb;
             --pos: #28a745; --neg: #dc3545; --warn: #ffc107;
+            --purple: #673ab7;
         }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1200px; margin: 0 auto; padding-bottom: 80px; }
@@ -53,15 +54,13 @@
 
         .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
         .stat-val { font-weight: bold; font-size: 16px; }
-        .total-box { margin-top: 15px; background: #f8f9fa; padding: 10px; border-radius: 8px; text-align: center; }
-        .total-amt { font-size: 24px; font-weight: 800; color: #333; }
 
-        /* Audit Box (Diff Summary) */
+        /* Audit Box */
         .audit-card { background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--warn); }
         .audit-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
         .audit-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; }
         .audit-bad { color: var(--neg); font-weight: bold; }
-        .audit-good { color: var(--warn); font-weight: bold; } /* Over is warn */
+        .audit-good { color: var(--warn); font-weight: bold; }
 
         /* Grand Total */
         .grand-box { background: #333; color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
@@ -74,8 +73,16 @@
         .badge { padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; display: inline-block; width: 50px; text-align: center; }
         .b-ls { background: var(--ls); } .b-sk { background: var(--sk); } .b-sb { background: var(--sb); }
 
-        /* Share Button */
-        .btn-share { position: fixed; bottom: 20px; right: 20px; background: #06c755; color: white; border: none; padding: 15px; border-radius: 50%; width: 60px; height: 60px; font-size: 24px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 99; }
+        /* 📸 Save Image Button (Updated) */
+        .btn-img-save { 
+            position: fixed; bottom: 20px; right: 20px; 
+            background: var(--purple); color: white; border: none; 
+            padding: 15px 25px; border-radius: 30px; font-weight: bold; 
+            font-size: 16px; cursor: pointer; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3); 
+            display: flex; align-items: center; justify-content: center; gap: 10px; z-index: 99; 
+        }
+        .btn-img-save:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
@@ -93,22 +100,22 @@
 <div class="container" id="captureArea">
     <div class="header">
         <h2 id="pageTitle"><i class="fas fa-chart-line"></i> สรุปยอดขายรวม</h2>
-        <a href="index.html" class="btn-back" data-html2canvas-ignore="true">🏠 กลับ</a>
+        <a href="index.html" class="btn-back" data-html2canvas-ignore="true">🏠 กลับหน้าหลัก</a>
     </div>
 
     <div class="filters" data-html2canvas-ignore="true">
-        <select id="shopFilter" onchange="loadData()">
+        <select id="shopFilter" onchange="renderAll()">
             <option value="all">🏢 ดูรวมทุกสาขา</option>
             <option value="ls">📘 เฉพาะ LS แหลมฉบัง</option>
             <option value="sk">🩷 เฉพาะ SK สมาร์ทคิดส์</option>
             <option value="sb">🟧 เฉพาะ SB สคูลบัส</option>
         </select>
         <input type="month" id="monthPicker" onchange="loadData()">
-        <button class="btn-load" onclick="loadData()">🔄 โหลด</button>
+        <button class="btn-load" onclick="loadData()">🔄 โหลดข้อมูล</button>
     </div>
 
     <div class="grand-box">
-        <div style="font-size:14px; opacity:0.8;">ยอดขายสุทธิ (ตามตัวกรอง)</div>
+        <div style="font-size:14px; opacity:0.8;">ยอดขายสุทธิ (ตามตัวกรองที่เลือก)</div>
         <div style="font-size:40px; font-weight:800;" id="main-grand">0</div>
     </div>
 
@@ -162,132 +169,88 @@
     </div>
 </div>
 
-<button class="btn-share" onclick="shareLine()" data-html2canvas-ignore="true"><i class="fab fa-line"></i></button>
+<button class="btn-img-save" onclick="saveAsImage()" data-html2canvas-ignore="true">
+    <i class="fas fa-image"></i> บันทึกเป็นรูปภาพ
+</button>
 
 <script>
-    // ⚠️⚠️⚠️ URL Script A (การเงิน) ⚠️⚠️⚠️
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
-    // --- Login Logic ---
     function checkPass() {
-        const p = document.getElementById('passInput').value;
-        if(p === '4610') {
+        if(document.getElementById('passInput').value === '4610') {
             document.getElementById('loginOverlay').style.display = 'none';
-            loadData(); // Load data after login
+            loadData();
         } else {
             document.getElementById('loginMsg').innerText = 'รหัสผ่านไม่ถูกต้อง';
             document.getElementById('passInput').value = '';
         }
     }
 
-    // --- Data Logic ---
     const now = new Date();
     document.getElementById('monthPicker').value = now.toISOString().slice(0, 7);
 
-    let rawData = []; // Store fetched data
+    let rawData = [];
 
     async function loadData() {
         const month = document.getElementById('monthPicker').value;
         const btn = document.querySelector('.btn-load');
-        
         btn.innerHTML = '⏳..'; btn.disabled = true;
 
         try {
-            // Fetch All Data Once
             const [ls, sk, sb] = await Promise.all([
                 fetchData('ใบส่งเงิน LS', month),
                 fetchData('ใบส่งเงิน SK', month),
                 fetchData('ใบส่งเงิน SB', month)
             ]);
 
-            // Tagging
             if(ls) ls.forEach(r => r._src = 'ls');
             if(sk) sk.forEach(r => r._src = 'sk');
             if(sb) sb.forEach(r => r._src = 'sb');
 
-            // Merge & Sort
             rawData = [...(ls||[]), ...(sk||[]), ...(sb||[])];
             rawData.sort((a,b) => new Date(b.date) - new Date(a.date));
-
             renderAll();
-
-        } catch(e) {
-            console.error(e);
-            alert("โหลดข้อมูลไม่สำเร็จ");
-        }
-        btn.innerHTML = '🔄 โหลด'; btn.disabled = false;
+        } catch(e) { alert("โหลดข้อมูลไม่สำเร็จ"); }
+        btn.innerHTML = '🔄 โหลดข้อมูล'; btn.disabled = false;
     }
 
     function renderAll() {
         const filter = document.getElementById('shopFilter').value;
-        
-        // 1. Filter Data
-        let filtered = rawData;
-        if(filter !== 'all') {
-            filtered = rawData.filter(r => r._src === filter);
-        }
+        let filtered = (filter === 'all') ? rawData : rawData.filter(r => r._src === filter);
 
-        // 2. Toggle Cards
         document.getElementById('card-ls').style.display = (filter==='all'||filter==='ls') ? 'flex' : 'none';
         document.getElementById('card-sk').style.display = (filter==='all'||filter==='sk') ? 'flex' : 'none';
         document.getElementById('card-sb').style.display = (filter==='all'||filter==='sb') ? 'flex' : 'none';
 
-        // 3. Calc Summaries per Shop (Always calc all, just hide display)
         calcSum('ls', rawData.filter(r => r._src === 'ls'));
         calcSum('sk', rawData.filter(r => r._src === 'sk'));
         calcSum('sb', rawData.filter(r => r._src === 'sb'));
 
-        // 4. Grand Total (Based on Filter)
         const total = filtered.reduce((sum, r) => sum + parseFloat(r.actual || 0), 0);
         document.getElementById('main-grand').innerText = "฿ " + fmt(total);
 
-        // 5. Render Table
         const tb = document.getElementById('tbBody');
-        tb.innerHTML = '';
-        if(filtered.length === 0) tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">ไม่พบข้อมูล</td></tr>';
+        tb.innerHTML = filtered.length ? '' : '<tr><td colspan="5" style="text-align:center; padding:20px;">ไม่พบข้อมูล</td></tr>';
         
         filtered.forEach(r => {
-            let badge = '';
-            if(r._src === 'ls') badge = '<span class="badge b-ls">LS</span>';
-            else if(r._src === 'sk') badge = '<span class="badge b-sk">SK</span>';
-            else if(r._src === 'sb') badge = '<span class="badge b-sb">SB</span>';
-
+            let badge = `<span class="badge b-${r._src}">${r._src.toUpperCase()}</span>`;
             let diff = parseFloat(r.diff||0);
             let diffStyle = Math.abs(diff) < 1 ? 'color:#28a745' : 'color:#dc3545; font-weight:bold;';
-
-            tb.innerHTML += `
-                <tr>
-                    <td>${formatDate(r.date)}</td>
-                    <td>${badge}</td>
-                    <td>${r.staff}</td>
-                    <td style="text-align:right;">${fmt(r.actual)}</td>
-                    <td style="text-align:right; ${diffStyle}">${fmt(diff)}</td>
-                </tr>
-            `;
+            tb.innerHTML += `<tr><td>${formatDate(r.date)}</td><td>${badge}</td><td>${r.staff}</td><td style="text-align:right;">${fmt(r.actual)}</td><td style="text-align:right; ${diffStyle}">${fmt(diff)}</td></tr>`;
         });
 
-        // 6. Render Audit List (Diff Summary)
         const auditList = document.getElementById('auditList');
-        const auditCard = document.getElementById('auditCard');
         auditList.innerHTML = '';
-        
         let problemCount = 0;
         filtered.forEach(r => {
             let diff = parseFloat(r.diff || 0);
-            if(Math.abs(diff) > 1) { // Ignore small decimals
+            if(Math.abs(diff) > 1) {
                 problemCount++;
                 let cls = diff < 0 ? 'audit-bad' : 'audit-good';
-                let sign = diff > 0 ? '+' : '';
-                let shopName = r._src.toUpperCase();
-                auditList.innerHTML += `
-                    <div class="audit-item">
-                        <span>${formatDate(r.date)} <b>${shopName}</b> (${r.staff})</span>
-                        <span class="${cls}">${sign}${fmt(diff)}</span>
-                    </div>
-                `;
+                auditList.innerHTML += `<div class="audit-item"><span>${formatDate(r.date)} <b>${r._src.toUpperCase()}</b> (${r.staff})</span><span class="${cls}">${diff > 0 ? '+' : ''}${fmt(diff)}</span></div>`;
             }
         });
-        auditCard.style.display = problemCount > 0 ? 'block' : 'none';
+        document.getElementById('auditCard').style.display = problemCount > 0 ? 'block' : 'none';
     }
 
     async function fetchData(shop, month) {
@@ -312,39 +275,24 @@
     function fmt(n) { return parseFloat(n).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0}); }
     function formatDate(d) { return new Date(d).toLocaleDateString('th-TH', {day:'numeric', month:'short'}); }
 
-    // --- Share Logic ---
-    function shareLine() {
-        const btn = document.querySelector('.btn-share');
-        btn.style.display = 'none'; // Hide button
-        const title = document.getElementById('pageTitle');
-        const oldTitle = title.innerText;
-        title.innerText = `สรุปยอด ${document.getElementById('monthPicker').value}`;
+    // --- 📸 Save As Image Logic ---
+    function saveAsImage() {
+        const btn = document.querySelector('.btn-img-save');
+        const month = document.getElementById('monthPicker').value;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังสร้างรูป...';
+        btn.disabled = true;
 
-        html2canvas(document.getElementById('captureArea'), { scale: 2 }).then(canvas => {
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], "summary.png", { type: "image/png" });
-                
-                // Try Web Share API (Mobile)
-                if (navigator.share && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'สรุปยอดขาย',
-                            text: 'สรุปยอดขายประจำเดือน'
-                        });
-                    } catch (err) { console.log('Share closed'); }
-                } else {
-                    // Fallback for Desktop: Download
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = "Summary_LS_Group.png";
-                    a.click();
-                    alert("⬇️ บันทึกรูปภาพแล้ว ส่งต่อใน LINE ได้เลย");
-                }
-                
-                btn.style.display = 'flex'; // Restore
-                title.innerText = oldTitle;
-            });
+        html2canvas(document.getElementById('captureArea'), { 
+            scale: 2,
+            backgroundColor: "#f4f6f9" 
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `สรุปยอดขาย_${month}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            btn.innerHTML = '<i class="fas fa-image"></i> บันทึกเป็นรูปภาพ';
+            btn.disabled = false;
         });
     }
 </script>
