@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายการสินค้าออนไลน์ - แหลมฉบังเครื่องเขียน</title>
+    <title>รายการสินค้าออนไลน์ 3 ช่องทาง - LS</title>
     <link rel="icon" href="logo-ls.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,44 +12,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root { --primary: #023f88; --grab: #00b14f; --shopee: #ee4d2d; --purple: #673ab7; --bg: #f4f6f9; }
-        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --primary: #023f88; --grab: #00b14f; --shopee: #ee4d2d; --purple: #673ab7; --bg: #f0f2f5; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; color: #333; }
 
         /* --- Sidebar --- */
-        #sidebar { width: 320px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10; }
+        #sidebar { width: 280px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10; }
         .sidebar-head { text-align: center; margin-bottom: 5px; }
         .sidebar-head img { width: 60px; border-radius: 50%; border: 2px solid var(--primary); }
-        .sidebar-head h3 { margin: 10px 0 0 0; color: var(--primary); font-weight: 800; font-size: 18px; }
+        .sidebar-head h3 { margin: 10px 0 0 0; color: var(--primary); font-weight: 800; }
 
-        .search-box { background: #f0f2f5; padding: 12px; border-radius: 8px; border: 1px solid #e1e4e8; }
-        .search-box input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun'; font-size: 14px; box-sizing: border-box; outline: none; margin-top: 5px; }
-        .search-box input:focus { border-color: var(--primary); background: white; }
+        /* Global Search Box in Sidebar (Optional sync) */
+        .search-box { background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #ddd; }
+        .search-box input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; font-size: 14px; box-sizing: border-box; outline: none; margin-top: 5px; }
+        .search-box input:focus { border-color: var(--primary); }
 
         .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 14px; }
         .btn-refresh { background: #17a2b8; color: white; }
         .btn-img { background: var(--purple); color: white; }
         .btn-back { background: #666; color: white; text-decoration: none; margin-top: auto; }
 
-        .info-box { font-size: 12px; color: #555; background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082; line-height: 1.6; }
+        .info-box { font-size: 12px; color: #555; background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082; line-height: 1.5; }
 
-        /* --- Main Table Area --- */
-        #main { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; overflow: hidden; }
-        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: auto; flex-grow: 1; border: 1px solid #eee; }
+        /* --- Main Content (3 Columns) --- */
+        #main { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; overflow: hidden; gap: 15px; }
         
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: #f8f9fa; padding: 12px 10px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #ddd; font-size: 13px; color: #333; font-weight: 800; white-space: nowrap; }
-        td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 13px; }
+        /* Summary Cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-shrink: 0; }
+        .sum-card { background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: center; border-top: 4px solid #ccc; }
+        .sum-card.c-gaga { border-top-color: #d35400; }
+        .sum-card.c-ls { border-top-color: var(--shopee); }
+        .sum-card.c-grab { border-top-color: var(--grab); }
+        .sum-title { font-size: 14px; font-weight: bold; color: #666; }
+        .sum-val { font-size: 24px; font-weight: 800; margin-top: 5px; }
 
-        .p-img { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid #eee; background: #fff; }
-        .p-name { font-weight: 700; color: #2c3e50; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .p-sku { font-size: 11px; color: #888; margin-top: 2px; font-family: monospace; }
+        /* Tables Grid */
+        .tables-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-grow: 1; overflow: hidden; }
+        .table-wrapper { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
+        
+        .table-header-banner { padding: 10px; font-weight: bold; color: white; text-align: center; font-size: 14px; }
+        .b-gaga { background: #d35400; }
+        .b-ls { background: var(--shopee); }
+        .b-grab { background: var(--grab); }
+        
+        /* Individual Search Box */
+        .col-search-bar { padding: 8px 10px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .col-search-bar input { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Sarabun'; font-size: 13px; box-sizing: border-box; outline: none; }
+        .col-search-bar input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(2,63,136,0.2); }
 
-        .price-col { text-align: right; font-weight: bold; font-size: 14px; }
-        .txt-shopee { color: var(--shopee); }
-        .txt-grab { color: var(--grab); }
-        .txt-none { color: #ccc; font-weight: normal; }
+        .scroll-area { flex-grow: 1; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; padding: 8px; text-align: left; position: sticky; top: 0; z-index: 5; border-bottom: 1px solid #ddd; font-size: 12px; color: #555; }
+        td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; font-size: 12px; }
 
-        .btn-out { border: 1px solid #ffa39e; background: white; color: #f5222d; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100px; }
+        .p-img { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; border: 1px solid #eee; background: #fff; }
+        .p-name { font-weight: 700; color: #2c3e50; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .p-sku { font-size: 10px; color: #888; font-family: monospace; margin-top: 2px; }
+        .p-price { font-weight: bold; color: #d35400; font-size: 13px; }
+        
+        .btn-out { border: 1px solid #ffa39e; background: white; color: #f5222d; padding: 4px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; width: 100%; margin-top: 4px; }
         .btn-out:hover { background: #fff1f0; }
         .btn-out.active { background: #f5222d; color: white; border-color: #f5222d; }
         .row-out { background-color: #fffafa; opacity: 0.7; }
@@ -62,57 +82,97 @@
 <body>
 
 <div id="loader">
-    <i class="fas fa-rocket fa-spin fa-3x" style="margin-bottom: 15px;"></i>
-    <div id="loader-text">กำลังดึงข้อมูลจากแพลตฟอร์มออนไลน์...</div>
+    <i class="fas fa-sync fa-spin fa-3x" style="margin-bottom: 15px;"></i>
+    กำลังซิงค์ข้อมูลจาก Google Sheets 3 ร้านค้า...
 </div>
 
 <div id="sidebar" class="no-print">
     <div class="sidebar-head">
         <img src="logo-ls.jpg">
-        <h3>รายการสินค้าออนไลน์</h3>
+        <h3>Online Status Hub</h3>
     </div>
 
     <div class="search-box">
-        <label style="font-size: 12px; font-weight: bold; color: #555;"><i class="fas fa-search"></i> ค้นหาสินค้า</label>
-        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า หรือ รหัส SKU..." onkeyup="filterTable()">
+        <label><i class="fas fa-search"></i> ค้นหาทุกช่องทาง</label>
+        <input type="text" id="searchAll" placeholder="พิมพ์ชื่อสินค้า หรือ บาร์โค้ด..." onkeyup="filterAllTables()">
     </div>
 
     <div class="info-box">
         <b>📌 วิธีใช้งานสำหรับพนักงาน:</b><br>
-        1. ค้นหาสินค้าเพื่อดูว่ามีขายในแอปไหม<br>
-        2. หากของหน้าร้านหมด ให้กด <span style="color:red; font-weight:bold;">"แจ้งหมด"</span><br>
-        3. กดปุ่มม่วง เพื่อเซฟรูปส่งให้เจ้าของร้านปิดระบบ
+        1. ดูรายการแยกตามแพลตฟอร์ม<br>
+        2. สามารถค้นหาข้ามร้านได้ที่แถบซ้ายมือ หรือค้นหาเฉพาะร้านได้ที่หัวตาราง<br>
+        3. กดปุ่ม <span style="color:red;">"แจ้งหมด"</span> ในช่องของร้านนั้นๆ<br>
+        4. กดปุ่มม่วง เพื่อเซฟรูปส่งให้เจ้าของร้านปิดระบบ
     </div>
 
-    <button class="btn btn-refresh" onclick="loadData()"><i class="fas fa-sync-alt"></i> โหลดข้อมูลล่าสุด</button>
+    <button class="btn btn-refresh" onclick="loadData(true)"><i class="fas fa-cloud-download-alt"></i> โหลดข้อมูลใหม่ล่าสุด</button>
     
     <div style="flex-grow:1;"></div>
 
-    <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกรายการแจ้งของหมด</button>
+    <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกรายการส่งแจ้ง</button>
     <a href="index.html" class="btn btn-back">🏠 กลับหน้าหลัก</a>
 </div>
 
 <div id="main" class="no-print">
-    <div class="table-container">
-        <table id="productTable">
-            <thead>
-                <tr>
-                    <th width="55">รูป</th>
-                    <th>ชื่อสินค้า / รหัส (SKU)</th>
-                    <th width="100" style="text-align:right;">Shopee<br><small>(ร้าน GA_GA)</small></th>
-                    <th width="100" style="text-align:right;">Shopee<br><small>(ร้าน LS1995)</small></th>
-                    <th width="100" style="text-align:right;">Grab Mart<br><small>(LS1995)</small></th>
-                    <th width="110" style="text-align:center;">สถานะของ</th>
-                </tr>
-            </thead>
-            <tbody id="productBody">
-                </tbody>
-        </table>
+    <div class="summary-grid">
+        <div class="sum-card c-gaga">
+            <div class="sum-title">สินค้า Shopee GA_GA</div>
+            <div class="sum-val" id="cnt-gaga" style="color:#d35400;">0 ชิ้น</div>
+        </div>
+        <div class="sum-card c-ls">
+            <div class="sum-title">สินค้า Shopee LS1995</div>
+            <div class="sum-val" id="cnt-ls" style="color:var(--shopee);">0 ชิ้น</div>
+        </div>
+        <div class="sum-card c-grab">
+            <div class="sum-title">สินค้า Grab Mart</div>
+            <div class="sum-val" id="cnt-grab" style="color:var(--grab);">0 ชิ้น</div>
+        </div>
+    </div>
+
+    <div class="tables-grid">
+        <div class="table-wrapper">
+            <div class="table-header-banner b-gaga">Shopee : ร้าน GA_GA</div>
+            <div class="col-search-bar">
+                <input type="text" id="search-gaga" placeholder="🔍 ค้นหาเฉพาะร้าน GA_GA..." onkeyup="filterSpecificTable('gaga')">
+            </div>
+            <div class="scroll-area">
+                <table id="tbl-gaga">
+                    <thead><tr><th width="45">รูป</th><th>สินค้า / รหัส</th><th width="45">ราคา</th><th width="55">จัดการ</th></tr></thead>
+                    <tbody id="body-gaga"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-header-banner b-ls">Shopee : ร้าน LS1995</div>
+            <div class="col-search-bar">
+                <input type="text" id="search-ls" placeholder="🔍 ค้นหาเฉพาะร้าน LS1995..." onkeyup="filterSpecificTable('ls')">
+            </div>
+            <div class="scroll-area">
+                <table id="tbl-ls">
+                    <thead><tr><th width="45">รูป</th><th>สินค้า / รหัส</th><th width="45">ราคา</th><th width="55">จัดการ</th></tr></thead>
+                    <tbody id="body-ls"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <div class="table-header-banner b-grab">Grab Mart : ร้าน LS1995</div>
+            <div class="col-search-bar">
+                <input type="text" id="search-grab" placeholder="🔍 ค้นหาเฉพาะร้าน Grab Mart..." onkeyup="filterSpecificTable('grab')">
+            </div>
+            <div class="scroll-area">
+                <table id="tbl-grab">
+                    <thead><tr><th width="45">รูป</th><th>สินค้า / รหัส</th><th width="45">ราคา</th><th width="55">จัดการ</th></tr></thead>
+                    <tbody id="body-grab"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <div id="captureArea">
-    <h2 style="color:var(--primary); border-bottom:3px solid var(--primary); padding-bottom:10px; margin-top:0;">แจ้งปิดระบบออนไลน์ / ของหน้าร้านหมด</h2>
+    <h2 style="color:var(--primary); border-bottom:3px solid var(--primary); padding-bottom:10px; margin-top:0;">แจ้งปิดระบบออนไลน์ / ของหมด</h2>
     <table style="width:100%; border-collapse:collapse; margin-top:10px;">
         <tbody id="captureBody"></tbody>
     </table>
@@ -120,160 +180,135 @@
 </div>
 
 <script>
-    // ⚠️ ID ของไฟล์ชีท "LS Secret SHP GRAB ใช้ตัวนี้" (ลิ้งก์ใหม่)
+    // ⚠️ ID ของไฟล์ "LS Secret SHP GRAB ใช้ตัวนี้"
     const SHEET_ID = '1HY2Kcj7ifT8LrNZtX9Eif90Z8uTRITl-MPJurwKoP70';
     
-    let ONLINE_PRODUCTS = []; // เก็บข้อมูลแบบรวม SKU
-    let OUT_OF_STOCK_SET = new Set();
+    let DATA_GAGA = [];
+    let DATA_LS = [];
+    let DATA_GRAB = [];
+    let OUT_OF_STOCK_SET = new Set(); 
 
-    // ฟังก์ชันดึง CSV แบบ Raw (ไม่ต้องใช้ GAS)
     async function fetchCsvData(sheetName) {
-        // ใส่ &t=Date.now() เพื่อป้องกัน Browser จำค่าเก่า (Cache)
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}&t=${Date.now()}`;
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
         try {
             const res = await fetch(url);
             const text = await res.text();
-            
-            // ตรวจสอบ Error ถ้ายกเลิกการแชร์
-            if(text.trim().startsWith('<html') || text.trim().startsWith('<!DOCTYPE')) {
-                throw new Error("PERMISSION_DENIED");
-            }
-
+            if(text.trim().startsWith('<html')) throw new Error("PERMISSION");
             return new Promise(resolve => {
-                Papa.parse(text, {
-                    header: false, // ดึงแบบ Array ดิบ เพื่อจัดการแถวที่ข้ามเอง
-                    skipEmptyLines: true,
-                    complete: function(results) { resolve(results.data); }
-                });
+                Papa.parse(text, { header: false, skipEmptyLines: true, complete: res => resolve(res.data) });
             });
         } catch (e) {
-            if(e.message === "PERMISSION_DENIED") throw e;
-            console.error(`Error loading ${sheetName}:`, e);
+            if(e.message === "PERMISSION") throw e;
             return [];
         }
     }
 
-    async function loadData() {
+    async function loadData(forceRefresh = false) {
         const loader = document.getElementById('loader');
-        loader.style.display = 'flex';
         
-        try {
-            // โหลด 3 ชีทพร้อมกันแบบความเร็วสูง
-            const [gagaRaw, lsRaw, grabRaw] = await Promise.all([
-                fetchCsvData('SHP_GAGA_RAW'),
-                fetchCsvData('SHP_LS_RAW'),
-                fetchCsvData('GRAB_RAW')
-            ]);
-
-            const productMap = new Map();
-
-            // ฟังก์ชันย่อยสำหรับเพิ่มข้อมูลลง Map
-            const addProduct = (sku, name, price, source, imgUrl = null) => {
-                if (!sku) return;
-                sku = sku.toString().trim();
-                if (!productMap.has(sku)) {
-                    productMap.set(sku, {
-                        sku: sku,
-                        name: name,
-                        img: imgUrl || 'logo-ls.jpg',
-                        gaga: '-',
-                        ls: '-',
-                        grab: '-'
-                    });
-                }
-                const p = productMap.get(sku);
-                // เรียงลำดับความสำคัญชื่อ (Grab มักจะตั้งชื่อสวยสุด)
-                if (source === 'GRAB') p.name = name; 
-                
-                if (source === 'GAGA') p.gaga = price;
-                if (source === 'LS') p.ls = price;
-                if (source === 'GRAB') {
-                    p.grab = price;
-                    if (imgUrl && p.img === 'logo-ls.jpg') p.img = imgUrl; // ดึงรูปจาก Grab มาโชว์
-                }
-            };
-
-            // 1. Process Shopee GA_GA (ข้อมูลเริ่มแถว 7 -> index 6)
-            for(let i = 6; i < gagaRaw.length; i++) {
-                const row = gagaRaw[i];
-                if(row.length < 7) continue;
-                // ถ้ามีรหัสตัวเลือก(5) ใช้ตัวเลือก ถ้าไม่มีใช้ Parent(4)
-                let sku = row[5] ? row[5] : row[4]; 
-                let name = row[1];
-                if(row[3]) name += ` - ${row[3]}`; // บวกชื่อตัวเลือกสินค้า
-                let price = row[6];
-                addProduct(sku, name, price, 'GAGA');
-            }
-
-            // 2. Process Shopee LS (ข้อมูลเริ่มแถว 7 -> index 6)
-            for(let i = 6; i < lsRaw.length; i++) {
-                const row = lsRaw[i];
-                if(row.length < 7) continue;
-                let sku = row[5] ? row[5] : row[4]; 
-                let name = row[1];
-                if(row[3]) name += ` - ${row[3]}`;
-                let price = row[6];
-                addProduct(sku, name, price, 'LS');
-            }
-
-            // 3. Process Grab Mart (ข้อมูลเริ่มแถว 3 -> index 2)
-            // คอลัมน์ Grab: 0=ItemID, 1=Name, 2=Price, 7=Barcode, 8=SKU, 10=Photo1
-            for(let i = 2; i < grabRaw.length; i++) {
-                const row = grabRaw[i];
-                if(row.length < 11) continue;
-                // ใช้ SKU(8) ถ้าไม่มีใช้ Barcode(7)
-                let sku = row[8] ? row[8] : row[7]; 
-                let name = row[1];
-                let price = row[2];
-                let img = row[10];
-                addProduct(sku, name, price, 'GRAB', img);
-            }
-
-            // แปลง Map กลับเป็น Array เพื่อเอาไปแสดงตาราง
-            ONLINE_PRODUCTS = Array.from(productMap.values());
-            renderTable();
-
-        } catch (e) {
-            if(e.message === "PERMISSION_DENIED") {
-                alert("⛔ ไม่สามารถดึงข้อมูลได้!\nโปรดตรวจสอบการ 'แชร์' Google Sheet ให้เป็น 'ทุกคนที่มีลิงก์ (Anyone with the link)'");
-            } else {
-                alert("❌ โหลดข้อมูลไม่สำเร็จ โปรดตรวจสอบชื่อแท็บใน Google Sheet (SHP_GAGA_RAW, SHP_LS_RAW, GRAB_RAW)");
-            }
-        }
-        
-        loader.style.display = 'none';
-    }
-
-    function fmtPrice(p, type) {
-        if(p === '-') return `<span class="txt-none">-</span>`;
-        return `<span class="txt-${type}">฿${parseFloat(p).toLocaleString()}</span>`;
-    }
-
-    function renderTable() {
-        const body = document.getElementById('productBody');
-        body.innerHTML = '';
-
-        if(ONLINE_PRODUCTS.length === 0) {
-            body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px;">ไม่พบข้อมูลสินค้าออนไลน์</td></tr>';
+        if (!forceRefresh && sessionStorage.getItem('LS_ONLINE_GAGA')) {
+            DATA_GAGA = JSON.parse(sessionStorage.getItem('LS_ONLINE_GAGA'));
+            DATA_LS = JSON.parse(sessionStorage.getItem('LS_ONLINE_LS'));
+            DATA_GRAB = JSON.parse(sessionStorage.getItem('LS_ONLINE_GRAB'));
+            renderAllTables();
             return;
         }
 
-        ONLINE_PRODUCTS.forEach(p => {
-            const isOut = OUT_OF_STOCK_SET.has(p.sku);
+        loader.style.display = 'flex';
+        DATA_GAGA = []; DATA_LS = []; DATA_GRAB = [];
+
+        try {
+            const [gagaRaw, lsRaw, grabRaw, gagaMedia, lsMedia] = await Promise.all([
+                fetchCsvData('SHP_GAGA_RAW'),
+                fetchCsvData('SHP_LS_RAW'),
+                fetchCsvData('GRAB_RAW'),
+                fetchCsvData('SHP_GAGA_Media'),
+                fetchCsvData('SHP_LS_Media')
+            ]);
+
+            const mapImages = (mediaData) => {
+                let imgMap = {};
+                mediaData.forEach((row, idx) => {
+                    if (idx >= 6 && row.length >= 5 && row[1]) {
+                        if(row[4] && row[4].startsWith('http')) imgMap[row[1]] = row[4];
+                    }
+                });
+                return imgMap;
+            };
+            const imgGaga = mapImages(gagaMedia);
+            const imgLs = mapImages(lsMedia);
+
+            gagaRaw.forEach((row, idx) => {
+                if (idx >= 2 && row[1] && row[6]) {
+                    let parentSku = row[4] || '';
+                    let varSku = row[5] || '';
+                    let sku = varSku || parentSku || row[0];
+                    let img = imgGaga[parentSku] || imgGaga[row[0]] || ''; 
+                    DATA_GAGA.push({ sku: sku, name: row[1], price: parseFloat(row[6]), img: img });
+                }
+            });
+
+            lsRaw.forEach((row, idx) => {
+                if (idx >= 2 && row[1] && row[6]) {
+                    let parentSku = row[4] || '';
+                    let varSku = row[5] || '';
+                    let sku = varSku || parentSku || row[0];
+                    let img = imgLs[parentSku] || imgLs[row[0]] || ''; 
+                    DATA_LS.push({ sku: sku, name: row[1], price: parseFloat(row[6]), img: img });
+                }
+            });
+
+            grabRaw.forEach((row, idx) => {
+                if (idx >= 2 && row[1] && row[2]) {
+                    let sku = row[7] || `GRAB-${idx}`;
+                    let img = row[10] || '';
+                    DATA_GRAB.push({ sku: sku, name: row[1], price: parseFloat(row[2]), img: img });
+                }
+            });
+
+            sessionStorage.setItem('LS_ONLINE_GAGA', JSON.stringify(DATA_GAGA));
+            sessionStorage.setItem('LS_ONLINE_LS', JSON.stringify(DATA_LS));
+            sessionStorage.setItem('LS_ONLINE_GRAB', JSON.stringify(DATA_GRAB));
             
+            renderAllTables();
+
+        } catch (e) {
+            if(e.message === "PERMISSION") {
+                alert("⛔ โปรดไปตั้งค่าการแชร์ Google Sheet ให้เป็น 'ทุกคนที่มีลิงก์' (Anyone with the link)");
+            } else {
+                alert("❌ เกิดข้อผิดพลาดในการดึงข้อมูล");
+            }
+        }
+        loader.style.display = 'none';
+    }
+
+    function renderTable(dataArray, tbodyId, platformPrefix) {
+        const body = document.getElementById(tbodyId);
+        body.innerHTML = '';
+        
+        if(dataArray.length === 0) {
+            body.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#aaa;">ไม่พบข้อมูล</td></tr>';
+            return;
+        }
+
+        dataArray.sort((a, b) => a.name.localeCompare(b.name));
+
+        dataArray.forEach(p => {
+            const uniqueId = `${platformPrefix}_${p.sku}`;
+            const isOut = OUT_OF_STOCK_SET.has(uniqueId);
+            const imgUrl = p.img || 'logo-ls.jpg'; 
+
             body.innerHTML += `
-                <tr class="p-row ${isOut ? 'row-out' : ''}">
-                    <td><img src="${p.img}" class="p-img" onerror="this.src='logo-ls.jpg'"></td>
+                <tr class="row-${platformPrefix} ${isOut ? 'row-out' : ''}">
+                    <td><img src="${imgUrl}" class="p-img" onerror="this.src='logo-ls.jpg'"></td>
                     <td>
                         <div class="p-name">${p.name}</div>
-                        <div class="p-sku">SKU: ${p.sku}</div>
+                        <div class="p-sku">${p.sku}</div>
                     </td>
-                    <td class="price-col">${fmtPrice(p.gaga, 'shopee')}</td>
-                    <td class="price-col">${fmtPrice(p.ls, 'shopee')}</td>
-                    <td class="price-col">${fmtPrice(p.grab, 'grab')}</td>
+                    <td class="p-price">฿${p.price.toLocaleString()}</td>
                     <td style="text-align:center;">
-                        <button class="btn-out ${isOut ? 'active' : ''}" onclick="toggleOut('${p.sku}')">
-                            <i class="fas ${isOut ? 'fa-check' : 'fa-bell'}"></i> ${isOut ? 'แจ้งแล้ว' : 'แจ้งหมด'}
+                        <button class="btn-out ${isOut ? 'active' : ''}" onclick="toggleOut('${uniqueId}')">
+                            ${isOut ? 'ปิดแล้ว' : 'แจ้งหมด'}
                         </button>
                     </td>
                 </tr>
@@ -281,18 +316,58 @@
         });
     }
 
-    function toggleOut(sku) {
-        if(OUT_OF_STOCK_SET.has(sku)) OUT_OF_STOCK_SET.delete(sku);
-        else OUT_OF_STOCK_SET.add(sku);
-        renderTable();
+    function renderAllTables() {
+        document.getElementById('cnt-gaga').innerText = `${DATA_GAGA.length} ชิ้น`;
+        document.getElementById('cnt-ls').innerText = `${DATA_LS.length} ชิ้น`;
+        document.getElementById('cnt-grab').innerText = `${DATA_GRAB.length} ชิ้น`;
+
+        renderTable(DATA_GAGA, 'body-gaga', 'gaga');
+        renderTable(DATA_LS, 'body-ls', 'ls');
+        renderTable(DATA_GRAB, 'body-grab', 'grab');
     }
 
-    function filterTable() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('.p-row');
+    function toggleOut(uniqueId) {
+        if(OUT_OF_STOCK_SET.has(uniqueId)) OUT_OF_STOCK_SET.delete(uniqueId);
+        else OUT_OF_STOCK_SET.add(uniqueId);
+        renderAllTables();
+        filterAllTables(); // รักษาผลการค้นหา
+    }
+
+    // --- 🔍 ลอจิกการค้นหาอัจฉริยะ (Smart Search) ---
+    function isMatch(text, searchStr) {
+        // หั่นคำที่พิมพ์ด้วยช่องว่าง เช่น "694902 MM-" จะกลายเป็น ["694902", "MM-"]
+        const keywords = searchStr.trim().toLowerCase().split(/\s+/);
+        // ตรวจสอบว่ามี "ครบ" ทุกคีย์เวิร์ดใน text หรือไม่
+        return keywords.every(kw => text.includes(kw));
+    }
+
+    // ฟังก์ชันค้นหาเฉพาะคอลัมน์ (เรียกใช้เมื่อพิมพ์ในกล่องค้นหาของตารางนั้นๆ)
+    function filterSpecificTable(platformId) {
+        const inputStr = document.getElementById(`search-${platformId}`).value;
+        const rows = document.querySelectorAll(`.row-${platformId}`);
+        
+        // ล้างช่องค้นหารวม (Global Search) ไม่ให้สับสน
+        document.getElementById('searchAll').value = '';
+
         rows.forEach(row => {
             const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(input) ? '' : 'none';
+            row.style.display = isMatch(text, inputStr) ? '' : 'none';
+        });
+    }
+
+    // ฟังก์ชันค้นหารวมทุกตาราง (เรียกใช้เมื่อพิมพ์ในกล่องค้นหาด้านซ้าย)
+    function filterAllTables() {
+        const inputStr = document.getElementById('searchAll').value;
+        
+        // ล้างค่าในช่องค้นหาแยก เพื่อให้รู้ว่ากำลังใช้การค้นหารวม
+        document.getElementById('search-gaga').value = '';
+        document.getElementById('search-ls').value = '';
+        document.getElementById('search-grab').value = '';
+
+        const allRows = document.querySelectorAll('#body-gaga tr, #body-ls tr, #body-grab tr');
+        allRows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = isMatch(text, inputStr) ? '' : 'none';
         });
     }
 
@@ -305,25 +380,29 @@
         body.innerHTML = '';
         document.getElementById('reportTime').innerText = new Date().toLocaleString('th-TH');
 
-        OUT_OF_STOCK_SET.forEach(sku => {
-            const p = ONLINE_PRODUCTS.find(x => x.sku === sku);
-            
-            // หาว่าขายร้านไหนบ้าง เพื่อแจ้งให้เจ๊รู้ว่าต้องไปปิดที่แอปไหน
-            let shops = [];
-            if(p.gaga !== '-') shops.push('Shopee (GA_GA)');
-            if(p.ls !== '-') shops.push('Shopee (LS1995)');
-            if(p.grab !== '-') shops.push('Grab Mart');
+        const findItem = (uniqueId) => {
+            if(uniqueId.startsWith('gaga_')) return { ...DATA_GAGA.find(x => `gaga_${x.sku}` === uniqueId), shop: 'Shopee GA_GA', color: '#d35400' };
+            if(uniqueId.startsWith('ls_')) return { ...DATA_LS.find(x => `ls_${x.sku}` === uniqueId), shop: 'Shopee LS1995', color: '#ee4d2d' };
+            if(uniqueId.startsWith('grab_')) return { ...DATA_GRAB.find(x => `grab_${x.sku}` === uniqueId), shop: 'Grab Mart', color: '#00b14f' };
+        };
 
-            body.innerHTML += `
-                <tr style="border-bottom:1px dashed #ccc;">
-                    <td width="55" style="padding:10px;"><img src="${p.img}" width="50" height="50" style="object-fit:cover; border-radius:4px; border:1px solid #eee;"></td>
-                    <td style="padding:10px; line-height:1.4;">
-                        <span style="font-weight:bold; font-size:15px; color:#111;">${p.name}</span><br>
-                        <span style="color:#666; font-size:12px; font-family:monospace;">SKU: ${p.sku}</span><br>
-                        <span style="color:#e74c3c; font-size:11px; font-weight:bold;">( ปิดที่: ${shops.join(' / ')} )</span>
-                    </td>
-                </tr>
-            `;
+        OUT_OF_STOCK_SET.forEach(id => {
+            const p = findItem(id);
+            if(p) {
+                const imgUrl = p.img || 'logo-ls.jpg';
+                body.innerHTML += `
+                    <tr style="border-bottom:1px dashed #ccc;">
+                        <td width="55" style="padding:8px;"><img src="${imgUrl}" width="50" height="50" style="object-fit:cover; border-radius:4px; border:1px solid #eee;"></td>
+                        <td style="padding:8px; line-height:1.4;">
+                            <span style="font-weight:bold; font-size:15px; color:#333;">${p.name}</span><br>
+                            <span style="color:#666; font-size:12px;">SKU: ${p.sku} | <b style="color:${p.color};">${p.shop}</b></span>
+                        </td>
+                        <td style="padding:8px; color:#e74c3c; font-weight:800; text-align:right; font-size:14px; white-space:nowrap;">
+                            [ ปิดการขาย ]
+                        </td>
+                    </tr>
+                `;
+            }
         });
 
         const btn = document.querySelector('.btn-img');
@@ -331,7 +410,7 @@
 
         html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
             const link = document.createElement('a');
-            link.download = `รายการของหมด_${new Date().getTime()}.png`;
+            link.download = `แจ้งของหมดออนไลน์_${new Date().getTime()}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
             area.style.display = 'none';
@@ -339,7 +418,6 @@
         });
     }
 
-    // เริ่มการทำงาน
     loadData();
 </script>
 
