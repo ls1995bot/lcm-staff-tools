@@ -3,356 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สินค้าที่ขายใน Grab Mart & Shopee</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>คุมสต็อกออนไลน์ - แหลมฉบังเครื่องเขียน</title>
+    <link rel="icon" href="logo-ls.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
-        :root { --primary: #0071e3; --bg: #f2f2f7; --grab: #00b14f; --shopee: #ee4d2d; --gaga: #5c2692; --store: #333; }
-        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; padding-bottom: 80px; }
+        :root { --primary: #023f88; --grab: #00b14f; --shopee: #ee4d2d; --purple: #673ab7; --bg: #f4f6f9; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Header */
-        .header { text-align: center; margin-bottom: 20px; position: relative; }
-        .header h2 { margin: 0; font-size: 22px; font-weight: 800; color: #1d1d1f; }
-        .admin-lock { position: absolute; right: 0; top: 0; color: #ccc; cursor: pointer; }
-        
-        /* Calculator */
-        .calc-card { 
-            background: white; border-radius: 16px; padding: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px;
-            border-top: 5px solid var(--grab);
-        }
-        .calc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .calc-title { font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-        .calc-row { display: flex; gap: 10px; align-items: flex-end; }
-        .input-group { flex-grow: 1; }
-        .input-group label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 10px; font-size: 18px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Sarabun'; box-sizing: border-box; }
-        .result-box { background: #e8f5e9; padding: 10px 20px; border-radius: 8px; text-align: center; min-width: 100px; }
-        .result-val { font-size: 24px; color: var(--grab); font-weight: 800; }
+        /* --- Sidebar --- */
+        #sidebar { width: 300px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10; }
+        .sidebar-head { text-align: center; margin-bottom: 5px; }
+        .sidebar-head img { width: 60px; border-radius: 50%; border: 2px solid var(--primary); }
+        .sidebar-head h3 { margin: 10px 0 0 0; color: var(--primary); font-weight: 800; }
 
-        /* Admin Panel */
-        .data-panel { 
-            background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: none; border: 2px solid #333;
-        }
-        .data-panel.show { display: block; }
-        .file-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .file-info { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #eee; color: #999; }
-        .btn-upload { background: #0071e3; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-        
-        /* Search */
-        .search-wrapper { position: sticky; top: 10px; z-index: 100; margin-bottom: 20px; }
-        .search-box { 
-            background: rgba(255,255,255,0.95); padding: 10px; border-radius: 16px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: flex; gap: 10px;
-            backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.05);
-        }
-        .search-box input { flex-grow: 1; padding: 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 10px; outline: none; font-family: 'Sarabun'; }
-        
-        /* Product List */
-        .product-list { display: grid; gap: 10px; }
-        .product-card { 
-            background: white; padding: 15px; border-radius: 12px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center;
-            border-left: 5px solid #ccc;
-        }
-        .pc-info { flex-grow: 1; }
-        .pc-name { font-weight: bold; font-size: 15px; color: #333; line-height: 1.4; }
-        .pc-sku { font-size: 11px; color: #999; margin-top: 3px; }
-        .pc-price { font-weight: 800; font-size: 18px; color: #333; min-width: 80px; text-align: right; }
-        
-        /* Platform Colors */
-        .bd-grab { border-color: var(--grab); } .pc-price.grab { color: var(--grab); }
-        .bd-ls { border-color: var(--shopee); } .pc-price.ls { color: var(--shopee); }
-        .bd-ga { border-color: var(--gaga); } .pc-price.ga { color: var(--gaga); }
-        .bd-store { border-color: var(--store); } .pc-price.store { color: var(--store); }
+        .search-box { background: #f0f2f5; padding: 12px; border-radius: 8px; border: 1px solid #e1e4e8; }
+        .search-box input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; font-size: 14px; box-sizing: border-box; outline: none; margin-top: 5px; }
+        .search-box input:focus { border-color: var(--primary); background: white; }
 
-        .platform-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; color: white; display: inline-block; margin-bottom: 4px; }
-        .bg-grab { background: var(--grab); }
-        .bg-ls { background: var(--shopee); }
-        .bg-ga { background: var(--gaga); }
-        .bg-store { background: var(--store); }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 14px; }
+        .btn-refresh { background: #17a2b8; color: white; }
+        .btn-img { background: var(--purple); color: white; }
+        .btn-back { background: #666; color: white; text-decoration: none; margin-top: auto; }
 
-        .btn-back { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 99; display: flex; align-items: center; gap: 8px; font-size: 14px; }
-        .highlight { background-color: #fff176; }
-        .loading { text-align:center; padding:20px; color:#999; }
+        .info-box { font-size: 12px; color: #555; background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082; line-height: 1.6; }
+
+        /* --- Main Table Area --- */
+        #main { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; overflow: hidden; }
+        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: auto; flex-grow: 1; border: 1px solid #eee; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { background: #f8f9fa; padding: 10px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #ddd; font-size: 13px; color: #333; font-weight: 800; }
+        td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 13px; }
+
+        .p-img { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; border: 1px solid #eee; }
+        .p-name { font-weight: 700; color: #2c3e50; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .p-sku { font-size: 11px; color: #888; margin-top: 2px; }
+
+        .stock-cell { text-align: center; font-weight: 800; font-size: 16px; }
+        .stock-warn { color: #e74c3c; background: #fff1f0; padding: 2px 6px; border-radius: 4px; }
+        .stock-ok { color: #27ae60; }
+        .stock-out { color: white; background: #e74c3c; padding: 2px 6px; border-radius: 4px; }
+
+        .price-col { text-align: right; font-weight: bold; }
+        .txt-shopee { color: var(--shopee); }
+        .txt-grab { color: var(--grab); }
+
+        .btn-out { border: 1px solid #ffa39e; background: white; color: #f5222d; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-out:hover { background: #fff1f0; }
+        .btn-out.active { background: #f5222d; color: white; border-color: #f5222d; }
+        .row-out { background-color: #fffafa; opacity: 0.8; }
+
+        /* Loader & Capture Area */
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:999; display:flex; flex-direction:column; justify-content:center; align-items:center; color: var(--primary); font-weight: bold; font-size: 18px; }
+        #captureArea { background: white; padding: 20px; width: 700px; display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h2>🌐 เช็คราคาขายใน Grab Mart & Shopee</h2>
-        <div class="admin-lock" onclick="unlockAdmin()"><i class="fas fa-lock"></i></div>
-    </div>
-
-    <div class="calc-card">
-        <div class="calc-head">
-            <div class="calc-title"><i class="fas fa-calculator" style="color:var(--grab)"></i> เครื่องคิดเลข Grab</div>
-            <div style="font-size:11px; color:#888;">ราคาขาย = หน้าร้าน / 0.786</div>
-        </div>
-        <div class="calc-row">
-            <div class="input-group">
-                <label>ราคาหน้าร้าน</label>
-                <input type="number" id="storePrice" placeholder="0" oninput="calcGrab()">
-            </div>
-            <div class="result-box">
-                <div style="font-size:10px; color:green;">ราคาขาย Grab</div>
-                <div class="result-val" id="grabResult">0</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="dataPanel" class="data-panel">
-        <h3 style="margin:0 0 15px 0;">📂 อัปเดตฐานข้อมูล (Admin)</h3>
-        <p style="font-size:12px; color:#666; margin-bottom:15px;">
-            อัปโหลดไฟล์ Excel/CSV จากระบบ Shopee, Grab หรือ Stock<br>
-            *รองรับไฟล์ภาษาต่างดาว (อัตโนมัติ)
-        </p>
-        
-        <div class="file-row">
-            <div class="file-info"><span class="platform-tag bg-ls">Shopee LS</span> แหลมฉบัง</div>
-            <input type="file" id="file-ls" style="display:none" accept=".csv,.xlsx" onchange="processFile(this, 'ls')">
-            <button class="btn-upload" onclick="document.getElementById('file-ls').click()">อัปเดต</button>
-        </div>
-        <div class="file-row">
-            <div class="file-info"><span class="platform-tag bg-ga">Shopee GA</span> GA_GA</div>
-            <input type="file" id="file-ga" style="display:none" accept=".csv,.xlsx" onchange="processFile(this, 'ga')">
-            <button class="btn-upload" onclick="document.getElementById('file-ga').click()">อัปเดต</button>
-        </div>
-        <div class="file-row">
-            <div class="file-info"><span class="platform-tag bg-grab">GrabMart</span> Grab Food</div>
-            <input type="file" id="file-grab" style="display:none" accept=".csv,.xlsx" onchange="processFile(this, 'grab')">
-            <button class="btn-upload" onclick="document.getElementById('file-grab').click()">อัปเดต</button>
-        </div>
-        <div class="file-row">
-            <div class="file-info"><span class="platform-tag bg-store">Stock</span> หน้าร้าน</div>
-            <input type="file" id="file-store" style="display:none" accept=".csv,.xlsx" onchange="processFile(this, 'store')">
-            <button class="btn-upload" onclick="document.getElementById('file-store').click()">อัปเดต</button>
-        </div>
-    </div>
-
-    <div class="search-wrapper">
-        <div class="search-box">
-            <i class="fas fa-search" style="color:#999; align-self:center;"></i>
-            <input type="text" id="searchInput" placeholder="กำลังโหลดข้อมูล..." disabled oninput="debounceFilter()">
-        </div>
-    </div>
-
-    <div id="resultList" class="product-list">
-        <div class="loading"><i class="fas fa-spinner fa-spin"></i> กำลังดึงข้อมูลจาก Cloud...</div>
-    </div>
-
+<div id="loader">
+    <i class="fas fa-sync fa-spin fa-3x" style="margin-bottom: 15px;"></i>
+    กำลังเชื่อมต่อ Database (LS Secret SHP GRAB)...
 </div>
 
-<a href="index.html" class="btn-back"><i class="fas fa-home"></i> กลับหน้าหลัก</a>
+<div id="sidebar" class="no-print">
+    <div class="sidebar-head">
+        <img src="logo-ls.jpg">
+        <h3>Online Status Hub</h3>
+    </div>
+
+    <div class="search-box">
+        <label><i class="fas fa-search"></i> ค้นหาสินค้า</label>
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า หรือ รหัสบาร์โค้ด..." onkeyup="filterTable()">
+    </div>
+
+    <div class="info-box">
+        <b>📌 วิธีใช้งานสำหรับพนักงาน:</b><br>
+        1. ดูรายการและจำนวนสต็อก (สีแดง = ของใกล้หมด)<br>
+        2. หากของหมด ให้กดปุ่ม <span style="color:red;">"แจ้งหมด"</span><br>
+        3. กดปุ่มม่วง เพื่อเซฟรูปส่งให้เจ้าของร้านปิดระบบ
+    </div>
+
+    <button class="btn btn-refresh" onclick="loadData()"><i class="fas fa-cloud-download-alt"></i> อัปเดตข้อมูลล่าสุด</button>
+    
+    <div style="flex-grow:1;"></div>
+
+    <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกรายการส่งแจ้ง</button>
+    <a href="index.html" class="btn btn-back">🏠 กลับหน้าหลัก</a>
+</div>
+
+<div id="main" class="no-print">
+    <div class="table-container">
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th width="50">รูป</th>
+                    <th>ชื่อสินค้า / รหัส (SKU)</th>
+                    <th width="80" style="text-align:center;">สต็อก</th>
+                    <th width="100" style="text-align:right;">Shopee<br><small>(GA_GA)</small></th>
+                    <th width="100" style="text-align:right;">Shopee<br><small>(LS1995)</small></th>
+                    <th width="100" style="text-align:right;">Grab Mart<br><small>(LS1995)</small></th>
+                    <th width="90" style="text-align:center;">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="productBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="captureArea">
+    <h2 style="color:var(--primary); border-bottom:3px solid var(--primary); padding-bottom:10px; margin-top:0;">แจ้งปิดระบบออนไลน์ / ของหมด</h2>
+    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+        <tbody id="captureBody"></tbody>
+    </table>
+    <p style="margin-top:20px; font-size:12px; color:#888;">เวลาแจ้ง: <span id="reportTime"></span></p>
+</div>
 
 <script>
-    // ⚠️⚠️⚠️ ใส่ URL ของ Apps Script คุณที่นี่ ⚠️⚠️⚠️
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbzZ5st-egIEWV8M3UVbBMs2yzP5NNV28BDKRliAcc7jWZyY-UMCiJk_Q959eOinM4eDJA/exec'; 
+    // ⚠️ ID ของไฟล์ "LS Secret SHP GRAB ใช้ตัวนี้"
+    const SHEET_ID = '13HaGLaVsrzadPxTn5teV7R5E60OZbGQMfgm27TxQOJw';
+    
+    let ONLINE_PRODUCTS = [];
+    let IMAGE_MAP = {}; // เก็บคู่ SKU -> URL รูป
+    let OUT_OF_STOCK_SET = new Set();
 
-    // --- 1. Calculator Logic ---
-    function calcGrab() {
-        const p = parseFloat(document.getElementById('storePrice').value);
-        document.getElementById('grabResult').innerText = isNaN(p) ? "0" : Math.ceil(p / 0.786);
-    }
-
-    // --- 2. Database Logic (Cloud) ---
-    let DB = { ls: [], ga: [], grab: [], store: [] };
-
-    // Fetch data on load
-    async function initDB() {
+    // ดึงข้อมูลผ่าน Google Visualization API (ดึง CSV ตรงๆ โดยไม่ต้องพึ่ง GAS)
+    async function fetchCsvData(sheetName, hasHeader = false) {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
         try {
-            const resp = await fetch(`${CLOUD_URL}?mode=get_all_products&t=${Date.now()}`);
-            const rawData = await resp.json();
-            
-            // Map Raw Array to Object Key (n=name, p=price, sku=sku)
-            DB.ls = mapData(rawData.ls);
-            DB.ga = mapData(rawData.ga);
-            DB.grab = mapData(rawData.grab);
-            DB.store = mapData(rawData.store);
-
-            document.getElementById('searchInput').placeholder = "พิมพ์ชื่อสินค้าเพื่อค้นหา...";
-            document.getElementById('searchInput').disabled = false;
-            document.getElementById('resultList').innerHTML = '<div style="text-align:center; padding:40px; color:#aaa;">พิมพ์เพื่อค้นหาจาก 4 แพลตฟอร์ม</div>';
-            
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("Network response was not ok");
+            const text = await res.text();
+            return new Promise(resolve => {
+                Papa.parse(text, {
+                    header: hasHeader,
+                    skipEmptyLines: true,
+                    complete: function(results) { resolve(results.data); }
+                });
+            });
         } catch (e) {
-            document.getElementById('resultList').innerHTML = '<div style="text-align:center; color:red;">❌ เชื่อมต่อฐานข้อมูลไม่ได้ (ตรวจสอบ URL)</div>';
+            console.error(`Error loading ${sheetName}:`, e);
+            return [];
         }
     }
 
-    function mapData(arr) {
-        if(!arr) return [];
-        // [0]=Name, [1]=Price, [2]=SKU (ตามลำดับที่ส่งไป Cloud)
-        return arr.map(r => ({ n: r[0], p: r[1], sku: r[2] }));
-    }
+    async function loadData() {
+        document.getElementById('loader').style.display = 'flex';
+        ONLINE_PRODUCTS = [];
+        IMAGE_MAP = {};
 
-    // --- 3. Admin & File Upload ---
-    function unlockAdmin() {
-        const pass = prompt("ใส่รหัส Admin เพื่ออัปเดตข้อมูล:");
-        if(pass === "1234") {
-            document.getElementById('dataPanel').classList.add('show');
-        } else if(pass) {
-            alert("รหัสผิด");
-        }
-    }
+        // 1. โหลดข้อมูลภาพจาก Media Sheets (Row 7 เป็นต้นไป)
+        const gagaMedia = await fetchCsvData('SHP_GAGA_Media', false);
+        const lsMedia = await fetchCsvData('SHP_LS_Media', false);
 
-    function processFile(input, key) {
-        const file = input.files[0];
-        if (!file) return;
+        // ฟังก์ชันแกะรูปลง MAP (คอลัมน์ B=index 1, คอลัมน์ E=index 4)
+        const processMedia = (data) => {
+            data.forEach((row, idx) => {
+                if (idx >= 5) { // ข้ามหัวตารางของ Shopee
+                    const sku = row[1];
+                    const img = row[4];
+                    if (sku && img && img.startsWith('http')) IMAGE_MAP[sku] = img;
+                }
+            });
+        };
+        processMedia(gagaMedia);
+        processMedia(lsMedia);
+
+        // 2. โหลด Master Data
+        const masterData = await fetchCsvData('PRODUCTS_MASTER', true);
         
-        const btn = input.nextElementSibling;
-        const oldTxt = btn.innerText;
-        btn.innerText = "⏳..";
-        btn.disabled = true;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const text = e.target.result;
-            // ลองแปลง CSV
-            const rows = parseCSV(text);
+        // คัดเฉพาะสินค้าที่มีราคาขาย Shopee หรือ Grab
+        masterData.forEach(row => {
+            const shpPrice = parseFloat(row.SHP_PRICE) || 0;
+            const grabPrice = parseFloat(row.GRAB_PRICE) || 0;
             
-            // 🔥 Smart Header Detection: หาบรรทัดที่มีคำว่า "ชื่อสินค้า" หรือ "Product Name"
-            let headerIdx = -1;
-            for(let i=0; i < Math.min(rows.length, 20); i++) { // หาแค่ 20 บรรทัดแรกพอ
-                const rowStr = JSON.stringify(rows[i]);
-                if(rowStr.includes("ชื่อสินค้า") || rowStr.includes("Product Name") || rowStr.includes("Item Name") || rowStr.includes("ITEMNAME")) {
-                    headerIdx = i;
-                    break;
-                }
+            if (shpPrice > 0 || grabPrice > 0) {
+                ONLINE_PRODUCTS.push({
+                    id: row.ITEMID_POS,
+                    name: row.ITEMNAME,
+                    stock: parseFloat(row.STOCK_QTY) || 0,
+                    shpPrice: shpPrice > 0 ? shpPrice : '-',
+                    grabPrice: grabPrice > 0 ? grabPrice : '-'
+                });
             }
+        });
 
-            if (headerIdx === -1) {
-                alert("❌ ไม่พบหัวตาราง (ชื่อสินค้า) ในไฟล์นี้");
-                btn.innerText = oldTxt; btn.disabled = false;
-                return;
-            }
-
-            // Map Column Index จาก Header
-            const headers = rows[headerIdx];
-            const nameIdx = headers.findIndex(h => h.includes("ชื่อสินค้า") || h.includes("Product Name") || h.includes("Item Name") || h.includes("ITEMNAME"));
-            const priceIdx = headers.findIndex(h => h.includes("ราคา") || h.includes("Price") || h.includes("CF_PRICE"));
-            const skuIdx = headers.findIndex(h => h.includes("SKU") || h.includes("Cat.") || h.includes("ITEMID")); // Grab ใช้ Cat. แทน SKU ชั่วคราว
-
-            if (nameIdx === -1 || priceIdx === -1) {
-                alert("❌ ไม่พบคอลัมน์ 'ชื่อสินค้า' หรือ 'ราคา'");
-                btn.innerText = oldTxt; btn.disabled = false;
-                return;
-            }
-
-            // ดึงข้อมูลจริง (ข้าม Header)
-            const cleanData = rows.slice(headerIdx + 1).map(r => [
-                r[nameIdx] || '', // Name
-                r[priceIdx] || '', // Price
-                (skuIdx !== -1 ? r[skuIdx] : '') // SKU
-            ]).filter(x => x[0] && x[1]); // ตัดแถวว่าง
-
-            if (cleanData.length > 0) {
-                uploadToCloud(key, cleanData, btn, oldTxt);
-            } else {
-                alert("❌ ไม่พบข้อมูลสินค้า");
-                btn.innerText = oldTxt; btn.disabled = false;
-            }
-        };
-        reader.readAsText(file); // Default UTF-8
+        renderTable();
+        document.getElementById('loader').style.display = 'none';
     }
 
-    async function uploadToCloud(type, rows, btn, oldTxt) {
-        try {
-            await fetch(CLOUD_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ mode: "upload_db", type: type, rows: rows })
-            });
-            alert(`✅ อัปเดตสำเร็จ! (${rows.length} รายการ)\nกด OK เพื่อรีโหลดหน้าเว็บ`);
-            location.reload(); 
-        } catch(e) {
-            alert("❌ อัปโหลดไม่สำเร็จ: " + e.message);
-            btn.innerText = oldTxt; btn.disabled = false;
-        }
-    }
+    function renderTable() {
+        const body = document.getElementById('productBody');
+        body.innerHTML = '';
 
-    // Robust CSV Parser
-    function parseCSV(str) {
-        const arr = [];
-        let quote = false; let col = 0, row = 0;
-        for (let c = 0; c < str.length; c++) {
-            let cc = str[c], nc = str[c+1];
-            arr[row] = arr[row] || []; arr[row][col] = arr[row][col] || '';
-            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; }
-            else if (cc == '"') { quote = !quote; }
-            else if (cc == ',' && !quote) { ++col; }
-            else if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; }
-            else if (cc == '\n' && !quote) { ++row; col = 0; }
-            else { arr[row][col] += cc; }
-        }
-        return arr;
-    }
-
-    // --- 4. Search & Render ---
-    let timer;
-    function debounceFilter() {
-        clearTimeout(timer);
-        timer = setTimeout(filterData, 300);
-    }
-
-    function filterData() {
-        const txt = document.getElementById('searchInput').value.trim().toLowerCase();
-        const box = document.getElementById('resultList');
-        box.innerHTML = '';
-
-        if (txt.length < 2) {
-            box.innerHTML = '<div style="text-align:center; padding:40px; color:#aaa;">พิมพ์ 2 ตัวอักษรขึ้นไปเพื่อค้นหา</div>';
+        if(ONLINE_PRODUCTS.length === 0) {
+            body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">❌ ไม่พบข้อมูล หรือยังไม่ได้เปิดแชร์ไฟล์ Google Sheet ให้เป็น "ทุกคนที่มีลิงก์ (Public)"</td></tr>';
             return;
         }
 
-        let results = [];
-        const pushRes = (source, css, label) => {
-            if(!DB[source]) return;
-            DB[source].forEach(item => { // item = {n, p, sku}
-                // Convert price to string for safe comparison/display
-                const priceStr = item.p ? item.p.toString() : '';
-                if ((item.n && item.n.toLowerCase().includes(txt)) || (item.sku && item.sku.toString().toLowerCase().includes(txt))) {
-                    results.push({ ...item, p: priceStr, src: css, lbl: label });
-                }
-            });
-        };
+        ONLINE_PRODUCTS.forEach(p => {
+            const isOut = OUT_OF_STOCK_SET.has(p.id);
+            const imgUrl = IMAGE_MAP[p.id] || 'logo-ls.jpg'; // ถ้ารูปไม่มีใช้โลโก้
+            
+            // เช็คสต็อก
+            let stockClass = 'stock-ok';
+            if(p.stock <= 0) stockClass = 'stock-out';
+            else if(p.stock <= 5) stockClass = 'stock-warn';
 
-        pushRes('ls', 'bd-ls', '<span class="platform-tag bg-ls">Shopee LS</span>');
-        pushRes('ga', 'bd-ga', '<span class="platform-tag bg-ga">Shopee GA</span>');
-        pushRes('grab', 'bd-grab', '<span class="platform-tag bg-grab">GrabMart</span>');
-        pushRes('store', 'bd-store', '<span class="platform-tag bg-store">หน้าร้าน</span>');
-
-        if (results.length === 0) {
-            box.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">ไม่พบข้อมูล</div>';
-            return;
-        }
-
-        results.slice(0, 50).forEach(item => {
-            const nameHtml = item.n.replace(new RegExp(txt, 'gi'), match => `<span class="highlight">${match}</span>`);
-            let priceClass = '';
-            if(item.src === 'bd-grab') priceClass = 'grab';
-            if(item.src === 'bd-ls') priceClass = 'ls';
-            if(item.src === 'bd-ga') priceClass = 'ga';
-            if(item.src === 'bd-store') priceClass = 'store';
-
-            const html = `
-                <div class="product-card ${item.src}">
-                    <div class="pc-info">
-                        ${item.lbl}
-                        <div class="pc-name">${nameHtml}</div>
-                        <div class="pc-sku">${item.sku || '-'}</div>
-                    </div>
-                    <div class="pc-price ${priceClass}">${parseFloat(item.p).toLocaleString()}</div>
-                </div>
+            body.innerHTML += `
+                <tr class="p-row ${isOut ? 'row-out' : ''}">
+                    <td><img src="${imgUrl}" class="p-img" onerror="this.src='logo-ls.jpg'"></td>
+                    <td>
+                        <div class="p-name">${p.name}</div>
+                        <div class="p-sku">รหัส: ${p.id}</div>
+                    </td>
+                    <td class="stock-cell"><span class="${stockClass}">${p.stock}</span></td>
+                    <td class="price-col txt-shopee">${p.shpPrice}</td>
+                    <td class="price-col txt-shopee">${p.shpPrice}</td>
+                    <td class="price-col txt-grab">${p.grabPrice}</td>
+                    <td style="text-align:center;">
+                        <button class="btn-out ${isOut ? 'active' : ''}" onclick="toggleOut('${p.id}')">
+                            <i class="fas ${isOut ? 'fa-check' : 'fa-bell'}"></i> ${isOut ? 'แจ้งแล้ว' : 'แจ้งหมด'}
+                        </button>
+                    </td>
+                </tr>
             `;
-            box.insertAdjacentHTML('beforeend', html);
         });
     }
 
-    initDB();
+    function toggleOut(id) {
+        if(OUT_OF_STOCK_SET.has(id)) OUT_OF_STOCK_SET.delete(id);
+        else OUT_OF_STOCK_SET.add(id);
+        renderTable();
+    }
+
+    function filterTable() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('.p-row');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? '' : 'none';
+        });
+    }
+
+    function saveAsImage() {
+        if(OUT_OF_STOCK_SET.size === 0) { alert("⚠️ ยังไม่ได้กดเลือกรายการที่ของหมดครับ"); return; }
+        
+        const area = document.getElementById('captureArea');
+        const body = document.getElementById('captureBody');
+        area.style.display = 'block';
+        body.innerHTML = '';
+        document.getElementById('reportTime').innerText = new Date().toLocaleString('th-TH');
+
+        OUT_OF_STOCK_SET.forEach(id => {
+            const p = ONLINE_PRODUCTS.find(x => x.id === id);
+            const imgUrl = IMAGE_MAP[p.id] || 'logo-ls.jpg';
+            body.innerHTML += `
+                <tr style="border-bottom:1px solid #eee;">
+                    <td width="60" style="padding:10px;"><img src="${imgUrl}" width="50" height="50" style="object-fit:cover; border-radius:4px;"></td>
+                    <td style="padding:10px; line-height:1.4;">
+                        <span style="font-weight:bold; font-size:16px;">${p.name}</span><br>
+                        <span style="color:#666; font-size:13px;">รหัส (SKU): ${p.id}</span>
+                    </td>
+                    <td style="padding:10px; color:#e74c3c; font-weight:800; text-align:right; font-size:16px;">
+                        [ ปิดการขาย ]
+                    </td>
+                </tr>
+            `;
+        });
+
+        const btn = document.querySelector('.btn-img');
+        btn.innerHTML = '⏳ สร้างรูป...'; btn.disabled = true;
+
+        html2canvas(area, { scale: 2, useCORS: true }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `รายการของหมด_${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            area.style.display = 'none';
+            btn.innerHTML = '<i class="fas fa-image"></i> บันทึกรายการส่งแจ้ง'; btn.disabled = false;
+        });
+    }
+
+    // เริ่มการทำงาน
+    loadData();
 </script>
 
 </body>
