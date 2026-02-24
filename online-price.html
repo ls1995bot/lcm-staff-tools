@@ -104,6 +104,11 @@
         3. กดปุ่ม <span style="color:red;">"แจ้งหมด"</span> ในช่องของร้านนั้นๆ<br>
         4. กดปุ่มม่วง เพื่อเซฟรูปส่งให้เจ้าของร้านปิดระบบ
     </div>
+    <div style="background: var(--grab); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
+        <label style="font-size: 12px; font-weight: bold;"><i class="fas fa-calculator"></i> คำนวณตั้งราคา Grab Mart</label>
+        <input type="number" id="grabCalcInput" placeholder="ใส่ราคาหน้าร้าน..." oninput="calcGrabMini()" style="width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 4px; box-sizing: border-box; font-family: Sarabun; font-size: 14px;">
+        <div style="margin-top: 5px; font-size: 13px;">ตั้งราคาในแอป: <strong id="grabCalcResult" style="font-size: 18px;">0.00</strong></div>
+    </div>
 
     <button class="btn btn-refresh" onclick="loadData(true)"><i class="fas fa-cloud-download-alt"></i> โหลดข้อมูลใหม่ล่าสุด</button>
     
@@ -315,6 +320,12 @@
             `;
         });
     }
+    
+    function calcGrabMini() {
+            const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
+            // ใช้สูตรหาร 0.7 เพื่อชดเชย GP
+            document.getElementById('grabCalcResult').innerText = (p / 0.7).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
 
     function renderAllTables() {
         document.getElementById('cnt-gaga').innerText = `${DATA_GAGA.length} ชิ้น`;
