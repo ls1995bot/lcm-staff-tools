@@ -58,7 +58,7 @@
         .btn-out.active { background: #f5222d; color: white; border-color: #f5222d; }
         .row-out { background-color: #fffafa; opacity: 0.8; }
 
-        /* Loader & Capture Area */
+        /* Loader */
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:999; display:flex; flex-direction:column; justify-content:center; align-items:center; color: var(--primary); font-weight: bold; font-size: 18px; }
         #captureArea { background: white; padding: 20px; width: 700px; display: none; }
     </style>
@@ -66,8 +66,8 @@
 <body>
 
 <div id="loader">
-    <i class="fas fa-sync fa-spin fa-3x" style="margin-bottom: 15px;"></i>
-    กำลังเชื่อมต่อ Database (LS Secret SHP GRAB)...
+    <i class="fas fa-rocket fa-spin fa-3x" style="margin-bottom: 15px;"></i>
+    <div id="loader-text">กำลังดึงข้อมูลจาก Google Sheets...</div>
 </div>
 
 <div id="sidebar" class="no-print">
@@ -78,17 +78,17 @@
 
     <div class="search-box">
         <label><i class="fas fa-search"></i> ค้นหาสินค้า</label>
-        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า หรือ รหัสบาร์โค้ด..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อสินค้า หรือ รหัส (SKU)..." onkeyup="filterTable()">
     </div>
 
     <div class="info-box">
         <b>📌 วิธีใช้งานสำหรับพนักงาน:</b><br>
-        1. ดูรายการและจำนวนสต็อก (สีแดง = ของใกล้หมด)<br>
+        1. ดูรายการและจำนวนสต็อก (สีแดง = ใกล้หมด)<br>
         2. หากของหมด ให้กดปุ่ม <span style="color:red;">"แจ้งหมด"</span><br>
         3. กดปุ่มม่วง เพื่อเซฟรูปส่งให้เจ้าของร้านปิดระบบ
     </div>
 
-    <button class="btn btn-refresh" onclick="loadData()"><i class="fas fa-cloud-download-alt"></i> อัปเดตข้อมูลล่าสุด</button>
+    <button class="btn btn-refresh" onclick="loadData(true)"><i class="fas fa-sync-alt"></i> อัปเดตข้อมูลล่าสุด</button>
     
     <div style="flex-grow:1;"></div>
 
@@ -125,20 +125,25 @@
 </div>
 
 <script>
-    // ⚠️ ID ของไฟล์ "LS Secret SHP GRAB ใช้ตัวนี้"
+    // ID ของไฟล์ "LS Secret SHP GRAB ใช้ตัวนี้"
     const SHEET_ID = '13HaGLaVsrzadPxTn5teV7R5E60OZbGQMfgm27TxQOJw';
     
     let ONLINE_PRODUCTS = [];
-    let IMAGE_MAP = {}; // เก็บคู่ SKU -> URL รูป
+    let IMAGE_MAP = {}; 
     let OUT_OF_STOCK_SET = new Set();
 
-    // ดึงข้อมูลผ่าน Google Visualization API (ดึง CSV ตรงๆ โดยไม่ต้องพึ่ง GAS)
+    // ฟังก์ชันดึง CSV (ปรับให้จับ Error เรื่อง Permission ได้)
     async function fetchCsvData(sheetName, hasHeader = false) {
         const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
         try {
             const res = await fetch(url);
-            if (!res.ok) throw new Error("Network response was not ok");
             const text = await res.text();
+            
+            // ตรวจสอบว่าติดหน้า Login ของ Google หรือไม่ (แปลว่าลืมเปิดแชร์)
+            if(text.trim().startsWith('<html') || text.trim().startsWith('<!DOCTYPE')) {
+                throw new Error("PERMISSION_DENIED");
+            }
+
             return new Promise(resolve => {
                 Papa.parse(text, {
                     header: hasHeader,
@@ -148,53 +153,85 @@
             });
         } catch (e) {
             console.error(`Error loading ${sheetName}:`, e);
+            if(e.message === "PERMISSION_DENIED") throw e;
             return [];
         }
     }
 
-    async function loadData() {
-        document.getElementById('loader').style.display = 'flex';
+    async function loadData(forceRefresh = false) {
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loader-text');
+        
+        // ถ้าระบบเคยดึงข้อมูลไว้แล้ว และไม่ได้บังคับรีเฟรช ให้แสดงเลย (เร็วมาก)
+        if (!forceRefresh && sessionStorage.getItem('LS_ONLINE_DATA')) {
+            const cache = JSON.parse(sessionStorage.getItem('LS_ONLINE_DATA'));
+            ONLINE_PRODUCTS = cache.products;
+            IMAGE_MAP = cache.images;
+            renderTable();
+            return;
+        }
+
+        loader.style.display = 'flex';
         ONLINE_PRODUCTS = [];
         IMAGE_MAP = {};
 
-        // 1. โหลดข้อมูลภาพจาก Media Sheets (Row 7 เป็นต้นไป)
-        const gagaMedia = await fetchCsvData('SHP_GAGA_Media', false);
-        const lsMedia = await fetchCsvData('SHP_LS_Media', false);
+        try {
+            loaderText.innerText = "กำลังดาวน์โหลดข้อมูล 3 แท็บพร้อมกัน...";
+            
+            // 🚀 โหลดพร้อมกัน 3 ไฟล์ (เร็วขึ้น 3 เท่า)
+            const [gagaMedia, lsMedia, masterData] = await Promise.all([
+                fetchCsvData('SHP_GAGA_Media', false),
+                fetchCsvData('SHP_LS_Media', false),
+                fetchCsvData('PRODUCTS_MASTER', true)
+            ]);
 
-        // ฟังก์ชันแกะรูปลง MAP (คอลัมน์ B=index 1, คอลัมน์ E=index 4)
-        const processMedia = (data) => {
-            data.forEach((row, idx) => {
-                if (idx >= 5) { // ข้ามหัวตารางของ Shopee
-                    const sku = row[1];
-                    const img = row[4];
-                    if (sku && img && img.startsWith('http')) IMAGE_MAP[sku] = img;
+            // แกะรูปลง MAP (เริ่มบรรทัดที่ 7 -> index 6, รหัส=Col B[1], รูป=Col E[4])
+            const processMedia = (data) => {
+                data.forEach((row, idx) => {
+                    if (idx >= 6 && row.length >= 5) { 
+                        const sku = row[1]; // Parent SKU
+                        const img = row[4]; // ภาพปก
+                        if (sku && img && img.startsWith('http')) IMAGE_MAP[sku] = img;
+                    }
+                });
+            };
+            processMedia(gagaMedia);
+            processMedia(lsMedia);
+
+            // เตรียมข้อมูลจาก Master
+            masterData.forEach(row => {
+                const shpPrice = parseFloat(row.SHP_PRICE) || 0;
+                const grabPrice = parseFloat(row.GRAB_PRICE) || 0;
+                
+                // โชว์เฉพาะสินค้าที่กำหนดราคา Shopee หรือ Grab ไว้แล้ว
+                if (shpPrice > 0 || grabPrice > 0) {
+                    ONLINE_PRODUCTS.push({
+                        id: row.ITEMID_POS,
+                        name: row.ITEMNAME,
+                        stock: parseFloat(row.STOCK_QTY) || 0,
+                        shpPrice: shpPrice > 0 ? shpPrice : '-',
+                        grabPrice: grabPrice > 0 ? grabPrice : '-'
+                    });
                 }
             });
-        };
-        processMedia(gagaMedia);
-        processMedia(lsMedia);
 
-        // 2. โหลด Master Data
-        const masterData = await fetchCsvData('PRODUCTS_MASTER', true);
-        
-        // คัดเฉพาะสินค้าที่มีราคาขาย Shopee หรือ Grab
-        masterData.forEach(row => {
-            const shpPrice = parseFloat(row.SHP_PRICE) || 0;
-            const grabPrice = parseFloat(row.GRAB_PRICE) || 0;
-            
-            if (shpPrice > 0 || grabPrice > 0) {
-                ONLINE_PRODUCTS.push({
-                    id: row.ITEMID_POS,
-                    name: row.ITEMNAME,
-                    stock: parseFloat(row.STOCK_QTY) || 0,
-                    shpPrice: shpPrice > 0 ? shpPrice : '-',
-                    grabPrice: grabPrice > 0 ? grabPrice : '-'
-                });
+            // บันทึกลง Cache เพื่อให้เปิดครั้งต่อไปเร็วขึ้น
+            sessionStorage.setItem('LS_ONLINE_DATA', JSON.stringify({
+                products: ONLINE_PRODUCTS,
+                images: IMAGE_MAP
+            }));
+
+            renderTable();
+
+        } catch (e) {
+            if(e.message === "PERMISSION_DENIED") {
+                alert("⛔ ไม่สามารถดึงข้อมูลได้!\nโปรดไปที่ Google Sheet ของคุณ -> กด 'แชร์' -> เปลี่ยนเป็น 'ทุกคนที่มีลิงก์' (Anyone with the link) ก่อนครับ");
+            } else {
+                alert("❌ โหลดข้อมูลไม่สำเร็จ โปรดตรวจสอบชื่อแท็บใน Google Sheet ว่าถูกต้อง");
             }
-        });
-
-        renderTable();
-        document.getElementById('loader').style.display = 'none';
+        }
+        
+        loader.style.display = 'none';
     }
 
     function renderTable() {
@@ -202,15 +239,14 @@
         body.innerHTML = '';
 
         if(ONLINE_PRODUCTS.length === 0) {
-            body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">❌ ไม่พบข้อมูล หรือยังไม่ได้เปิดแชร์ไฟล์ Google Sheet ให้เป็น "ทุกคนที่มีลิงก์ (Public)"</td></tr>';
+            body.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">ยังไม่มีข้อมูลสินค้าที่ตั้งราคาขายออนไลน์</td></tr>';
             return;
         }
 
         ONLINE_PRODUCTS.forEach(p => {
             const isOut = OUT_OF_STOCK_SET.has(p.id);
-            const imgUrl = IMAGE_MAP[p.id] || 'logo-ls.jpg'; // ถ้ารูปไม่มีใช้โลโก้
+            const imgUrl = IMAGE_MAP[p.id] || 'logo-ls.jpg'; 
             
-            // เช็คสต็อก
             let stockClass = 'stock-ok';
             if(p.stock <= 0) stockClass = 'stock-out';
             else if(p.stock <= 5) stockClass = 'stock-warn';
@@ -220,7 +256,7 @@
                     <td><img src="${imgUrl}" class="p-img" onerror="this.src='logo-ls.jpg'"></td>
                     <td>
                         <div class="p-name">${p.name}</div>
-                        <div class="p-sku">รหัส: ${p.id}</div>
+                        <div class="p-sku">SKU: ${p.id}</div>
                     </td>
                     <td class="stock-cell"><span class="${stockClass}">${p.stock}</span></td>
                     <td class="price-col txt-shopee">${p.shpPrice}</td>
@@ -264,13 +300,13 @@
             const p = ONLINE_PRODUCTS.find(x => x.id === id);
             const imgUrl = IMAGE_MAP[p.id] || 'logo-ls.jpg';
             body.innerHTML += `
-                <tr style="border-bottom:1px solid #eee;">
-                    <td width="60" style="padding:10px;"><img src="${imgUrl}" width="50" height="50" style="object-fit:cover; border-radius:4px;"></td>
-                    <td style="padding:10px; line-height:1.4;">
-                        <span style="font-weight:bold; font-size:16px;">${p.name}</span><br>
-                        <span style="color:#666; font-size:13px;">รหัส (SKU): ${p.id}</span>
+                <tr style="border-bottom:1px dashed #ccc;">
+                    <td width="55" style="padding:8px;"><img src="${imgUrl}" width="50" height="50" style="object-fit:cover; border-radius:4px; border:1px solid #eee;"></td>
+                    <td style="padding:8px; line-height:1.4;">
+                        <span style="font-weight:bold; font-size:15px;">${p.name}</span><br>
+                        <span style="color:#666; font-size:12px;">SKU: ${p.id}</span>
                     </td>
-                    <td style="padding:10px; color:#e74c3c; font-weight:800; text-align:right; font-size:16px;">
+                    <td style="padding:8px; color:#e74c3c; font-weight:800; text-align:right; font-size:16px;">
                         [ ปิดการขาย ]
                     </td>
                 </tr>
@@ -290,7 +326,7 @@
         });
     }
 
-    // เริ่มการทำงาน
+    // เรียกโหลดข้อมูลทันทีที่เปิดหน้าเว็บ
     loadData();
 </script>
 
