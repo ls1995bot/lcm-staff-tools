@@ -21,7 +21,6 @@
         .sidebar-head img { width: 60px; border-radius: 50%; border: 2px solid var(--primary); }
         .sidebar-head h3 { margin: 10px 0 0 0; color: var(--primary); font-weight: 800; }
 
-        /* Global Search Box in Sidebar (Optional sync) */
         .search-box { background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #ddd; }
         .search-box input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: 'Sarabun'; font-size: 14px; box-sizing: border-box; outline: none; margin-top: 5px; }
         .search-box input:focus { border-color: var(--primary); }
@@ -30,8 +29,6 @@
         .btn-refresh { background: #17a2b8; color: white; }
         .btn-img { background: var(--purple); color: white; }
         .btn-back { background: #666; color: white; text-decoration: none; margin-top: auto; }
-
-        .info-box { font-size: 12px; color: #555; background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082; line-height: 1.5; }
 
         /* --- Main Content (3 Columns) --- */
         #main { flex-grow: 1; padding: 15px; display: flex; flex-direction: column; overflow: hidden; gap: 15px; }
@@ -97,17 +94,14 @@
         <input type="text" id="searchAll" placeholder="พิมพ์ชื่อสินค้า หรือ บาร์โค้ด..." onkeyup="filterAllTables()">
     </div>
 
-    <div class="info-box">
-        <b>📌 วิธีใช้งานสำหรับพนักงาน:</b><br>
-        1. ดูรายการแยกตามแพลตฟอร์ม<br>
-        2. สามารถค้นหาข้ามร้านได้ที่แถบซ้ายมือ หรือค้นหาเฉพาะร้านได้ที่หัวตาราง<br>
-        3. กดปุ่ม <span style="color:red;">"แจ้งหมด"</span> ในช่องของร้านนั้นๆ<br>
-        4. กดปุ่มม่วง เพื่อเซฟรูปส่งให้เจ้าของร้านปิดระบบ
-    </div>
-    <div style="background: var(--grab); color: white; padding: 12px; border-radius: 8px; margin-top: 5px;">
-        <label style="font-size: 12px; font-weight: bold;"><i class="fas fa-calculator"></i> คำนวณตั้งราคา Grab Mart</label>
-        <input type="number" id="grabCalcInput" placeholder="ใส่ราคาหน้าร้าน..." oninput="calcGrabMini()" style="width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 4px; box-sizing: border-box; font-family: Sarabun; font-size: 14px;">
-        <div style="margin-top: 5px; font-size: 13px;">ตั้งราคาในแอป: <strong id="grabCalcResult" style="font-size: 18px;">0.00</strong></div>
+    <div style="background: #e8f5e9; border: 1px solid var(--grab); padding: 12px; border-radius: 8px;">
+        <label style="font-size: 12px; font-weight: bold; color:var(--grab);"><i class="fas fa-motorcycle"></i> คำนวณตั้งราคา Grab</label>
+        <input type="number" id="grabCalcInput" placeholder="ใส่ราคาหน้าร้าน (บาท)" oninput="calcGrabMini()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: Sarabun; font-size: 14px; margin-top:5px; outline:none;">
+        <div style="margin-top: 8px; font-size: 13px; color:#333; display:flex; justify-content:space-between; align-items:center;">
+            <span>ควรตั้งในแอป:</span>
+            <strong id="grabCalcResult" style="font-size: 18px; color:var(--grab);">0.00</strong>
+        </div>
+        <div style="font-size: 10px; color:#888; margin-top:2px; text-align:right;">*หัก GP 20% + VAT 7% (เรท 0.786)</div>
     </div>
 
     <button class="btn btn-refresh" onclick="loadData(true)"><i class="fas fa-cloud-download-alt"></i> โหลดข้อมูลใหม่ล่าสุด</button>
@@ -185,9 +179,19 @@
 </div>
 
 <script>
-    // ⚠️ ID ของไฟล์ "LS Secret SHP GRAB ใช้ตัวนี้"
+    // คำนวณ Grab อัตโนมัติ
+    function calcGrabMini() {
+        const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
+        if(p === 0) {
+            document.getElementById('grabCalcResult').innerText = "0.00";
+            return;
+        }
+        // ร้านได้ 78.6% ดังนั้น สูตรคือ ราคาหน้าร้าน / 0.786
+        const grabPrice = p / 0.786;
+        document.getElementById('grabCalcResult').innerText = '฿' + grabPrice.toFixed(2);
+    }
+
     const SHEET_ID = '1HY2Kcj7ifT8LrNZtX9Eif90Z8uTRITl-MPJurwKoP70';
-    
     let DATA_GAGA = [];
     let DATA_LS = [];
     let DATA_GRAB = [];
@@ -304,7 +308,7 @@
             const imgUrl = p.img || 'logo-ls.jpg'; 
 
             body.innerHTML += `
-                <tr class="row-${platformPrefix} ${isOut ? 'row-out' : ''}">
+                <tr class="search-row row-${platformPrefix} ${isOut ? 'row-out' : ''}">
                     <td><img src="${imgUrl}" class="p-img" onerror="this.src='logo-ls.jpg'"></td>
                     <td>
                         <div class="p-name">${p.name}</div>
@@ -320,12 +324,6 @@
             `;
         });
     }
-    
-    function calcGrabMini() {
-            const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
-            // ใช้สูตรหาร 0.7 เพื่อชดเชย GP
-            document.getElementById('grabCalcResult').innerText = (p / 0.7).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-        }
 
     function renderAllTables() {
         document.getElementById('cnt-gaga').innerText = `${DATA_GAGA.length} ชิ้น`;
@@ -341,41 +339,31 @@
         if(OUT_OF_STOCK_SET.has(uniqueId)) OUT_OF_STOCK_SET.delete(uniqueId);
         else OUT_OF_STOCK_SET.add(uniqueId);
         renderAllTables();
-        filterAllTables(); // รักษาผลการค้นหา
+        filterAllTables(); 
     }
 
-    // --- 🔍 ลอจิกการค้นหาอัจฉริยะ (Smart Search) ---
     function isMatch(text, searchStr) {
-        // หั่นคำที่พิมพ์ด้วยช่องว่าง เช่น "694902 MM-" จะกลายเป็น ["694902", "MM-"]
         const keywords = searchStr.trim().toLowerCase().split(/\s+/);
-        // ตรวจสอบว่ามี "ครบ" ทุกคีย์เวิร์ดใน text หรือไม่
         return keywords.every(kw => text.includes(kw));
     }
 
-    // ฟังก์ชันค้นหาเฉพาะคอลัมน์ (เรียกใช้เมื่อพิมพ์ในกล่องค้นหาของตารางนั้นๆ)
     function filterSpecificTable(platformId) {
         const inputStr = document.getElementById(`search-${platformId}`).value;
         const rows = document.querySelectorAll(`.row-${platformId}`);
-        
-        // ล้างช่องค้นหารวม (Global Search) ไม่ให้สับสน
         document.getElementById('searchAll').value = '';
-
         rows.forEach(row => {
             const text = row.innerText.toLowerCase();
             row.style.display = isMatch(text, inputStr) ? '' : 'none';
         });
     }
 
-    // ฟังก์ชันค้นหารวมทุกตาราง (เรียกใช้เมื่อพิมพ์ในกล่องค้นหาด้านซ้าย)
     function filterAllTables() {
         const inputStr = document.getElementById('searchAll').value;
-        
-        // ล้างค่าในช่องค้นหาแยก เพื่อให้รู้ว่ากำลังใช้การค้นหารวม
         document.getElementById('search-gaga').value = '';
         document.getElementById('search-ls').value = '';
         document.getElementById('search-grab').value = '';
 
-        const allRows = document.querySelectorAll('#body-gaga tr, #body-ls tr, #body-grab tr');
+        const allRows = document.querySelectorAll('.search-row');
         allRows.forEach(row => {
             const text = row.innerText.toLowerCase();
             row.style.display = isMatch(text, inputStr) ? '' : 'none';
