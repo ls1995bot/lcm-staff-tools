@@ -181,15 +181,15 @@
 <script>
     // คำนวณ Grab อัตโนมัติ
     function calcGrabMini() {
-        const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
-        if(p === 0) {
-            document.getElementById('grabCalcResult').innerText = "0.00";
-            return;
-        }
-        // ร้านได้ 78.6% ดังนั้น สูตรคือ ราคาหน้าร้าน / 0.786
-        const grabPrice = p / 0.786;
-        document.getElementById('grabCalcResult').innerText = '฿' + grabPrice.toFixed(2);
+    const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
+    if(p === 0) {
+        document.getElementById('grabCalcResult').innerText = "0.00";
+        return;
     }
+    // สูตรคำนวณ: ราคาหน้าร้าน / 0.786 (ตามตาราง Grab Merchant)
+    const grabPrice = p / 0.786;
+    document.getElementById('grabCalcResult').innerText = '฿' + grabPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
 
     const SHEET_ID = '1HY2Kcj7ifT8LrNZtX9Eif90Z8uTRITl-MPJurwKoP70';
     let DATA_GAGA = [];
