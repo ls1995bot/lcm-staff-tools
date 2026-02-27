@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART PAPER Label Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --apple-bg: #f5f5f7;
+            --apple-blue: #0071e3;
+            --border-color: #d2d2d7;
+            --cut-line: #b0b0b7; /* สีเส้นประสำหรับตัดที่ชัดเจนขึ้น */
+        }
+
+        /* --- Print Setting --- */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; margin: 0; padding: 0; }
+            .page { 
+                box-shadow: none !important; 
+                margin: 0 !important; 
+                border: none !important;
+                padding: 4mm 5mm !important; /* บน-ล่าง 4มม, ซ้าย-ขวา 5มม */
+            }
+            .label-item {
+                border: 0.2pt dashed var(--cut-line) !important; /* เส้นบางๆ สำหรับตัด */
+            }
+        }
+
+        body {
+            font-family: 'Inter', 'Sarabun', -apple-system, sans-serif;
+            background-color: var(--apple-bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #1d1d1f;
+        }
+
+        /* --- UI Components --- */
+        .nav-header {
+            width: 100%;
+            max-width: 210mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: #86868b;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-back:hover { color: var(--apple-blue); }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 210mm;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-sizing: border-box;
+        }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: #86868b; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: 'Sarabun';
+            background: #fff;
+            box-sizing: border-box;
+            transition: 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--apple-blue); box-shadow: 0 0 0 4px rgba(0,113,227,0.1); }
+
+        .btn-print {
+            background: var(--apple-blue);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- A4 Page Preview (ขอบซ้ายขวา 5มม) --- */
+        .page {
+            width: 210mm;
+            height: 297mm;
+            background: white;
+            padding: 4mm 5mm; /* ขอบบน 4mm / ขอบซ้ายขวา 5mm */
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* --- Label Item (H: 5.45cm) --- */
+        .label-item {
+            width: 100%;
+            height: 54.5mm; /* ความสูงเป๊ะตามสั่ง 5.45 ซม. */
+            border: 1px dashed var(--cut-line);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background-color: #fff;
+            margin-bottom: 0; /* ติดกันเพื่อให้ตัดง่าย */
+        }
+
+        .brand-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 44pt;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin: 0;
+            line-height: 0.9;
+            color: #1d1d1f;
+        }
+
+        .desc-group {
+            margin-top: 12px;
+            text-align: center;
+        }
+
+        .line-1 { font-size: 22pt; font-weight: 400; color: #424245; font-family: 'Sarabun'; }
+        .line-2 { font-size: 19pt; font-weight: 700; color: #000; margin-top: 4px; font-family: 'Sarabun'; }
+
+        .cut-marker {
+            position: absolute;
+            top: 2mm;
+            left: 2mm;
+            font-size: 8px;
+            color: #d2d2d7;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-header no-print">
+        <a href="https://ls1995bot.github.io/lcm-staff-tools/index.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> กลับสู่หน้า Dashboard
+        </a>
+    </div>
+
+    <div class="control-panel no-print">
+        <div class="input-row">
+            <div>
+                <label>บรรทัดที่ 1 (ข้อมูลหลัก)</label>
+                <input type="text" id="in1" placeholder="ซองเอนกประสงค์ ผิวส้ม ขนาด A4" oninput="sync()">
+            </div>
+            <div>
+                <label>บรรทัดที่ 2 (ข้อมูลรอง/ราคา)</label>
+                <input type="text" id="in2" placeholder="บรรจุ 100 แผ่น" oninput="sync()">
+            </div>
+        </div>
+        <button class="btn-print" onclick="window.print()">
+            <i class="fas fa-print"></i> พิมพ์ป้ายสินค้า (5 ชิ้น/หน้า)
+        </button>
+    </div>
+
+    <div class="page">
+        <div id="labels-container" style="width: 100%;">
+            </div>
+    </div>
+
+    <script>
+        function sync() {
+            const val1 = document.getElementById('in1').value || "ซองเอนกประสงค์ ผิวส้ม ขนาด A4";
+            const val2 = document.getElementById('in2').value || "บรรจุ 100 แผ่น";
+            
+            const container = document.getElementById('labels-container');
+            container.innerHTML = '';
+
+            // สร้าง 5 ป้ายต่อหน้า
+            for (let i = 0; i < 5; i++) {
+                container.innerHTML += `
+                    <div class="label-item">
+                        <span class="cut-marker no-print">SIZE: 5.45 CM</span>
+                        <div class="brand-name">SMART PAPER</div>
+                        <div class="desc-group">
+                            <div class="line-1">${val1}</div>
+                            <div class="line-2">${val2}</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize on load
+        window.onload = sync;
+    </script>
+</body>
+</html>
