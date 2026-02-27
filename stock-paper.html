@@ -57,110 +57,39 @@
         input.cell:focus { background: #fffde7; box-shadow: inset 0 0 0 2px var(--primary); }
 
         .diff-box { text-align: center; font-weight: bold; font-size: 14px; }
-        .txt-missing { color: #e74c3c; } /* ของขาด */
-        .txt-surplus { color: #27ae60; } /* ของเกิน */
+        .txt-missing { color: #e74c3c; } 
+        .txt-surplus { color: #27ae60; } 
 
         /* --- 🖨️ PRINT SETTINGS --- */
-        /* สำหรับโหมด A4 จดมือ (โชว์เฉพาะฝั่งขวา ขยายเต็มหน้า) */
-        body.print-handwrite .page-container { grid-template-columns: 1fr; width: 210mm; }
-        body.print-handwrite .panel-left { display: none !important; }
-        body.print-handwrite .stock-table th { background: #f2f2f2 !important; color: black !important; padding: 10px; font-size: 14px; }
-        body.print-handwrite .stock-table td { height: 40px; }
-        body.print-handwrite input.cell { display: none; } /* ซ่อนช่อง input ให้เป็นช่องว่างจดมือ */
-        
-        /* --- 🖨️ PRINT SETTINGS ใหม่ --- */
-@media print {
+        @media print {
+            /* ขอบกระดาษ 5mm ทุกโหมด */
+            @page { size: A4 portrait; margin: 5mm; }
 
-    /* กำหนดระยะขอบทุกโหมด = 5mm */
-    @page {
-        size: A4 portrait;   /* ค่าเริ่มต้น */
-        margin: 5mm;
-    }
+            body { background: white; display: block; overflow: visible; width: 100%; }
+            #sidebar, #loader { display: none !important; }
+            #content { padding: 0; display: block; width: 100%; background: white; }
+            .page-container { width: 100%; box-shadow: none; padding: 0; border: none; display: block; }
+            
+            /* ---------- 📝 โหมดใบจดมือ (A4 เต็มหน้า ว่างเปล่า) ---------- */
+            body.print-handwrite .page-container { width: 100%; }
+            body.print-handwrite .panel-left { display: none !important; }
+            body.print-handwrite .stock-table th { background: #f2f2f2 !important; color: black !important; font-size: 14px; padding: 10px; border: 1px solid #000; }
+            body.print-handwrite .stock-table td { height: 45px; border: 1px solid #000; } /* ช่องกว้างขึ้นให้จดง่าย */
+            
+            /* ทริค: ซ่อนค่า value ทุกอย่างในช่องตารางตอนพิมพ์ใบจดมือ */
+            body.print-handwrite input.cell { color: transparent !important; background: transparent !important; }
+            body.print-handwrite .diff-box { color: transparent !important; }
 
-    body {
-        background: white;
-        display: block;
-        overflow: visible;
-        width: 100%;
-    }
-
-    #sidebar, #loader {
-        display: none !important;
-    }
-
-    #content {
-        padding: 0;
-        display: block;
-        width: 100%;
-        background: white;
-    }
-
-    .page-container {
-        width: 100%;
-        min-height: auto;
-        box-shadow: none;
-        padding: 0;
-        border: none;
-        display: block;
-    }
-
-    /* ---------- 📝 โหมดใบจดมือ (A4 เต็มหน้า) ---------- */
-    body.print-handwrite .page-container {
-        width: 100%;
-    }
-
-    body.print-handwrite .panel-left {
-        display: none !important;
-    }
-
-    body.print-handwrite .stock-table th {
-        background: #f2f2f2 !important;
-        color: black !important;
-        font-size: 14px;
-        padding: 8px;
-    }
-
-    body.print-handwrite .stock-table td {
-        height: 42px;
-        border: 1px solid #000;
-    }
-
-    body.print-handwrite input.cell {
-        display: none;
-    }
-
-    /* ---------- 📊 โหมดรายงานสรุป ---------- */
-    body:not(.print-handwrite) .panel-left {
-        display: none !important;
-    }
-
-    body:not(.print-handwrite) .panel-right {
-        width: 100%;
-    }
-
-    .panel-header {
-        background: white !important;
-        color: black !important;
-        border: none;
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-
-    .stock-table th,
-    .stock-table td {
-        border: 1px solid #000;
-    }
-
-    input.cell {
-        font-size: 14px;
-        color: black;
-    }
-
-    * {
-        -webkit-print-color-adjust: exact;
-    }
-}
-
+            /* ---------- 📊 โหมดรายงานสรุป (A5 ครึ่งหน้า) ---------- */
+            body:not(.print-handwrite) .panel-left { display: none !important; }
+            body:not(.print-handwrite) .panel-right { width: 100%; }
+            body:not(.print-handwrite) .panel-header { background: white !important; color: black !important; border: none; font-size: 16px; margin-bottom: 10px; padding: 0; text-align: left; }
+            body:not(.print-handwrite) .stock-table th, 
+            body:not(.print-handwrite) .stock-table td { border: 1px solid #000; }
+            body:not(.print-handwrite) input.cell { font-size: 14px; color: black; }
+            
+            * { -webkit-print-color-adjust: exact; }
+        }
     </style>
 </head>
 <body>
@@ -323,7 +252,7 @@
                 const diffBox = document.getElementById(`${prefix}_diff_${p.k}`);
                 if(posStr !== '') {
                     const pos = parseFloat(posStr);
-                    const d = pos - sum; // คอม - นับจริง (บวก=ของหาย, ลบ=ของเกิน)
+                    const d = pos - sum; 
                     diffBox.innerText = (d > 0 ? '+' : '') + d;
                     diffBox.className = 'diff-box ' + (d < 0 ? 'txt-surplus' : (d > 0 ? 'txt-missing' : ''));
                 } else {
@@ -340,7 +269,6 @@
             loader.classList.add('show');
             
             try {
-                // 1. ข้อมูลของวันที่เลือก
                 const resCur = await fetch(`${CLOUD_URL}?mode=get_specific_day&type=PAPER&date=${selectedDate}&t=${Date.now()}`);
                 const jsonCur = await resCur.json();
                 clearTodayFields();
@@ -349,7 +277,6 @@
                     fillTable(jsonCur.data, 'new'); 
                 }
 
-                // 2. ข้อมูลย้อนหลังเพื่อเทียบเคียง
                 const resPrev = await fetch(`${CLOUD_URL}?mode=get_previous&type=PAPER&date=${selectedDate}&t=${Date.now()}`);
                 const jsonPrev = await resPrev.json();
                 if(jsonPrev.status === 'success') { 
@@ -359,9 +286,7 @@
                     document.getElementById('label-yesterday').innerText = "ไม่พบประวัติการนับก่อนหน้านี้"; 
                     clearSide('old'); 
                 }
-            } catch(e) {
-                console.error("Fetch Error:", e);
-            }
+            } catch(e) { console.error("Fetch Error:", e); }
             loader.classList.remove('show');
         }
 
@@ -417,9 +342,7 @@
                 await fetch(CLOUD_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
                 alert("✅ บันทึกยอดกระดาษลง Cloud สำเร็จแล้ว!"); 
                 loadDayData();
-            } catch(e) { 
-                alert("❌ เกิดข้อผิดพลาดในการบันทึก"); 
-            }
+            } catch(e) { alert("❌ เกิดข้อผิดพลาดในการบันทึก"); }
             btn.innerHTML = '<i class="fas fa-save"></i> บันทึกเข้าระบบ (คลาวด์)'; btn.disabled = false;
         }
 
