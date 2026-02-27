@@ -2,121 +2,229 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>เช็คสต็อคกระดาษ (บันทึกรูปภาพ & ระบบนำทาง)</title>
+    <title>เช็คสต็อกกระดาษ — แหลมฉบังเครื่องเขียน</title>
+    <link rel="icon" href="logo-ls.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        :root { --primary: #023f88; --bg: #f4f6f9; --read-only: #f1f3f5; --purple: #673ab7; }
+        :root { --primary: #023f88; --bg: #f4f6f9; --read-only: #f1f3f5; --purple: #673ab7; --print-border: #666; }
         
-        /* เพิ่มขนาดตัวอักษร +2px */
         body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background-color: var(--bg); display: flex; height: 100vh; overflow: hidden; font-size: 13px; }
         
-        /* 🚫 ปิด Spinner และป้องกันเลขวิ่ง */
+        /* 🚫 ปิด Spinner */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
 
         /* --- Sidebar --- */
-        #sidebar { width: 260px; background: white; border-right: 1px solid #ccc; padding: 15px; display: flex; flex-direction: column; gap: 5px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 2px; font-size: 13px; }
-        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; margin-bottom: 5px; font-size: 13px; }
+        #sidebar { width: 280px; background: white; border-right: 1px solid #ccc; padding: 15px; display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; overflow-y: auto; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 2px; font-size: 13px; color: #555; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; margin-bottom: 5px; font-size: 13px; outline: none; }
+        .form-control:focus { border-color: var(--primary); background: #f0f7ff; }
         
         .btn { width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 14px; }
-        .btn-save { background: #28a745; color: white; height: 45px; font-size: 16px; margin-top: 5px; }
-        .btn-print { background: var(--primary); color: white; margin-top: 5px; }
+        .btn-save { background: #28a745; color: white; height: 45px; font-size: 15px; margin-top: 5px; }
+        .btn-print { background: #34495e; color: white; margin-top: 5px; }
+        .btn-print-hand { background: var(--primary); color: white; margin-top: 5px; border: 1px dashed white; }
         .btn-img { background: white; color: var(--purple); border: 1px solid var(--purple); margin-top: 5px; }
-        .btn-clear { background: #fff0f0; color: #d32f2f; border: 1px solid #ffcdd2; font-size: 11px; padding: 6px; margin-top: 10px; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; margin-top: auto; padding: 8px; font-size: 12px; }
+        .btn-clear { background: #fff0f0; color: #d32f2f; border: 1px solid #ffcdd2; font-size: 12px; padding: 8px; margin-top: 10px; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; margin-top: auto; padding: 10px; font-size: 13px; }
 
         .mode-box { background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082; margin-bottom: 5px; }
-        .mode-box label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 3px 0; font-size: 13px; font-weight: 600; }
+        .mode-box label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 0; font-size: 13px; font-weight: 600; color: #333; }
 
         /* --- Main Content --- */
-        #content { flex-grow: 1; padding: 15px; overflow: auto; display: flex; justify-content: center; position: relative; }
-        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); z-index: 99; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; color: #555; pointer-events: none; opacity: 0; }
+        #content { flex-grow: 1; padding: 15px; overflow: auto; display: flex; justify-content: center; position: relative; background: #555; }
+        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); z-index: 99; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; color: var(--primary); pointer-events: none; opacity: 0; transition: 0.3s; }
         #loader.show { opacity: 1; pointer-events: all; }
 
-        .page-container { width: 297mm; min-height: 210mm; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.2); padding: 8mm; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+        .page-container { width: 297mm; min-height: 210mm; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.4); padding: 8mm; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
         .panel { display: flex; flex-direction: column; height: 100%; }
-        .panel-header { text-align: center; font-weight: bold; font-size: 15px; padding: 5px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #000; }
-        .panel-left .panel-header { background: #ccc; color: #555; }
-        .panel-left input { background: var(--read-only); color: #666; pointer-events: none; }
+        .panel-header { text-align: center; font-weight: bold; font-size: 15px; padding: 8px; margin-bottom: 5px; border-radius: 4px; border: 1px solid #000; }
+        
+        .panel-left .panel-header { background: #e0e0e0; color: #333; }
+        .panel-left input { background: var(--read-only); color: #888; pointer-events: none; border: none; }
+        .panel-left table th { background: #7f8c8d; }
+        
         .panel-right .panel-header { background: var(--primary); color: white; }
         
         .stock-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .stock-table th { padding: 4px; border: 1px solid #666; font-size: 11px; background: #0d2e5c; color: white; }
-        .stock-table td { padding: 0; border: 1px solid #ccc; height: 26px; }
+        .stock-table th { padding: 6px 4px; border: 1px solid var(--print-border); font-size: 12px; background: #0d2e5c; color: white; }
+        .stock-table td { padding: 0; border: 1px solid #ccc; height: 30px; }
         
-        input.cell { width: 100%; height: 100%; border: none; text-align: center; font-family: 'Sarabun'; font-size: 14px; font-weight: bold; background: transparent; outline: none; }
-        input.cell:focus { background: #fffde7; box-shadow: inset 0 0 0 1px var(--primary); }
+        input.cell { width: 100%; height: 100%; border: none; text-align: center; font-family: 'Sarabun'; font-size: 14px; font-weight: bold; background: transparent; outline: none; box-sizing: border-box; }
+        input.cell:focus { background: #fffde7; box-shadow: inset 0 0 0 2px var(--primary); }
 
-        .diff-box { text-align: center; font-weight: bold; font-size: 13px; }
+        .diff-box { text-align: center; font-weight: bold; font-size: 14px; }
+        .txt-missing { color: #e74c3c; } /* ของขาด */
+        .txt-surplus { color: #27ae60; } /* ของเกิน */
 
-        /* --- 🖨️ PRINT SETTINGS (Auto-fit) --- */
-        @media print {
-            @page { margin: 3mm; } 
-            body { background: white; display: block; overflow: visible; width: 100%; }
-            #sidebar, #loader, .panel-left { display: none !important; }
-            #content { padding: 0; display: block; width: 100%; }
-            .page-container { width: 100%; box-shadow: none; padding: 0; border: none; display: block; }
-            .panel-right { width: 100%; margin: 0; background: white !important; border: none; padding: 0; display: flex; flex-direction: column; }
-            .panel-header { background: white !important; color: black !important; border: none; font-size: 12px; text-align: left; margin-bottom: 5px; padding: 0; }
-            .panel-header span { font-weight: bold; border-bottom: 1px solid #000; }
-            .stock-table { width: 100%; }
-            .stock-table th { background: #eee !important; color: black !important; border: 1px solid #000; font-size: 10px; height: 16px; }
-            .stock-table td { border: 1px solid #000; height: 20px; font-size: 11px; }
-            input.cell { font-size: 12px; }
-            * { -webkit-print-color-adjust: exact; }
-        }
+        /* --- 🖨️ PRINT SETTINGS --- */
+        /* สำหรับโหมด A4 จดมือ (โชว์เฉพาะฝั่งขวา ขยายเต็มหน้า) */
+        body.print-handwrite .page-container { grid-template-columns: 1fr; width: 210mm; }
+        body.print-handwrite .panel-left { display: none !important; }
+        body.print-handwrite .stock-table th { background: #f2f2f2 !important; color: black !important; padding: 10px; font-size: 14px; }
+        body.print-handwrite .stock-table td { height: 40px; }
+        body.print-handwrite input.cell { display: none; } /* ซ่อนช่อง input ให้เป็นช่องว่างจดมือ */
+        
+        /* --- 🖨️ PRINT SETTINGS ใหม่ --- */
+@media print {
+
+    /* กำหนดระยะขอบทุกโหมด = 5mm */
+    @page {
+        size: A4 portrait;   /* ค่าเริ่มต้น */
+        margin: 5mm;
+    }
+
+    body {
+        background: white;
+        display: block;
+        overflow: visible;
+        width: 100%;
+    }
+
+    #sidebar, #loader {
+        display: none !important;
+    }
+
+    #content {
+        padding: 0;
+        display: block;
+        width: 100%;
+        background: white;
+    }
+
+    .page-container {
+        width: 100%;
+        min-height: auto;
+        box-shadow: none;
+        padding: 0;
+        border: none;
+        display: block;
+    }
+
+    /* ---------- 📝 โหมดใบจดมือ (A4 เต็มหน้า) ---------- */
+    body.print-handwrite .page-container {
+        width: 100%;
+    }
+
+    body.print-handwrite .panel-left {
+        display: none !important;
+    }
+
+    body.print-handwrite .stock-table th {
+        background: #f2f2f2 !important;
+        color: black !important;
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    body.print-handwrite .stock-table td {
+        height: 42px;
+        border: 1px solid #000;
+    }
+
+    body.print-handwrite input.cell {
+        display: none;
+    }
+
+    /* ---------- 📊 โหมดรายงานสรุป ---------- */
+    body:not(.print-handwrite) .panel-left {
+        display: none !important;
+    }
+
+    body:not(.print-handwrite) .panel-right {
+        width: 100%;
+    }
+
+    .panel-header {
+        background: white !important;
+        color: black !important;
+        border: none;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .stock-table th,
+    .stock-table td {
+        border: 1px solid #000;
+    }
+
+    input.cell {
+        font-size: 14px;
+        color: black;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+    }
+}
+
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <div style="text-align:center;"><img src="logo-ls.jpg" style="width:40px; border-radius:50%;"><h3>สต็อกกระดาษ</h3></div>
+    <div id="sidebar" class="no-print">
+        <div style="text-align:center;">
+            <img src="logo-ls.jpg" style="width:50px; border-radius:50%; margin-bottom: 5px;">
+            <h3 style="margin:0; color:var(--primary);">สต็อกกระดาษ</h3>
+        </div>
         
         <div class="mode-box">
-            <label><input type="radio" name="stockMode" value="daily" checked onchange="changeMode()"> ชุดธรรมดา (11 ตัว)</label>
-            <label><input type="radio" name="stockMode" value="saturday" onchange="changeMode()"> ชุดวันเสาร์ (19 ตัว)</label>
+            <label><input type="radio" name="stockMode" value="daily" checked onchange="changeMode()"> ชุดธรรมดา (13 รายการ)</label>
+            <label><input type="radio" name="stockMode" value="saturday" onchange="changeMode()"> ชุดวันเสาร์ (21 รายการ)</label>
         </div>
 
-        <div class="form-group"><label>📅 วันที่บันทึก:</label><input type="date" id="checkDate" class="form-control" onchange="loadDayData()"></div>
-        <div class="form-group"><label>👤 พนักงาน:</label><input type="text" id="staffName" class="form-control" placeholder="ชื่อผู้ตรวจ..."></div>
+        <div class="form-group">
+            <label>📅 วันที่ตรวจสอบ:</label>
+            <input type="date" id="checkDate" class="form-control" onchange="loadDayData()">
+        </div>
+        <div class="form-group">
+            <label>👤 ชื่อพนักงาน:</label>
+            <input type="text" id="staffName" class="form-control" placeholder="ระบุชื่อผู้ตรวจ...">
+        </div>
         
-        <button class="btn btn-save" onclick="saveStock()" id="btnSave"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
-        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์เป็น A5</button>
-        <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกรูปภาพ</button>
+        <button class="btn btn-save" onclick="saveStock()" id="btnSave"><i class="fas fa-save"></i> บันทึกเข้าระบบ (คลาวด์)</button>
         
-        <button class="btn btn-clear" onclick="clearTodayOnly()"><i class="fas fa-eraser"></i> ล้างค่าที่กรอกวันนี้</button>
+        <hr style="width:100%; opacity:0.2; margin: 5px 0;">
         
-        <a href="index.html" class="btn btn-back">🏠 กลับหน้าหลัก</a>
+        <button class="btn btn-print-hand" onclick="printHandwrite()"><i class="fas fa-clipboard-list"></i> พิมพ์ใบจดมือ (A4 เปล่า)</button>
+        <button class="btn btn-print" onclick="printReport()"><i class="fas fa-print"></i> พิมพ์รายงานสรุป (A5)</button>
+        <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกเป็นรูปภาพ</button>
+        
+        <button class="btn btn-clear" onclick="clearTodayOnly()"><i class="fas fa-eraser"></i> ล้างค่าตัวเลขที่กรอกวันนี้</button>
+        
+        <a href="index.html" class="btn btn-back">🏠 กลับหน้าเมนูหลัก</a>
     </div>
 
     <div id="content">
-        <div id="loader">⏳ กำลังซิงค์ข้อมูล...</div>
+        <div id="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> <br>กำลังดึงข้อมูล...</div>
         
-        <div class="page-container">
+        <div class="page-container" id="captureTarget">
             <div class="panel panel-left">
-                <div class="panel-header" id="label-yesterday">ยอดเดิมล่าสุด</div>
+                <div class="panel-header" id="label-yesterday">ยอดเดิมล่าสุด (ดูได้อย่างเดียว)</div>
                 <div id="table-old-container"></div>
             </div>
 
-            <div class="panel panel-right" id="captureTarget">
-                <div class="panel-header" id="label-today">ใบนับสต็อคกระดาษ : <span id="printDateDisp">...</span></div>
+            <div class="panel panel-right">
+                <div class="panel-header" id="label-today">ใบนับสต็อกกระดาษ ประจำวันที่ : <span id="printDateDisp">...</span></div>
                 <div id="table-new-container"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // ⚠️ รหัสชีท Script B (Database_Stock) ⚠️
         const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbzZ5st-egIEWV8M3UVbBMs2yzP5NNV28BDKRliAcc7jWZyY-UMCiJk_Q959eOinM4eDJA/exec';
 
+        // 📝 อัปเดตข้อมูล: เพิ่มช้าง 70g และ ช้าง 80g
         const ITEMS_DAILY = [
             { n: "ดีไลท์", k: "p_delight" }, { n: "ควอลิตี้ (ส้ม)", k: "p_quality_ora" },
             { n: "Idea Max", k: "p_idea_max" }, { n: "Idea Green", k: "p_idea_green" },
             { n: "Idea Work", k: "p_idea_work" }, { n: "Ultimate", k: "p_ultimate" },
             { n: "Double A 80g", k: "p_da_80g" }, { n: "Double A Color", k: "p_da_color" },
+            { n: "ตราช้าง 70g (Elephant)", k: "p_ele_70g" }, { n: "ตราช้าง 80g (Elephant)", k: "p_ele_80g" },
             { n: "A5 ขาว (ลูกศร)", k: "p_a5_arrow" }, { n: "สมุดหัก PS", k: "p_book_ps" },
             { n: "สมุดหัก ULUX", k: "p_book_ulux" }
         ];
@@ -126,11 +234,12 @@
             { n: "Idea Max", k: "p_idea_max" }, { n: "Idea Green", k: "p_idea_green" },
             { n: "Idea Work", k: "p_idea_work" }, { n: "Ultimate", k: "p_ultimate" },
             { n: "Double A 80g", k: "p_da_80g" }, { n: "Double A Color", k: "p_da_color" },
+            { n: "ตราช้าง 70g (Elephant)", k: "p_ele_70g" }, { n: "ตราช้าง 80g (Elephant)", k: "p_ele_80g" },
             { n: "A5 ขาว (ลูกศร)", k: "p_a5_arrow" }, { n: "A5 ขาว (Arrow)", k: "p_a5_white_arrow" },
             { n: "A3 Quality 70g", k: "p_a3_q70" }, { n: "A3 Idea Work", k: "p_a3_work" },
             { n: "A3 Arrow Blue", k: "p_a3_arrow" }, { n: "A3 Double A", k: "p_a3_da" },
-            { n: "F14 80G Quality", k: "p_f14_q80" }, { n: "F14 70G Quality", k: "p_f14_q70" },
-            { n: "B4 80G Double A", k: "p_b4_da" }, { n: "สมุดหัก PS", k: "p_book_ps" },
+            { n: "F14 80g Quality", k: "p_f14_q80" }, { n: "F14 70g Quality", k: "p_f14_q70" },
+            { n: "B4 80g Double A", k: "p_b4_da" }, { n: "สมุดหัก PS", k: "p_book_ps" },
             { n: "สมุดหัก ULUX", k: "p_book_ulux" }
         ];
 
@@ -151,60 +260,109 @@
         function renderTable(containerId, prefix) {
             const r = prefix === 'old' ? 'readonly' : '';
             const o = prefix === 'new' ? `oninput="calc('${prefix}')"` : '';
-            let h = `<table class="stock-table"><thead><tr><th style="width:38%">รายการ</th><th style="width:12%">ช.1</th><th style="width:12%">สต็อก</th><th style="width:12%">รวม</th><th style="width:12%">คอม</th><th style="width:14%">+/-</th></tr></thead><tbody>`;
+            
+            let h = `
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36%">รายการกระดาษ</th>
+                            <th style="width:12%">หน้าร้าน</th>
+                            <th style="width:12%">ในสต็อก</th>
+                            <th style="width:12%">รวมมี</th>
+                            <th style="width:14%">ยอดคอมฯ</th>
+                            <th style="width:14%">ผลต่าง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
             currentItems.forEach(p => {
-                h += `<tr><td style="padding-left:5px; font-weight:bold;">${p.n}</td><td><input type="number" id="${prefix}_s1_${p.k}" class="cell" ${r} ${o}></td><td><input type="number" id="${prefix}_st_${p.k}" class="cell" ${r} ${o}></td><td><input type="text" id="${prefix}_sum_${p.k}" class="cell" readonly></td><td><input type="number" id="${prefix}_pos_${p.k}" class="cell" ${r} ${o}></td><td><div id="${prefix}_diff_${p.k}" class="diff-box"></div></td></tr>`;
+                h += `
+                    <tr>
+                        <td style="padding-left:8px; font-weight:600; color:#333;">${p.n}</td>
+                        <td><input type="number" id="${prefix}_s1_${p.k}" class="cell" ${r} ${o}></td>
+                        <td><input type="number" id="${prefix}_st_${p.k}" class="cell" ${r} ${o}></td>
+                        <td><input type="text" id="${prefix}_sum_${p.k}" class="cell" readonly style="color:var(--primary);"></td>
+                        <td><input type="number" id="${prefix}_pos_${p.k}" class="cell" ${r} ${o}></td>
+                        <td><div id="${prefix}_diff_${p.k}" class="diff-box"></div></td>
+                    </tr>
+                `;
             });
             document.getElementById(containerId).innerHTML = h + `</tbody></table>`;
         }
 
-        // --- ⌨️ Navigation & Block Spin ---
+        // --- ⌨️ Navigation ---
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             if (!active.classList.contains('cell') || active.readOnly) return;
             const inputs = Array.from(document.querySelectorAll('.panel-right input.cell:not([readonly])'));
             const index = inputs.indexOf(active);
+            
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') e.preventDefault();
-            if (e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); const next = inputs[index + 3]; if (next) { next.focus(); next.select(); } }
-            else if (e.key === 'ArrowUp') { e.preventDefault(); const prev = inputs[index - 3]; if (prev) { prev.focus(); prev.select(); } }
-            else if (e.key === 'ArrowRight' || e.key === 'Tab') { if(e.key === 'ArrowRight') { const next = inputs[index + 1]; if (next) { next.focus(); next.select(); } } }
-            else if (e.key === 'ArrowLeft') { const prev = inputs[index - 1]; if (prev) { prev.focus(); prev.select(); } }
+            if (e.key === 'Enter' || e.key === 'ArrowDown') { 
+                e.preventDefault(); const next = inputs[index + 3]; if (next) { next.focus(); next.select(); } 
+            } else if (e.key === 'ArrowUp') { 
+                e.preventDefault(); const prev = inputs[index - 3]; if (prev) { prev.focus(); prev.select(); } 
+            } else if (e.key === 'ArrowRight' && active.selectionEnd === active.value.length) { 
+                const next = inputs[index + 1]; if (next) { next.focus(); next.select(); } 
+            } else if (e.key === 'ArrowLeft' && active.selectionStart === 0) { 
+                const prev = inputs[index - 1]; if (prev) { prev.focus(); prev.select(); } 
+            }
         });
 
         document.addEventListener('wheel', function(e) { if (document.activeElement.type === 'number') document.activeElement.blur(); });
 
         window.calc = function(prefix) {
             currentItems.forEach(p => {
-                const s1 = parseFloat(document.getElementById(`${prefix}_s1_${p.k}`).value)||0;
-                const st = parseFloat(document.getElementById(`${prefix}_st_${p.k}`).value)||0;
-                const pos = document.getElementById(`${prefix}_pos_${p.k}`).value;
+                const s1 = parseFloat(document.getElementById(`${prefix}_s1_${p.k}`).value) || 0;
+                const st = parseFloat(document.getElementById(`${prefix}_st_${p.k}`).value) || 0;
+                const posStr = document.getElementById(`${prefix}_pos_${p.k}`).value;
+                
                 const sum = s1 + st;
-                document.getElementById(`${prefix}_sum_${p.k}`).value = sum || '';
+                document.getElementById(`${prefix}_sum_${p.k}`).value = (document.getElementById(`${prefix}_s1_${p.k}`).value || document.getElementById(`${prefix}_st_${p.k}`).value) ? sum : '';
+                
                 const diffBox = document.getElementById(`${prefix}_diff_${p.k}`);
-                if(pos !== '') {
-                    const d = parseFloat(pos) - sum;
+                if(posStr !== '') {
+                    const pos = parseFloat(posStr);
+                    const d = pos - sum; // คอม - นับจริง (บวก=ของหาย, ลบ=ของเกิน)
                     diffBox.innerText = (d > 0 ? '+' : '') + d;
                     diffBox.className = 'diff-box ' + (d < 0 ? 'txt-surplus' : (d > 0 ? 'txt-missing' : ''));
-                } else diffBox.innerText = '';
+                } else {
+                    diffBox.innerText = '';
+                }
             });
         }
 
         async function loadDayData() {
             const selectedDate = document.getElementById('checkDate').value;
+            document.getElementById('printDateDisp').innerText = new Date(selectedDate).toLocaleDateString('th-TH');
+            
             const loader = document.getElementById('loader');
             loader.classList.add('show');
+            
             try {
+                // 1. ข้อมูลของวันที่เลือก
                 const resCur = await fetch(`${CLOUD_URL}?mode=get_specific_day&type=PAPER&date=${selectedDate}&t=${Date.now()}`);
                 const jsonCur = await resCur.json();
                 clearTodayFields();
-                if(jsonCur.status === 'success') { document.getElementById('staffName').value = jsonCur.staff || ''; fillTable(jsonCur.data, 'new'); }
+                if(jsonCur.status === 'success') { 
+                    document.getElementById('staffName').value = jsonCur.staff || ''; 
+                    fillTable(jsonCur.data, 'new'); 
+                }
+
+                // 2. ข้อมูลย้อนหลังเพื่อเทียบเคียง
                 const resPrev = await fetch(`${CLOUD_URL}?mode=get_previous&type=PAPER&date=${selectedDate}&t=${Date.now()}`);
                 const jsonPrev = await resPrev.json();
-                if(jsonPrev.status === 'success') { document.getElementById('label-yesterday').innerText = `ยอดเดิม: ${jsonPrev.date}`; fillTable(jsonPrev.data, 'old'); }
-                else { document.getElementById('label-yesterday').innerText = "ไม่พบยอดก่อนหน้า"; clearSide('old'); }
-            } catch(e) {}
+                if(jsonPrev.status === 'success') { 
+                    document.getElementById('label-yesterday').innerText = `ยอดเดิมที่บันทึกไว้: ${jsonPrev.date}`; 
+                    fillTable(jsonPrev.data, 'old'); 
+                } else { 
+                    document.getElementById('label-yesterday').innerText = "ไม่พบประวัติการนับก่อนหน้านี้"; 
+                    clearSide('old'); 
+                }
+            } catch(e) {
+                console.error("Fetch Error:", e);
+            }
             loader.classList.remove('show');
-            document.getElementById('printDateDisp').innerText = new Date(selectedDate).toLocaleDateString('th-TH');
         }
 
         function fillTable(data, prefix) {
@@ -231,25 +389,52 @@
             document.querySelectorAll('.panel-right .diff-box').forEach(d => d.innerText = '');
         }
 
-        function clearTodayOnly() { if(confirm("ล้างเฉพาะค่าที่กรอกฝั่งขวา?")) clearTodayFields(); }
+        function clearTodayOnly() { if(confirm("ต้องการล้างตัวเลขที่กำลังพิมพ์อยู่ฝั่งขวาใช่ไหม?")) clearTodayFields(); }
 
         async function saveStock() {
             const staff = document.getElementById('staffName').value.trim();
-            if(!staff) { alert("⛔ ใส่ชื่อพนักงาน"); return; }
+            if(!staff) { alert("⛔ กรุณาใส่ชื่อพนักงานผู้ตรวจด้วยครับ"); return; }
+            
             const btn = document.getElementById('btnSave');
-            btn.innerText = "⏳ บันทึก..."; btn.disabled = true;
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> กำลังบันทึก..."; btn.disabled = true;
+            
             let items = {};
             currentItems.forEach(p => {
                 const s1 = document.getElementById(`new_s1_${p.k}`).value;
                 const st = document.getElementById(`new_st_${p.k}`).value;
                 const pos = document.getElementById(`new_pos_${p.k}`).value;
-                if(s1||st||pos) items[p.k] = { s1:s1, st:st, pos:pos };
+                if(s1 || st || pos) items[p.k] = { s1:s1, st:st, pos:pos };
             });
+
+            const payload = {
+                mode: "save_stock", type: "PAPER",
+                date: document.getElementById('checkDate').value,
+                staff: staff,
+                items: items
+            };
+
             try {
-                await fetch(CLOUD_URL, { method:'POST', mode:'no-cors', body: JSON.stringify({ mode:"save_stock", type:"PAPER", date:document.getElementById('checkDate').value, staff:staff, items:items }) });
-                alert("✅ บันทึกสำเร็จ!"); loadDayData();
-            } catch(e) { alert("❌ Error"); }
-            btn.innerText="บันทึกข้อมูล"; btn.disabled=false;
+                await fetch(CLOUD_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) });
+                alert("✅ บันทึกยอดกระดาษลง Cloud สำเร็จแล้ว!"); 
+                loadDayData();
+            } catch(e) { 
+                alert("❌ เกิดข้อผิดพลาดในการบันทึก"); 
+            }
+            btn.innerHTML = '<i class="fas fa-save"></i> บันทึกเข้าระบบ (คลาวด์)'; btn.disabled = false;
+        }
+
+        // โหมดพิมพ์สรุปที่มีตัวเลข (หน้า A5)
+        function printReport() {
+            document.body.classList.remove('print-handwrite');
+            window.print();
+        }
+
+        // โหมดพิมพ์กระดาษเปล่าเดินจด (หน้า A4 เต็มแผ่น)
+        function printHandwrite() {
+            document.body.classList.add('print-handwrite');
+            window.print();
+            // คืนค่ากลับเป็นปกติหลังจากหน้าต่าง Print ปิดลง
+            setTimeout(() => document.body.classList.remove('print-handwrite'), 1000);
         }
 
         function saveAsImage() {
@@ -257,15 +442,17 @@
             const btn = document.querySelector('.btn-img');
             const dateVal = document.getElementById('checkDate').value;
             btn.innerHTML = '⏳ สร้างรูป...'; btn.disabled = true;
+            
             html2canvas(target, { scale: 2, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Stock_Paper_${dateVal}.png`;
+                link.download = `สต็อกกระดาษ_${dateVal}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-                btn.innerHTML = '<i class="fas fa-image"></i> บันทึกรูป'; btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-image"></i> บันทึกเป็นรูปภาพ'; btn.disabled = false;
             });
         }
 
+        // Init
         document.getElementById('checkDate').valueAsDate = new Date();
         changeMode();
     </script>
