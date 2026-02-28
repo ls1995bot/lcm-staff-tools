@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดส่งพัสดุ & ใบปะหน้า — แหลมฉบังเครื่องเขียน</title>
+    <link rel="icon" href="logo-ls.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #023f88; --bg: #f4f6f9; --flash: #ffc107; --danger: #e74c3c; --success: #27ae60; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background: var(--bg); display: flex; height: 100vh; overflow: hidden; color: #333; }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* --- Panel Left (Calculator & Form) --- */
+        #left-panel { width: 460px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10; flex-shrink: 0; }
+        .header-title { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-bottom: 5px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 13px; font-weight: bold; color: #555; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun'; font-size: 14px; box-sizing: border-box; outline: none; transition: 0.2s; }
+        .form-control:focus { border-color: var(--primary); background: #f0f7ff; }
+        textarea.form-control { resize: vertical; min-height: 70px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+
+        .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #eee; cursor: pointer; }
+        .checkbox-group input { transform: scale(1.3); cursor: pointer; }
+
+        /* Price Result Box (จุดที่พนักงานดูยอด) */
+        .result-box { background: #fffde7; border: 2px solid #ffd54f; border-radius: 8px; padding: 15px; margin-top: 5px; }
+        .result-box .title { font-size: 14px; font-weight: bold; color: #d35400; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;}
+        .price-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; color: #555; }
+        .price-total { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: bold; color: #333; border-top: 1px dashed #ffd54f; padding-top: 12px; margin-top: 8px; }
+        .price-total .big-amount { font-size: 32px; font-weight: 900; color: #d35400; background: #fff3e0; padding: 4px 15px; border-radius: 8px; border: 2px solid #ff9800; }
+        
+        .alert-zone { color: var(--danger); font-weight: bold; font-size: 12px; margin-top: 5px; display: none; background: #fdebd0; padding: 5px 10px; border-radius: 4px; animation: blink 1.5s infinite; }
+        @keyframes blink { 50% { opacity: 0.6; } }
+
+        /* Copy Sections (สำหรับส่งให้ลูกค้า) */
+        .copy-section { background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 5px; }
+        .copy-section label { font-size: 13px; font-weight: bold; color: #023f88; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .copy-section textarea { width: 100%; min-height: 70px; font-size: 13px; background: white; padding: 8px; box-sizing: border-box; border: 1px dashed #ccc; border-radius: 4px; font-family: 'Sarabun'; color: #555; }
+        .btn-copy { background: #023f88; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-copy:hover { background: #012b5e; }
+
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 15px; width: 100%; box-sizing: border-box; }
+        .btn-print { background: var(--primary); color: white; margin-top: 15px; font-size: 18px; padding: 15px; }
+        .btn-print:hover { background: #012b5e; }
+
+        /* --- Panel Right (Label Preview) --- */
+        #right-panel { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; background: #e0e0e0; }
+        
+        .label-paper { background: white; box-shadow: 0 5px 20px rgba(0,0,0,0.15); padding: 10mm; box-sizing: border-box; position: relative; display: flex; flex-direction: column; transition: 0.3s; border: 1px solid #ccc; }
+        
+        /* A5 แนวนอน (ครึ่ง A4) */
+        .label-paper.size-a5 { width: 210mm; min-height: 140mm; }
+        /* A4 เต็มหน้า (สำหรับกล่องใหญ่) */
+        .label-paper.size-a4 { width: 210mm; min-height: 285mm; }
+
+        /* ผู้ส่ง */
+        .lb-header { display: flex; align-items: flex-start; gap: 15px; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 1px solid #000; }
+        .lb-logo { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
+        .lb-sender h2 { margin: 0; font-size: 15px; font-weight: 800; }
+        .lb-sender p { margin: 2px 0 0 0; font-size: 12px; line-height: 1.4; color: #333; }
+
+        /* ผู้รับ (ดันไปตรงกลางค่อนขวาแบบจดหมาย) */
+        .lb-receiver-block { padding-left: 15%; flex-grow: 1; margin-top: 5px; }
+        .lb-receiver-title { font-size: 14px; font-weight: bold; background: #000; color: white; display: inline-block; padding: 4px 12px; border-radius: 4px; margin-bottom: 12px; }
+        .lb-name { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        .lb-phone { font-size: 18px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .lb-address { font-size: 16px; line-height: 1.6; min-height: 60px; margin-bottom: 8px; }
+        
+        /* รหัสไปรษณีย์ธรรมชาติ ไม่มีกรอบ */
+        .lb-zipcode { font-size: 28px; font-weight: 800; letter-spacing: 3px; display: block; margin-top: 5px; }
+
+        /* Footer (Memo + Icons) */
+        .lb-footer { margin-top: auto; border-top: 2px dashed #000; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        
+        .lb-memo { width: 35%; border: 1px solid #ccc; border-radius: 6px; padding: 8px; min-height: 50px; font-size: 12px; background: transparent; }
+        .lb-memo span { font-size: 11px; font-weight: bold; color: #666; display: block; margin-bottom: 2px; }
+        
+        .lb-icons { display: flex; gap: 15px; flex-grow: 1; justify-content: flex-end; }
+        .icon-box { border: 2px solid #000; color: #000; border-radius: 8px; width: 75px; height: 75px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; text-align: center; line-height: 1.2; }
+        .icon-box.wide { width: 130px; font-size: 12px; }
+        .icon-box i { font-size: 28px; margin-bottom: 5px; }
+
+        /* --- Print Settings --- */
+        @media print {
+            @page { size: A4 portrait; margin: 5mm; }
+            body { background: white; overflow: visible; display: block; }
+            #left-panel { display: none !important; }
+            #right-panel { padding: 0; background: white; display: block; align-items: flex-start; justify-content: flex-start; }
+            .label-paper { box-shadow: none; border: 1px solid #ccc; margin: 0; }
+            * { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="left-panel" class="no-print">
+        <div class="header-title">
+            <i class="fas fa-shipping-fast"></i> ระบบคำนวณค่าส่ง & ปะหน้า
+        </div>
+
+        <div class="form-group">
+            <label>📋 1. วางข้อมูลผู้รับ (ระบบจะดึงรหัส/เบอร์ให้อัตโนมัติ)</label>
+            <textarea id="rawAddress" class="form-control" placeholder="วางชื่อ ที่อยู่ เบอร์โทร รหัสไปรษณีย์..." oninput="autoParseAddress()"></textarea>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>👤 ชื่อลูกค้า (หน้ากล่อง)</label>
+                <input type="text" id="rName" class="form-control" oninput="updateLabel()">
+            </div>
+            <div class="form-group">
+                <label>📞 เบอร์โทรศัพท์</label>
+                <input type="text" id="rPhone" class="form-control" oninput="updateLabel()">
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>📦 น้ำหนัก (KG)</label>
+                <input type="number" id="weight" class="form-control" value="1" step="0.1" oninput="calculatePrice()">
+            </div>
+            <div class="form-group">
+                <label>📍 รหัสไปรษณีย์</label>
+                <input type="text" id="zipcode" class="form-control" maxlength="5" oninput="calculatePrice(); updateLabel();">
+            </div>
+        </div>
+        <div id="zoneAlert" class="alert-zone"><i class="fas fa-exclamation-triangle"></i> พื้นที่ท่องเที่ยวพิเศษ / หมู่เกาะ (บวกเพิ่ม)</div>
+
+        <div class="form-group" style="background:#f9f9f9; padding:10px; border-radius:6px; border:1px solid #eee;">
+            <label>📏 ขนาดกล่อง ก x ย x ส (ซม.)</label>
+            <div class="grid-3" style="margin-top:5px;">
+                <input type="number" id="dimW" class="form-control" placeholder="กว้าง" oninput="checkBulkyAndLayout()">
+                <input type="number" id="dimL" class="form-control" placeholder="ยาว" oninput="checkBulkyAndLayout()">
+                <input type="number" id="dimH" class="form-control" placeholder="สูง" oninput="checkBulkyAndLayout()">
+            </div>
+            <div style="font-size:11px; color:#888; margin-top:5px;">* หากด้านใดเกิน 40 ซม. ใบปะหน้าจะขยายเป็น A4 เต็มแผ่น</div>
+        </div>
+
+        <div class="grid-2">
+            <label class="checkbox-group">
+                <input type="checkbox" id="chkBulky" onchange="calculatePrice()"> 🚛 พัสดุใหญ่
+            </label>
+            <label class="checkbox-group" style="color:var(--primary);">
+                <input type="checkbox" id="chkDfod" onchange="calculatePrice()"> 💵 เก็บปลายทาง
+            </label>
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label>📦 กล่องพัสดุ</label>
+                <select id="boxOption" class="form-control" onchange="calculatePrice()">
+                    <option value="0">รียูส / ฟรี (0฿)</option>
+                    <option value="6">กล่อง O / #B1973 (6฿)</option>
+                    <option value="7">กล่อง A / #B1974 (7฿)</option>
+                    <option value="7">กล่อง AA / #B2186 (7฿)</option>
+                    <option value="8">กล่อง B / #B1975 (8฿)</option>
+                    <option value="10">กล่อง C / #B1976 (10฿)</option>
+                    <option value="12">กล่อง D / #B1977 (12฿)</option>
+                    <option value="14">กล่อง E / #B1978 (14฿)</option>
+                    <option value="8">กล่อง ก (8฿)</option>
+                    <option value="12">กล่อง ข (12฿)</option>
+                    <option value="17">กล่อง ค (17฿)</option>
+                    <option value="20">กล่อง ง (20฿)</option>
+                    <option value="28">กล่อง จ (28฿)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>🫧 บับเบิ้ลกันกระแทก</label>
+                <select id="bubbleOption" class="form-control" onchange="calculatePrice()">
+                    <option value="0">พอดี / ฟรี (0฿)</option>
+                    <option value="24">1.3m × 90cm (24฿)</option>
+                    <option value="29">32cm × 4m (29฿)</option>
+                    <option value="29">1.3m × 1.5m (29฿)</option>
+                    <option value="35">43cm × 4m (35฿)</option>
+                    <option value="39">65cm × 5m (39฿)</option>
+                    <option value="50">65cm × 4m (50฿)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>📝 โน้ต (Note) - โชว์บนใบปะหน้า</label>
+            <input type="text" id="memoText" class="form-control" placeholder="ข้อความเล็กๆ เช่น สีไม้ 1 กล่อง..." oninput="updateLabel()">
+        </div>
+
+        <div class="result-box">
+            <div class="title"><i class="fas fa-calculator"></i> สรุปรายละเอียดค่าส่ง <span id="zoneTag" style="color:#888; font-size:11px;">[โซนข้ามภาค]</span></div>
+            <div class="price-row"><span>ค่าส่ง (Flash):</span><span id="txtBasePrice">0 ฿</span></div>
+            <div class="price-row" id="rowSurcharge" style="display:none; color:var(--danger);"><span>+ พื้นที่ห่างไกล/เกาะ:</span><span id="txtSurcharge">0 ฿</span></div>
+            <div class="price-row" id="rowDfod" style="display:none;"><span>+ ธรรมเนียมปลายทาง:</span><span>3 ฿</span></div>
+            <div class="price-row" id="rowPack" style="display:none; color:var(--primary);"><span>+ ค่ากล่อง/บับเบิ้ล:</span><span id="txtPack">0 ฿</span></div>
+            
+            <div class="price-total">
+                <span>ยอดที่ต้องเก็บลูกค้า:</span>
+                <span class="big-amount" id="txtTotal">0 ฿</span>
+            </div>
+        </div>
+
+        <div class="copy-section">
+            <label>
+                <span><i class="fas fa-clipboard-list"></i> ข้อความสรุปยอด (ส่งให้ลูกค้า)</span>
+                <button class="btn-copy" onclick="copyText('summaryPreview')">คัดลอก</button>
+            </label>
+            <textarea id="summaryPreview" readonly></textarea>
+        </div>
+
+        <div class="copy-section" style="background:#e8f5e9; border-color:#c8e6c9;">
+            <label>
+                <span style="color:var(--success);"><i class="fas fa-motorcycle"></i> ข้อความนัดรับ Messenger</span>
+                <button class="btn-copy" onclick="copyText('msgPreview')" style="background:#27ae60;">คัดลอก</button>
+            </label>
+            <textarea id="msgPreview" readonly></textarea>
+        </div>
+
+        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์ใบปะหน้า (<span id="lblSizeText">A5</span>)</button>
+        
+        <a href="index.html" class="btn btn-back" style="margin-top:10px; background:#666; color:white; padding:12px; text-align:center; border-radius:8px; text-decoration:none; font-size:14px;"><i class="fas fa-home"></i> กลับหน้าเมนูหลัก</a>
+    </div>
+
+    <div id="right-panel">
+        <div class="label-paper size-a5" id="labelPreview">
+            
+            <div class="lb-header">
+                <img src="logo-ls.jpg" class="lb-logo">
+                <div class="lb-sender">
+                    <h2>บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด</h2>
+                    <p>88/9-12 หมู่ที่ 9 ถนนสุขุมวิท ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี 20230<br>
+                    <b>โทร:</b> 038-330262, 098-679-7454 &nbsp;|&nbsp; <b>LINE:</b> @210wryqt</p>
+                </div>
+            </div>
+
+            <div class="lb-receiver-block">
+                <div class="lb-receiver-title">กรุณาส่ง (Receiver)</div>
+                <div class="lb-name" id="lbName">ชื่อ-สกุล ผู้รับ</div>
+                <div class="lb-phone"><i class="fas fa-phone-square-alt"></i> <span id="lbPhone">0XX-XXX-XXXX</span></div>
+                <div class="lb-address" id="lbAddress">รายละเอียดที่อยู่จะแสดงที่นี่...</div>
+                
+                <div class="lb-zipcode" id="lbZipcode">00000</div>
+            </div>
+
+            <div class="lb-footer">
+                <div class="lb-memo">
+                    <span>โน้ต (Note):</span>
+                    <div id="lbMemo" style="color:#000;">-</div>
+                </div>
+                <div class="lb-icons">
+                    <div class="icon-box"><i class="fas fa-wine-glass-alt"></i> ระวังแตก<br>FRAGILE</div>
+                    <div class="icon-box"><i class="fas fa-umbrella"></i> ห้ามตากฝน<br>KEEP DRY</div>
+                    <div class="icon-box wide"><i class="fas fa-video"></i> กรุณาถ่ายวิดีโอ<br>ขณะเปิดพัสดุ</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 1. ข้อมูลเรทราคา Flash Express ---
+        const RATE_PROV = [0, 22, 25, 30, 40, 50, 55, 60, 65, 70, 75, 85, 95, 105, 115, 125, 140, 155, 170, 185, 210, 225, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500, 510, 520];
+        const RATE_BKK  = [0, 25, 30, 35, 50, 60, 65, 80, 95, 110, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 375, 390, 405, 420, 435, 450, 465, 480, 495, 510, 525, 540, 555, 570, 585, 600, 615, 630, 645, 660, 675];
+        const RATE_UPC  = [0, 35, 40, 45, 50, 60, 65, 75, 85, 95, 115, 125, 135, 145, 155, 165, 175, 185, 195, 205, 215, 225, 235, 245, 255, 265, 275, 285, 295, 305, 320, 335, 350, 365, 380, 395, 410, 425, 440, 455, 470, 485, 500, 515, 530, 545, 560, 575, 590, 605, 620];
+        const RATE_BULKY = [0, 60, 60, 60, 60, 60, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500];
+
+        const ZIPS_TOURIST = ['20150','20260','21160','81000','81180','81210','82110','82130','82140','82190','82220','83000','83100','83110','83120','83130','83150'];
+        const ZIPS_ISLAND = ['20120','23000','23170','81120','81130','81150','82000','82160','84140','84220','84280','84310','84320','84330','84360','85000','91000','92110','92120'];
+
+        function autoParseAddress() {
+            const raw = document.getElementById('rawAddress').value;
+            if(!raw) return;
+
+            const zipMatch = raw.match(/(?<!\d)\d{5}(?!\d)/);
+            if(zipMatch) document.getElementById('zipcode').value = zipMatch[0];
+
+            const phoneMatch = raw.match(/(?<!\d)0\d{8,9}(?!\d)/);
+            if(phoneMatch) document.getElementById('rPhone').value = phoneMatch[0];
+
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+            if(lines.length > 0 && !document.getElementById('rName').value) {
+                if(lines[0].length < 40 && !lines[0].match(/\d{5}/)) {
+                    document.getElementById('rName').value = lines[0];
+                }
+            }
+
+            updateLabel();
+            calculatePrice();
+        }
+
+        function checkBulkyAndLayout() {
+            const w = parseFloat(document.getElementById('dimW').value) || 0;
+            const l = parseFloat(document.getElementById('dimL').value) || 0;
+            const h = parseFloat(document.getElementById('dimH').value) || 0;
+            const sum = w + l + h;
+            const maxSide = Math.max(w, l, h);
+
+            const paper = document.getElementById('labelPreview');
+            const lblText = document.getElementById('lblSizeText');
+            
+            if (maxSide > 40) {
+                paper.className = "label-paper size-a4";
+                lblText.innerText = "A4 เต็มหน้า";
+            } else {
+                paper.className = "label-paper size-a5";
+                lblText.innerText = "A5 แนวนอน";
+            }
+
+            if (sum >= 80) document.getElementById('chkBulky').checked = true;
+            else if (sum > 0 && sum < 80 && maxSide <= 40) document.getElementById('chkBulky').checked = false;
+
+            calculatePrice();
+        }
+
+        function calculatePrice() {
+            const zip = document.getElementById('zipcode').value;
+            const weightRaw = parseFloat(document.getElementById('weight').value) || 0;
+            const weight = Math.ceil(weightRaw); 
+            const isBulky = document.getElementById('chkBulky').checked;
+            const isDfod = document.getElementById('chkDfod').checked;
+            const boxFee = parseInt(document.getElementById('boxOption').value);
+            const bubbleFee = parseInt(document.getElementById('bubbleOption').value);
+
+            let summaryText = "";
+
+            if(weight <= 0 || weight > 50) {
+                document.getElementById('summaryPreview').value = "กรุณาระบุน้ำหนักให้ถูกต้อง (1-50 kg)";
+                document.getElementById('txtTotal').innerText = "- ฿";
+                return;
+            }
+
+            let zoneArray = RATE_UPC;
+            let zoneName = "ข้ามภาค (UPC)";
+            if (zip.startsWith('20')) { zoneArray = RATE_PROV; zoneName = "ในชลบุรี"; } 
+            else if (['10','11','12','73','74'].some(prefix => zip.startsWith(prefix))) { zoneArray = RATE_BKK; zoneName = "กทม./ปริมณฑล"; }
+
+            let basePrice = isBulky ? RATE_BULKY[weight] : zoneArray[weight];
+            summaryText += `- ค่าส่งตามน้ำหนัก (${weight}kg / ${zoneName}${isBulky?' / กล่องใหญ่':''}): ${basePrice} บาท\n`;
+
+            let surcharge = 0;
+            const alertBox = document.getElementById('zoneAlert');
+            if (ZIPS_TOURIST.includes(zip) || ZIPS_ISLAND.includes(zip)) {
+                alertBox.style.display = 'block';
+                if (weightRaw <= 7) surcharge += 30;
+                else if (weightRaw <= 20) surcharge += 100;
+                else surcharge += 200;
+
+                if (ZIPS_ISLAND.includes(zip)) surcharge += 30;
+                summaryText += `- พื้นที่ท่องเที่ยว/หมู่เกาะ: ${surcharge} บาท\n`;
+            } else {
+                alertBox.style.display = 'none';
+            }
+
+            let dfodFee = isDfod ? 3 : 0;
+            if(dfodFee > 0) summaryText += `- ธรรมเนียมเก็บปลายทาง (DFOD): ${dfodFee} บาท\n`;
+
+            if(boxFee > 0) summaryText += `- ค่ากล่องพัสดุใหม่: ${boxFee} บาท\n`;
+            if(bubbleFee > 0) summaryText += `- ค่าบับเบิ้ลกันกระแทกพิเศษ: ${bubbleFee} บาท\n`;
+
+            const total = basePrice + surcharge + boxFee + bubbleFee + dfodFee;
+            
+            summaryText += `---------------------------\n`;
+            summaryText += `✅ ยอดรวมที่ต้องชำระ: ${total} บาท`;
+
+            // Update UI
+            document.getElementById('zoneTag').innerText = `[${zoneName}]`;
+            document.getElementById('txtBasePrice').innerText = `${basePrice} ฿`;
+            
+            if(surcharge > 0) {
+                document.getElementById('rowSurcharge').style.display = 'flex';
+                document.getElementById('txtSurcharge').innerText = `${surcharge} ฿`;
+            } else {
+                document.getElementById('rowSurcharge').style.display = 'none';
+            }
+
+            document.getElementById('rowDfod').style.display = isDfod ? 'flex' : 'none';
+
+            if(boxFee > 0 || bubbleFee > 0) {
+                document.getElementById('rowPack').style.display = 'flex';
+                document.getElementById('txtPack').innerText = `${boxFee + bubbleFee} ฿`;
+            } else {
+                document.getElementById('rowPack').style.display = 'none';
+            }
+
+            // Big Total Update
+            document.getElementById('txtTotal').innerText = `${total} ฿`;
+
+            // Update Textareas
+            document.getElementById('summaryPreview').value = "สรุปค่าจัดส่งพัสดุ (Flash)\n" + summaryText;
+
+            const cName = document.getElementById('rName').value || "ลูกค้า";
+            document.getElementById('msgPreview').value = `คุณลูกค้าสามารถเรียก Messenger (Grab/Lineman/Lalamove) มารับสินค้าได้ที่ร้านเลยนะคะ\n\n📌 แผนที่ร้าน: https://maps.app.goo.gl/Z2rQ4TionR7GXVXi9 \nเบอร์โทรติดต่อหน้าร้าน: 098-679-7454\n\nรบกวนแจ้งคนขับว่ามารับของชื่อคุณ "${cName}" ค่ะ`;
+        }
+
+        function updateLabel() {
+            document.getElementById('lbName').innerText = document.getElementById('rName').value || 'ชื่อ-สกุล ผู้รับ';
+            document.getElementById('lbPhone').innerText = document.getElementById('rPhone').value || '0XX-XXX-XXXX';
+            
+            const rawAddr = document.getElementById('rawAddress').value.trim();
+            document.getElementById('lbAddress').innerText = rawAddr || 'รายละเอียดที่อยู่จะแสดงที่นี่...';
+            document.getElementById('lbZipcode').innerText = document.getElementById('zipcode').value || '00000';
+            
+            const memo = document.getElementById('memoText').value;
+            document.getElementById('lbMemo').innerText = memo || '-';
+        }
+
+        function copyText(elementId) {
+            const copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            document.execCommand("copy");
+            
+            const btn = copyText.previousElementSibling.querySelector('button');
+            const oldText = btn.innerText;
+            btn.innerText = "ก๊อปปี้แล้ว!";
+            btn.style.background = "#28a745";
+            setTimeout(() => { btn.innerText = oldText; btn.style.background = ""; }, 2000);
+        }
+
+        calculatePrice();
+    </script>
+</body>
+</html>
