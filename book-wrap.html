@@ -3,146 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <title>ใบฝากห่อปก - แหลมฉบังเครื่องเขียน</title>
+    <link rel="icon" href="logo-ls.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @page { size: A4; margin: 0; }
-        body { margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; background-color: #f0f0f0; }
+        :root { --primary: #023f88; }
+        body { margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; background-color: #e0e0e0; display: flex; height: 100vh; overflow: hidden; }
         
-        .no-print {
-            position: fixed; top: 10px; right: 10px;
-            background: white; padding: 10px; border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000;
-            display: flex; gap: 10px;
+        /* --- Sidebar (คู่มือ) --- */
+        #sidebar {
+            width: 320px; background: white; border-right: 1px solid #ccc;
+            display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 10; overflow-y: auto; flex-shrink: 0;
         }
+        .sidebar-header {
+            padding: 15px; background: var(--primary); color: white;
+            position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 10px;
+        }
+        .sidebar-header img { width: 35px; border-radius: 50%; }
+        .sidebar-header h3 { margin: 0; font-size: 16px; }
+        
+        .guide-content { padding: 10px; font-size: 13px; }
+        .guide-box { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
+        .guide-title { background: #f8f9fa; padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #ddd; color: #333; display: flex; justify-content: space-between; align-items: center; }
+        .guide-body { padding: 6px 10px; line-height: 1.4; color: #555; }
+        .guide-body ul { margin: 0; padding-left: 20px; }
+        
+        .tag-pkg { font-size: 10px; padding: 1px 4px; border-radius: 4px; font-weight: bold; border: 1px solid #ccc; white-space: nowrap; }
+        .tag-yellow { background: #fff9c4; color: #f57f17; border-color: #fbc02d; }
+        .tag-white { background: #ffffff; color: #555; border-color: #ddd; }
+
+        .action-btns { padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-top: auto; border-top: 1px solid #eee; background: white; position: sticky; bottom: 0; }
         .btn {
-            padding: 8px 15px; border: none; border-radius: 4px;
-            font-family: 'Sarabun'; cursor: pointer; font-weight: bold;
-            background: #023f88; color: white; text-decoration: none;
-            display: inline-block; text-align: center;
+            padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
+            font-family: 'Sarabun'; display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 14px; text-decoration: none; color: white; transition: 0.2s;
         }
+        .btn-print { background: #28a745; font-size: 15px; }
         .btn-back { background: #6c757d; }
+
+        /* --- Preview Area (A4) --- */
+        #preview-area {
+            flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start;
+        }
 
         .page {
             width: 210mm; height: 297mm;
             display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
-            background: white; box-sizing: border-box;
+            background: white; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
 
         .slip {
             border: 0.2mm dashed #999; 
-            padding: 1mm 5mm 2mm 5mm; 
+            padding: 2mm 5mm 2mm 5mm; 
             position: relative; display: flex; flex-direction: column;
             overflow: hidden; box-sizing: border-box;
         }
 
-        /* ลายน้ำโลโก้ร้านแหลมฉบังเครื่องเขียน (1995) */
+        /* ลายน้ำ */
         .slip::before {
             content: ""; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 50%; height: 50%;
-            background-image: url('https://scontent.fbkk23-1.fna.fbcdn.net/v/t39.30808-6/399372036_832159718919139_8749082424611953645_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=wkqbeMF6zwYQ7kNvwFzXRpC&_nc_oc=AdkNXMPwJ1wAwl6iJpPeiUe3ihUudcVj8rvpcqydaLZXehtnLxRdtcAMYNizpsoLHO4&_nc_zt=23&_nc_ht=scontent.fbkk23-1.fna&_nc_gid=D1tCwwlShPY-s44jiMPj1Q&oh=00_AfqilXQm4-BYS2_aXEDkafFYeZZT0My-Fci1xWyjF8nPBA&oe=6975988F');
+            transform: translate(-50%, -50%); width: 45%; height: 45%;
+            background-image: url('logo-ls.jpg');
             background-repeat: no-repeat; background-position: center;
             background-size: contain; opacity: 0.05; z-index: 0;
         }
 
-        .slip-content { position: relative; z-index: 1; }
-
-        h2 { 
-            text-align: center; 
-            margin: 0 0 1px 0; 
-            font-size: 13pt; 
-            border-bottom: 1.2px solid #000; padding-bottom: 1px;
-        }
-
-        .info-row { display: flex; margin-bottom: 2px; gap: 4px; align-items: flex-end; }
-        .label { font-weight: 700; font-size: 10pt; white-space: nowrap; }
-        .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; height: 22px; }
-
-        /* ตารางติดบาร์โค้ด */
-        .barcode-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(3, 1fr); gap: 4px;
-            margin-top: 4px;
-        }
-
-        .barcode-slot {
-            border: 0.4px solid #000; padding: 1px 4px;
-            display: flex; flex-direction: column;
-            height: 35mm; /* รักษาพื้นที่ 3.5 x 2.5 ซม. */
-            background: rgba(255,255,255,0.4);
-        }
-
-        .slot-header { font-size: 8pt; font-weight: bold; color: #555; }
+        .slip-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
         
-        .barcode-spacer {
-            flex-grow: 1; 
-            width: 100%;
-        }
+        h2 { text-align: center; margin: 0 0 2px 0; font-size: 12pt; border-bottom: 1px solid #000; padding-bottom: 1px; }
 
+        /* บีบความสูงส่วนหัวให้ใช้พื้นที่น้อยที่สุด */
+        .info-row { display: flex; margin-bottom: 0px; gap: 4px; align-items: flex-end; }
+        .label { font-weight: 700; font-size: 9pt; white-space: nowrap; }
+        .fill-line { border-bottom: 1px dotted #000; flex-grow: 1; height: 16px; }
+
+        /* ตารางติดบาร์โค้ด (ขยายพื้นที่ให้มากที่สุด ลบช่องว่าง) */
+        .barcode-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); 
+            gap: 2px; margin-top: 4px; flex-grow: 1; 
+        }
+        .barcode-slot { 
+            border: 0.5px solid #000; padding: 2px 4px; 
+            display: flex; flex-direction: column; 
+            background: rgba(255,255,255,0.6);
+        }
+        .slot-header { font-size: 8pt; font-weight: bold; color: #333; }
+        .barcode-spacer { flex-grow: 1; width: 100%; }
         .qty-line { text-align: right; font-size: 9pt; font-weight: bold; padding-top: 1px; }
         .qty-fill { display: inline-block; border-bottom: 1px solid #000; width: 28px; text-align: center; }
 
+        /* --- 🖨️ PRINT SETTINGS --- */
         @media print {
-            body { background: white; }
-            .no-print { display: none; }
-            .page { box-shadow: none; margin: 0; }
+            @page { size: A4 portrait; margin: 0; }
+            body { display: block; background: white; overflow: visible; height: auto; }
+            #sidebar { display: none !important; }
+            #preview-area { padding: 0; display: block; align-items: flex-start; justify-content: flex-start; }
+            .page { box-shadow: none; border: none; margin: 0; }
             * { -webkit-print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
-<div class="no-print">
-    <a href="index.html" class="btn btn-back">⬅️ กลับหน้าหลัก</a>
-    <button class="btn" onclick="window.print()">🖨️ พิมพ์ใบฝากห่อปก</button>
-</div>
+    <div id="sidebar" class="no-print">
+        <div class="sidebar-header">
+            <img src="logo-ls.jpg">
+            <h3>คู่มือไซส์ปกพลาสติก</h3>
+        </div>
+        
+        <div class="guide-content">
+            
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 9 3/4" (9 นิ้ว 6 หุน)</span>
+                    <span class="tag-pkg tag-yellow">ป้ายเหลือง</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>สมุด ร.ร. บุญจิต / ศรีสุวิช / ธนาพร</li></ul>
+                </div>
+            </div>
 
-<div class="page">
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 10 1/2" (10 นิ้ว 4 หุน)</span>
+                    <span class="tag-pkg tag-yellow">ป้ายเหลือง</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>หนังสือขนาด 10.5 นิ้ว ทั่วไป</li></ul>
+                </div>
+            </div>
+
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 10 2/8" × 18" <small>(ไม่รวมขอบ)</small></span>
+                    <span class="tag-pkg tag-yellow">ป้ายเหลือง</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>หนังสือเรียน <b>ภาษาไทย</b></li></ul>
+                </div>
+            </div>
+
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 11 1/8"</span>
+                    <span class="tag-pkg tag-white">ป้ายขาว</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>หนังสือ <b>Macmillan</b></li></ul>
+                </div>
+            </div>
+
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 11 2/8" × 20"</span>
+                    <span class="tag-pkg tag-yellow">ป้ายเหลือง</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>หนังสือ <b>ภาษาจีน (นานมี)</b></li></ul>
+                </div>
+            </div>
+
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 11 1/2"</span>
+                    <span class="tag-pkg tag-white">ป้ายขาว</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>หนังสือ <b>เพื่อนภาษาจีน</b><br><small style="color:#888;">(ใส่ไซส์ 11 2/8" ได้พอดี)</small></li></ul>
+                </div>
+            </div>
+
+            <div class="guide-box">
+                <div class="guide-title">
+                    <span>📏 11 7/8"</span>
+                    <span class="tag-pkg tag-white">ป้ายขาว</span>
+                </div>
+                <div class="guide-body">
+                    <ul><li>หนังสือเรียน <b>คณิต / วิทย์ (สสวท.)</b></li></ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="action-btns">
+            <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์ใบฝากห่อปก (A4)</button>
+            <a href="index.html" class="btn btn-back"><i class="fas fa-home"></i> กลับหน้าหลัก</a>
+        </div>
+    </div>
+
+    <div id="preview-area">
+        <div class="page" id="page-content">
+            </div>
+    </div>
+
     <script>
         const slipTemplate = `
-            <div class=\"slip\">
-                <div class=\"slip-content\">
+            <div class="slip">
+                <div class="slip-content">
                     <h2>ห่อปกพลาสติก</h2>
                     
-                    <div class=\"info-row\">
-                        <span class=\"label\">ชื่อผู้ฝาก:</span>
-                        <div class=\"fill-line\"></div>
-                        <span class=\"label\">วันที่:</span>
-                        <div class=\"fill-line\" style=\"flex-grow: 0; width: 85px;\"></div>
+                    <div class="info-row">
+                        <span class="label">ชื่อผู้ฝาก:</span><div class="fill-line"></div>
+                        <span class="label">วันที่:</span><div class="fill-line" style="flex-grow: 0; width: 75px;"></div>
                     </div>
 
-                    <div class=\"info-row\">
-                        <span class=\"label\">ชื่อโรงเรียน:</span>
-                        <div class=\"fill-line\"></div>
+                    <div class="info-row">
+                        <span class="label">ชื่อโรงเรียน:</span><div class="fill-line"></div>
                     </div>
 
-                    <div class=\"info-row\">
-                        <span class=\"label\">เบอร์โทร:</span>
-                        <div class=\"fill-line\" style=\"width: 125px;\"></div>
-                        <span class=\"label\">รวม:</span>
-                        <div class=\"fill-line\" style=\"flex-grow: 0; width: 55px;\"></div>
-                        <span class=\"label\">เล่ม</span>
+                    <div class="info-row">
+                        <span class="label">เบอร์โทร:</span><div class="fill-line" style="width: 120px;"></div>
+                        <span class="label">รวม:</span><div class="fill-line" style="flex-grow: 0; width: 45px;"></div>
+                        <span class="label">เล่ม</span>
                     </div>
 
-                    <div class=\"barcode-grid\">
+                    <div class="barcode-grid">
                         ${[1, 2, 3, 4, 5, 6].map(num => `
-                            <div class=\"barcode-slot\">
-                                <div class=\"slot-header\">ลำดับที่ ${num}</div>
-                                <div class=\"barcode-spacer\"></div>
-                                <div class=\"qty-line\">
-                                    จำนวน <div class=\"qty-fill\">&nbsp;</div> อัน
-                                </div>
+                            <div class="barcode-slot">
+                                <div class="slot-header">ลำดับที่ ${num}</div>
+                                <div class="barcode-spacer"></div>
+                                <div class="qty-line">จำนวน <div class="qty-fill">&nbsp;</div> อัน</div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
             </div>
         `;
-
+        
+        let fullPageHtml = "";
         for (let i = 0; i < 4; i++) {
-            document.write(slipTemplate);
+            fullPageHtml += slipTemplate;
         }
+        document.getElementById('page-content').innerHTML = fullPageHtml;
     </script>
-</div>
-
 </body>
 </html>
