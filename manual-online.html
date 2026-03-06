@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>คู่มือลงสินค้า Step-by-Step — แหลมฉบังเครื่องเขียน (1995)</title>
+    <link rel="icon" href="logo-ls.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --apple-gray: #f5f5f7; --apple-text: #1d1d1f; --apple-sub: #86868b;
+            --shopee: #ee4d2d; --grab: #00b14f; --ls-blue: #0071e3;
+        }
+
+        body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background-color: var(--apple-gray); color: var(--apple-text); line-height: 1.6; }
+
+        /* Nav & Header */
+        nav { position: sticky; top: 0; z-index: 9999; background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(20px); height: 44px; display: flex; align-items: center; }
+        .nav-content { width: 100%; max-width: 1024px; margin: 0 auto; padding: 0 22px; color: #f5f5f7; font-size: 13px; font-weight: 300; display: flex; justify-content: space-between; }
+        .dashboard-header { padding: 30px 20px 20px; max-width: 1024px; margin: 0 auto; display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: #ffffff; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--apple-text); text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 18px; }
+
+        .container { max-width: 1024px; margin: 0 auto; padding: 0 20px 80px; }
+        
+        /* Tabs */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 15px; border: none; border-radius: 15px; font-family: 'Sarabun'; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; background: #ddd; color: #666; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tab-btn.active-shopee { background: var(--shopee); color: white; }
+        .tab-btn.active-grab { background: var(--grab); color: white; }
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+
+        /* Main Link Button */
+        .main-link-container { display: flex; justify-content: center; margin-bottom: 20px; }
+        .main-link-btn {
+            background: #fff; border: 2px solid #f0f0f0; padding: 15px 30px; border-radius: 12px; text-decoration: none; 
+            color: #333; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 10px; 
+            transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%; max-width: 350px; justify-content: center;
+        }
+        .main-link-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+        .main-link-btn.shopee:hover { border-color: var(--shopee); color: var(--shopee); }
+        .main-link-btn.grab:hover { border-color: var(--grab); color: var(--grab); }
+
+        /* Step Card */
+        .step-card { background: #ffffff; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-left: 5px solid #ccc; }
+        .border-shopee { border-left-color: var(--shopee); }
+        .border-grab { border-left-color: var(--grab); }
+
+        .step-title { font-size: 18px; font-weight: 700; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px; }
+        .step-num { background: #333; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+
+        /* Action UI */
+        .ui-box { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .ui-label { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .ui-textarea { width: 100%; box-sizing: border-box; resize: vertical; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Sarabun', sans-serif; font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 10px; background: #fff; outline: none; }
+        .ui-textarea:focus { border-color: var(--ls-blue); }
+        
+        .copy-btn { background: #fff; border: 1px solid var(--ls-blue); color: var(--ls-blue); padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; text-align: center; display: inline-block; }
+        .copy-btn:hover { background: var(--ls-blue); color: white; }
+        .copy-btn-small { background: #fff; border: 1px solid #ccc; color: #333; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .copy-btn-small:hover { background: #eee; }
+
+        /* Highlight & Lists */
+        .highlight-text { color: var(--shopee); font-weight: 600; }
+        .alert-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 12px 15px; border-radius: 4px; font-size: 14px; margin-bottom: 15px; }
+        .alert-box-grab { background: #e8f5e9; border-left: 4px solid var(--grab); padding: 12px 15px; border-radius: 4px; font-size: 14px; margin-bottom: 15px; }
+        
+        ul.custom-list { list-style: none; padding: 0; margin: 0 0 15px 0; }
+        ul.custom-list li { position: relative; padding-left: 20px; margin-bottom: 8px; font-size: 14.5px; }
+        ul.custom-list li::before { content: '•'; position: absolute; left: 0; font-weight: bold; font-size: 18px; line-height: 1; top: 2px; }
+        .shopee-list li::before { color: var(--shopee); }
+        .grab-list li::before { color: var(--grab); }
+
+        /* Password Mask Box */
+        .login-box { display: flex; flex-direction: column; gap: 10px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
+        .login-row { display: flex; justify-content: space-between; align-items: center; font-family: monospace; font-size: 15px; padding: 8px 12px; background: #f5f5f7; border-radius: 6px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-content">
+            <span>แหลมฉบังเครื่องเขียน (1995)</span>
+            <span style="font-weight: 600;">System Portal</span>
+        </div>
+    </nav>
+
+    <div class="dashboard-header">
+        <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+        <div>
+            <h1 style="font-size: 22px; margin:0;">คู่มือสอนลงสินค้า (จับมือทำ)</h1>
+            <p style="margin:0; font-size:14px; color:#666;">ก๊อบปี้ข้อความไปวางในช่องตามรูปได้เลย</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tab-container">
+            <button class="tab-btn active-shopee" id="btn-shopee" onclick="switchTab('shopee')"><i class="fas fa-shopping-bag"></i> ลง Shopee</button>
+            <button class="tab-btn" id="btn-grab" onclick="switchTab('grab')"><i class="fas fa-motorcycle"></i> ลง GrabMart</button>
+        </div>
+
+        <div id="tab-shopee" class="tab-content active">
+            
+            <div class="main-link-container">
+                <a href="https://seller.shopee.co.th/" target="_blank" class="main-link-btn shopee">
+                    <i class="fas fa-external-link-alt" style="color: var(--shopee);"></i> ไปที่หน้าหลัก Shopee Seller
+                </a>
+            </div>
+
+            <div class="alert-box">
+                <i class="fas fa-info-circle"></i> <strong>ขั้นตอนเบื้องต้น:</strong> ไปที่หน้า Seller Centre > เลือก <strong>เพิ่มสินค้าใหม่</strong> ระบบอาจใช้เวลาตรวจสอบประมาณ 24 ชม. ก่อนสินค้าจะแสดงบนร้าน
+            </div>
+
+            <div class="step-card border-shopee">
+                <h3 class="step-title"><span class="step-num">1</span> ข้อมูลทั่วไป (รูปภาพ & ชื่อ)</h3>
+                <ul class="custom-list shopee-list">
+                    <li><strong>รูปโปรโมต:</strong> เตรียมภาพ <strong>อย่างน้อย 4 รูป</strong> (ชัดเจน, แสงพอเหมาะ, หลายมุมมอง)</li>
+                    <li><strong>หมวดหมู่:</strong> พิมพ์ชื่อสินค้า ระบบจะแนะนำหมวดหมู่ให้อัตโนมัติ</li>
+                </ul>
+                <div class="ui-box">
+                    <div class="ui-label"><i class="fas fa-edit"></i> ช่องใส่ชื่อสินค้า:</div>
+                    <textarea id="sp-name" class="ui-textarea" rows="2" spellcheck="false">[LS1995] [ยี่ห้อ] [ประเภทสินค้า] [รุ่น/ขนาด/สี] ([หน่วยขาย])</textarea>
+                    <button class="copy-btn" onclick="copyText('sp-name', this)"><i class="far fa-copy"></i> คัดลอกชื่อไปวาง</button>
+                    <div style="font-size: 12px; color: #888; margin-top: 8px;">📌 ตัวอย่าง: [LS1995] Drift TRIO มุก ปากกาลูกลื่นกด 0.5 น้ำเงิน ตราช้าง คละสี 1 ด้าม</div>
+                </div>
+            </div>
+
+            <div class="step-card border-shopee">
+                <h3 class="step-title"><span class="step-num">2</span> คุณลักษณะของสินค้า</h3>
+                <ul class="custom-list shopee-list">
+                    <li><strong>แบรนด์:</strong> ค้นหาและเลือกยี่ห้อ (เช่น Quantum, 3M)</li>
+                    <li><strong>สภาพ:</strong> เลือก <span class="highlight-text">ใหม่</span> เสมอ</li>
+                    <li>ใส่ข้อมูลช่องที่มีดอกจันสีแดง (*) ให้ครบถ้วน</li>
+                </ul>
+            </div>
+
+            <div class="step-card border-shopee">
+                <h3 class="step-title"><span class="step-num">3</span> รายละเอียดสินค้า</h3>
+                <div class="ui-box">
+                    <div class="ui-label"><i class="fas fa-align-left"></i> ช่องรายละเอียด:</div>
+                    <textarea id="sp-desc" class="ui-textarea" rows="18" spellcheck="false">📕 [พิมพ์ชื่อสินค้าซ้ำอีกรอบ]
+
+• [ใส่คุณสมบัติเด่นข้อ 1 เช่น หมึกน้ำเงิน ด้ามคละสี ใช้งานได้หลากหลาย]
+• [ใส่คุณสมบัติเด่นข้อ 2 เช่น น้ำหมึก Geluloid เขียนลื่น สีสดติดทน]
+
+- - - - -
+
+✅ เวลาทำการ: บริษัท แหลมฉบังเครื่องเขียน (1995) จำกัด เปิดให้บริการ จันทร์ - เสาร์ เวลา 8:00 - 17:00 น. สามารถทักแชทสอบถามข้อมูลสินค้าได้เลยค่ะ 💬
+📦 การจัดส่ง: จัดส่งสินค้าทุกวันจันทร์ - เสาร์ (ยกเว้นวันอาทิตย์และวันหยุดนักขัตฤกษ์) เพื่อความถูกต้อง กรุณาตรวจสอบ ชื่อ-ที่อยู่ และ เบอร์โทรศัพท์ ให้ครบถ้วนก่อนกดยืนยันคำสั่งซื้อ
+🎥 หลักฐานการเคลม: รบกวน ถ่ายวิดีโอตั้งแต่ขั้นตอนการเปิดกล่องพัสดุ เพื่อใช้เป็นหลักฐานในการเคลมสินค้าทุกกรณี หากไม่มีวิดีโอ ทางร้านขอสงวนสิทธิ์ในการไม่รับเคลมสินค้า
+🔄 การเปลี่ยน/คืนสินค้า: หากสินค้ามีปัญหาหรือไม่ตรงตามที่สั่งซื้อ สามารถแจ้งแอดมินทางแชทได้ทันทีภายใน 3 วันหลังได้รับสินค้า
+💰 ราคา: ราคาสินค้าอาจแตกต่างกับราคาหน้าร้าน เนื่องจากทางแพลตฟอร์มมีค่าธรรมเนียมเพิ่มเติม ขออภัยในความไม่สะดวก
+🧡 โปรโมชั่น: อย่าลืม กดติดตามร้านค้า เพื่อไม่พลาดโปรโมชั่นและส่วนลดดี ๆ จากร้านเราด้วยนะคะ</textarea>
+                    <button class="copy-btn" onclick="copyText('sp-desc', this)"><i class="far fa-copy"></i> คัดลอกรายละเอียดไปวาง</button>
+                </div>
+            </div>
+
+            <div class="step-card border-shopee">
+                <h3 class="step-title"><span class="step-num">4</span> ข้อมูลการขาย & การจัดส่ง (ห้ามพลาด!)</h3>
+                <div class="ui-box" style="background: #fff5f5; border-color: #ffcccc;">
+                    <ul class="custom-list shopee-list">
+                        <li><strong>สินค้าหลายสี แต่บาร์โค้ดเดียวกัน:</strong> ให้ลงขายแบบ "คละสี/คละลาย"</li>
+                        <li><strong>ราคา:</strong> ใช้ราคาที่คำนวณจากหน้าเว็บระบบของร้าน</li>
+                        <li><strong>จำนวนซื้อขั้นต่ำ:</strong> ของชิ้นเล็กราคาถูก (เช่น ปากกา) ให้ตั้งขั้นต่ำ <strong>6 ชิ้น</strong></li>
+                        <li><strong>น้ำหนัก (kg):</strong> <span style="color:red; font-weight:bold;">ชั่งตอนรวมกล่องและบับเบิ้ลแล้วเท่านั้น!</span></li>
+                        <li><strong>ค่าจัดส่ง:</strong> เลือก <em>Standard Delivery - ส่งธรรมดาในประเทศ</em></li>
+                        <li><strong>อื่น ๆ (Parent SKU):</strong> ใส่รหัสสินค้าเดิม/บาร์โค้ด เพื่อง่ายต่อการค้นหา</li>
+                    </ul>
+                </div>
+                <p>เสร็จแล้วกดปุ่ม <strong>"บันทึกและเผยแพร่"</strong> ได้เลย!</p>
+            </div>
+        </div>
+
+        <div id="tab-grab" class="tab-content">
+            
+            <div class="main-link-container">
+                <a href="https://merchant.grab.com/portal" target="_blank" class="main-link-btn grab">
+                    <i class="fas fa-external-link-alt" style="color: var(--grab);"></i> ไปที่หน้าหลัก GrabMerchant
+                </a>
+            </div>
+
+            <div class="alert-box-grab">
+                <i class="fas fa-info-circle"></i> <strong>ระบบ Grab:</strong> หากยังไม่เคยเข้าระบบ ให้ล็อกอินด้วย "ชื่อผู้ใช้งาน" ด้านล่างนี้ก่อน
+            </div>
+
+            <div class="step-card border-grab">
+                <h3 class="step-title"><span class="step-num">1</span> ข้อมูลเข้าระบบ (Login)</h3>
+                <div class="login-box">
+                    <div class="login-row">
+                        <span><strong>ID:</strong> ls1995_mng</span>
+                        <button class="copy-btn-small" onclick="copyCustomText('ls1995_mng', this)"><i class="far fa-copy"></i> ก๊อบปี้ ID</button>
+                    </div>
+                    <div class="login-row">
+                        <span><strong>รหัสผ่าน:</strong> ••••••••</span>
+                        <button class="copy-btn-small" data-pass="Grab1234" onclick="copyCustomText(this.getAttribute('data-pass'), this)"><i class="far fa-copy"></i> ก๊อบปี้รหัสผ่าน</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card border-grab">
+                <h3 class="step-title"><span class="step-num">2</span> เพิ่มรายการสินค้า (เมนู)</h3>
+                <p>ไปที่เมนู <strong>"จัดการเมนู"</strong> (Menu) > กด <strong>"เพิ่ม"</strong> รายการใหม่ แล้วกรอกข้อมูลตามนี้:</p>
+                <ul class="custom-list grab-list">
+                    <li><strong>เพิ่มรูป:</strong> เลือกรูปที่เห็นสินค้าชัดเจนทันที</li>
+                    <li><strong>เลขบาร์โค้ด / รหัส SKU:</strong> <span style="color:var(--grab); font-weight:bold;">ให้เอาปืนยิงบาร์โค้ดสแกนใส่ช่องนี้เลย</span> (หรือพิมพ์ตัวเลขใต้บาร์โค้ด)</li>
+                    <li><strong>หมวดหมู่ของ Grab* / Store Category*:</strong> เลือกหมวดหมู่ให้ตรงกับประเภทเครื่องเขียน</li>
+                    <li><strong>เวลาที่จำหน่าย:</strong> เลือก <em>จันทร์ - อาทิตย์ (เวลาเปิดร้าน - เวลาปิดร้าน)</em></li>
+                    <li><strong>ใช้กับคำสั่งซื้อ:</strong> ติ๊กเลือก <em>จัดส่ง</em> และ <em>สั่งล่วงหน้า</em></li>
+                </ul>
+
+                <div class="ui-box">
+                    <div class="ui-label">ช่อง ชื่อ:</div>
+                    <textarea id="gb-name" class="ui-textarea" rows="2" spellcheck="false">[ยี่ห้อ] [ประเภทสินค้า] [ขนาด/สเปก]</textarea>
+                    <button class="copy-btn" onclick="copyText('gb-name', this)"><i class="far fa-copy"></i> คัดลอกชื่อ</button>
+                </div>
+                
+                <div class="ui-box">
+                    <div class="ui-label">ช่อง คำอธิบาย:</div>
+                    <textarea id="gb-desc" class="ui-textarea" rows="2" spellcheck="false">[บอกคุณสมบัติสั้นๆ เช่น ผลิตจากสแตนเลส แข็งแรง ทนทาน ตัดกระดาษและผ้าได้]</textarea>
+                    <button class="copy-btn" onclick="copyText('gb-desc', this)"><i class="far fa-copy"></i> คัดลอกคำอธิบาย</button>
+                </div>
+            </div>
+
+            <div class="step-card border-grab">
+                <h3 class="step-title"><span class="step-num">3</span> ช่อง ราคา (฿)</h3>
+                <p>ราคาใน Grab ต้องเผื่อค่า GP แล้ว ให้ใช้เครื่องคิดเลขนี้คำนวณราคาที่จะกรอกลงในแอป:</p>
+                <div style="text-align: center; padding: 15px; background: #fff; border-radius: 8px; border: 2px dashed var(--grab);">
+                    <div>พิมพ์ราคาป้ายหน้าร้าน (บาท)</div>
+                    <input type="number" id="storePrice" style="width: 120px; padding: 10px; font-size: 20px; text-align: center; border: 2px solid #ccc; border-radius: 6px; outline: none;" placeholder="เช่น 59" oninput="calculateGrab()">
+                    <div style="margin-top: 15px; font-size: 14px; color: #555;">ตัวเลขที่ต้องกรอกในช่อง "ราคา ฿" คือ:</div>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--grab); margin-top: 10px;">฿<span id="grabResult">0</span></div>
+                </div>
+                <p style="margin-top: 15px; font-size: 14px; text-align:center;">กรอกครบแล้ว กด <strong>บันทึก</strong> ได้เลย!</p>
+            </div>
+
+            <div class="step-card border-grab">
+                <h3 class="step-title"><span class="step-num">4</span> การจัดการสต็อก (ถ้าของหมด)</h3>
+                <p>Grab จะไม่ค่อยนับสต็อกเป็นชิ้นๆ ถ้าของหน้าร้านหมด ให้รีบเข้าไปปิดการขายทันที กันไรเดอร์มารอเก้อ</p>
+                <ul class="custom-list grab-list">
+                    <li>ไปที่เมนู <strong>"จัดการสินค้า"</strong> (Inventory)</li>
+                    <li>ค้นหาชื่อสินค้าที่หมด</li>
+                    <li>เปลี่ยนสถานะจาก <em>"มีพร้อมจำหน่าย"</em> เป็น <strong>"ของหมดวันนี้"</strong> (พรุ่งนี้ระบบจะเปิดขายให้อัตโนมัติ) หรือ <strong>"ของหมดไม่มีกำหนด"</strong> (จนกว่าของจะเข้าใหม่ ค่อยมากดเปิดเอง)</li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(platform) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active-shopee');
+                el.classList.remove('active-grab');
+                el.style.background = '#ddd'; el.style.color = '#666';
+            });
+
+            document.getElementById('tab-' + platform).classList.add('active');
+            const btn = document.getElementById('btn-' + platform);
+            
+            if(platform === 'shopee') {
+                btn.classList.add('active-shopee'); btn.style.background = 'var(--shopee)'; btn.style.color = 'white';
+            } else {
+                btn.classList.add('active-grab'); btn.style.background = 'var(--grab)'; btn.style.color = 'white';
+            }
+        }
+
+        function copyText(elementId, btn) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            document.execCommand("copy");
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> ก๊อบปี้สำเร็จ!';
+            btn.style.background = '#34c759'; btn.style.color = 'white'; btn.style.borderColor = '#34c759';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '#fff'; btn.style.color = 'var(--ls-blue)'; btn.style.borderColor = 'var(--ls-blue)';
+                window.getSelection().removeAllRanges();
+            }, 1500);
+        }
+
+        function copyCustomText(text, btn) {
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempTextArea);
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> ก๊อบปี้แล้ว!';
+            setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+        }
+
+        function calculateGrab() {
+            const price = parseFloat(document.getElementById('storePrice').value);
+            const resultBox = document.getElementById('grabResult');
+            if (isNaN(price) || price <= 0) {
+                resultBox.innerText = '0'; return;
+            }
+            resultBox.innerText = Math.ceil(price / (1 - 0.214));
+        }
+    </script>
+</body>
+</html>
