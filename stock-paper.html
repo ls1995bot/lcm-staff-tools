@@ -18,7 +18,7 @@
         input[type=number] { -moz-appearance: textfield; }
 
         /* --- Sidebar --- */
-        #sidebar { width: 280px; background: white; border-right: 1px solid #ccc; padding: 15px; display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; overflow-y: auto; }
+        #sidebar { width: 300px; background: white; border-right: 1px solid #ccc; padding: 15px; display: flex; flex-direction: column; gap: 8px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; overflow-y: auto; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 2px; font-size: 13px; color: #555; }
         .form-control { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; margin-bottom: 5px; font-size: 13px; outline: none; }
         .form-control:focus { border-color: var(--primary); background: #f0f7ff; }
@@ -33,6 +33,9 @@
 
         .mode-box { background: #fff8e1; padding: 10px; border-radius: 8px; border: 1px solid #ffe082; margin-bottom: 5px; }
         .mode-box label { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 0; font-size: 13px; font-weight: 600; color: #333; }
+
+        .print-guide { background: #e8f4fd; border-left: 3px solid var(--primary); padding: 8px; font-size: 11px; color: #333; margin-top: 2px; }
+        .print-guide b { color: var(--primary); }
 
         /* --- Main Content --- */
         #content { flex-grow: 1; padding: 15px; overflow: auto; display: flex; justify-content: center; position: relative; background: #555; }
@@ -50,7 +53,7 @@
         .panel-right .panel-header { background: var(--primary); color: white; }
         
         .stock-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .stock-table th { padding: 6px 4px; border: 1px solid var(--print-border); font-size: 12px; background: #0d2e5c; color: white; }
+        .stock-table th { padding: 6px 4px; border: 1px solid var(--print-border); font-size: 11px; background: #0d2e5c; color: white; }
         .stock-table td { padding: 0; border: 1px solid #ccc; height: 30px; }
         
         input.cell { width: 100%; height: 100%; border: none; text-align: center; font-family: 'Sarabun'; font-size: 14px; font-weight: bold; background: transparent; outline: none; box-sizing: border-box; }
@@ -60,9 +63,11 @@
         .txt-missing { color: #e74c3c; } 
         .txt-surplus { color: #27ae60; } 
 
+        .time-col { display: none; } /* ซ่อนช่องเวลาไว้บนจอคอม */
+
         /* --- 🖨️ PRINT SETTINGS --- */
         @media print {
-            /* ขอบกระดาษ 5mm ทุกโหมด */
+            /* พิมพ์เป็น A5 ทุกโหมด (โดยใส่กระดาษ A4 ก็จะพิมพ์แค่ครึ่งหน้า) */
             @page { size: A4 portrait; margin: 5mm; }
 
             body { background: white; display: block; overflow: visible; width: 100%; }
@@ -70,22 +75,26 @@
             #content { padding: 0; display: block; width: 100%; background: white; }
             .page-container { width: 100%; box-shadow: none; padding: 0; border: none; display: block; }
             
-            /* ---------- 📝 โหมดใบจดมือ (A4 เต็มหน้า ว่างเปล่า) ---------- */
-            body.print-handwrite .page-container { width: 100%; }
-            body.print-handwrite .panel-left { display: none !important; }
-            body.print-handwrite .stock-table th { background: #f2f2f2 !important; color: black !important; font-size: 14px; padding: 10px; border: 1px solid #000; }
-            body.print-handwrite .stock-table td { height: 45px; border: 1px solid #000; } /* ช่องกว้างขึ้นให้จดง่าย */
+            /* ซ่อนฝั่งซ้ายเสมอตอนปริ้น */
+            .panel-left { display: none !important; }
+            .panel-right { width: 100%; }
+
+            .panel-header { background: white !important; color: black !important; border: none; font-size: 16px; margin-bottom: 10px; padding: 0; text-align: left; }
+            .panel-header span { border-bottom: 2px solid #000; }
             
-            /* ทริค: ซ่อนค่า value ทุกอย่างในช่องตารางตอนพิมพ์ใบจดมือ */
+            .stock-table th { border: 1px solid #000; font-size: 11px; }
+            .stock-table td { border: 1px solid #000; font-size: 12px; }
+
+            /* โชว์ช่องเขียนเวลา เติมของ */
+            .time-col { display: table-cell !important; }
+
+            /* --- โหมดกระดาษเปล่า (ใบจดมือ A5) --- */
+            body.print-handwrite .stock-table th { background: #f2f2f2 !important; color: black !important; padding: 8px 4px; }
+            body.print-handwrite .stock-table td { height: 35px; } /* ช่องกว้างขึ้นให้จดง่าย */
             body.print-handwrite input.cell { color: transparent !important; background: transparent !important; }
             body.print-handwrite .diff-box { color: transparent !important; }
 
-            /* ---------- 📊 โหมดรายงานสรุป (A5 ครึ่งหน้า) ---------- */
-            body:not(.print-handwrite) .panel-left { display: none !important; }
-            body:not(.print-handwrite) .panel-right { width: 100%; }
-            body:not(.print-handwrite) .panel-header { background: white !important; color: black !important; border: none; font-size: 16px; margin-bottom: 10px; padding: 0; text-align: left; }
-            body:not(.print-handwrite) .stock-table th, 
-            body:not(.print-handwrite) .stock-table td { border: 1px solid #000; }
+            /* --- โหมดมีตัวเลข (พิมพ์สรุป) --- */
             body:not(.print-handwrite) input.cell { font-size: 14px; color: black; }
             
             * { -webkit-print-color-adjust: exact; }
@@ -113,12 +122,25 @@
             <label>👤 ชื่อพนักงาน:</label>
             <input type="text" id="staffName" class="form-control" placeholder="ระบุชื่อผู้ตรวจ...">
         </div>
+
+        <div style="background: #e8f4fd; border: 1px solid #bbdefb; border-radius: 8px; padding: 10px; margin-top: 5px; margin-bottom: 5px;">
+            <div style="font-weight: bold; font-size: 13px; color: var(--primary); margin-bottom: 5px;">
+                <i class="fas fa-info-circle"></i> ขั้นตอนการใช้งาน:
+            </div>
+            <ol style="margin: 0; padding-left: 20px; font-size: 12px; color: #444; line-height: 1.5;">
+                <li>กด <b>"พิมพ์ใบจดมือ"</b> เพื่อนำกระดาษเปล่าไปเดินนับ</li>
+                <li>นำตัวเลขมากรอกลงในช่องตามตาราง</li>
+                <li>กด <b>"บันทึกเข้าระบบ"</b> (ข้อมูลจะขึ้นคลาวด์อัตโนมัติ)</li>
+            </ol>
+        </div>
         
         <button class="btn btn-save" onclick="saveStock()" id="btnSave"><i class="fas fa-save"></i> บันทึกเข้าระบบ (คลาวด์)</button>
         
         <hr style="width:100%; opacity:0.2; margin: 5px 0;">
         
-        <button class="btn btn-print-hand" onclick="printHandwrite()"><i class="fas fa-clipboard-list"></i> พิมพ์ใบจดมือ (A4 เปล่า)</button>
+        <button class="btn btn-print-hand" onclick="printHandwrite()"><i class="fas fa-clipboard-list"></i> พิมพ์ใบจดมือ (A5)</button>
+        <div class="print-guide">💡 <b>วิธีพิมพ์:</b> ใช้กระดาษ A4 ปกติ ระบบจะพิมพ์ออกมา <b>"ครึ่งหน้าบน"</b> (ขนาด A5) ให้อัตโนมัติ</div>
+
         <button class="btn btn-print" onclick="printReport()"><i class="fas fa-print"></i> พิมพ์รายงานสรุป (A5)</button>
         <button class="btn btn-img" onclick="saveAsImage()"><i class="fas fa-image"></i> บันทึกเป็นรูปภาพ</button>
         
@@ -144,10 +166,8 @@
     </div>
 
     <script>
-        // ⚠️ รหัสชีท Script B (Database_Stock) ⚠️
         const CLOUD_URL = 'https://script.google.com/macros/s/AKfycbzZ5st-egIEWV8M3UVbBMs2yzP5NNV28BDKRliAcc7jWZyY-UMCiJk_Q959eOinM4eDJA/exec';
 
-        // 📝 อัปเดตข้อมูล: เพิ่มช้าง 70g และ ช้าง 80g
         const ITEMS_DAILY = [
             { n: "ดีไลท์", k: "p_delight" }, { n: "ควอลิตี้ (ส้ม)", k: "p_quality_ora" },
             { n: "Idea Max", k: "p_idea_max" }, { n: "Idea Green", k: "p_idea_green" },
@@ -194,12 +214,13 @@
                 <table class="stock-table">
                     <thead>
                         <tr>
-                            <th style="width:36%">รายการกระดาษ</th>
-                            <th style="width:12%">หน้าร้าน</th>
-                            <th style="width:12%">ในสต็อก</th>
-                            <th style="width:12%">รวมมี</th>
-                            <th style="width:14%">ยอดคอมฯ</th>
-                            <th style="width:14%">ผลต่าง</th>
+                            <th style="width:34%">รายการกระดาษ</th>
+                            <th style="width:10%">หน้าร้าน</th>
+                            <th class="time-col" style="width:12%">เวลาเติม</th>
+                            <th style="width:10%">สต็อก</th>
+                            <th style="width:11%">รวมมี</th>
+                            <th style="width:12%">ยอดคอมฯ</th>
+                            <th style="width:11%">ผลต่าง</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -207,8 +228,9 @@
             currentItems.forEach(p => {
                 h += `
                     <tr>
-                        <td style="padding-left:8px; font-weight:600; color:#333;">${p.n}</td>
+                        <td style="padding-left:5px; font-weight:600; color:#333; font-size:12px;">${p.n}</td>
                         <td><input type="number" id="${prefix}_s1_${p.k}" class="cell" ${r} ${o}></td>
+                        <td class="time-col"></td>
                         <td><input type="number" id="${prefix}_st_${p.k}" class="cell" ${r} ${o}></td>
                         <td><input type="text" id="${prefix}_sum_${p.k}" class="cell" readonly style="color:var(--primary);"></td>
                         <td><input type="number" id="${prefix}_pos_${p.k}" class="cell" ${r} ${o}></td>
@@ -219,7 +241,6 @@
             document.getElementById(containerId).innerHTML = h + `</tbody></table>`;
         }
 
-        // --- ⌨️ Navigation ---
         document.addEventListener('keydown', function(e) {
             const active = document.activeElement;
             if (!active.classList.contains('cell') || active.readOnly) return;
@@ -346,18 +367,20 @@
             btn.innerHTML = '<i class="fas fa-save"></i> บันทึกเข้าระบบ (คลาวด์)'; btn.disabled = false;
         }
 
-        // โหมดพิมพ์สรุปที่มีตัวเลข (หน้า A5)
-        function printReport() {
-            document.body.classList.remove('print-handwrite');
-            window.print();
-        }
-
-        // โหมดพิมพ์กระดาษเปล่าเดินจด (หน้า A4 เต็มแผ่น)
         function printHandwrite() {
             document.body.classList.add('print-handwrite');
             window.print();
-            // คืนค่ากลับเป็นปกติหลังจากหน้าต่าง Print ปิดลง
             setTimeout(() => document.body.classList.remove('print-handwrite'), 1000);
+        }
+
+        // แจ้งเตือนก่อนพิมพ์
+        function printReport() {
+            const msg = "ข้อมูลการตรวจสอบสต็อกถูกบันทึกในระบบ Cloud เรียบร้อยแล้ว สามารถตรวจสอบได้จากในระบบ\n\nหากยอดถูกต้อง ไม่จำเป็นต้องพิมพ์เอกสารเพิ่มเติม\n\nหากต้องการพิมพ์เอกสาร กรุณากด 'ตกลง' หรือกด 'ยกเลิก' เพื่อไม่พิมพ์";
+            
+            if(confirm(msg)) {
+                document.body.classList.remove('print-handwrite');
+                window.print();
+            }
         }
 
         function saveAsImage() {
