@@ -120,7 +120,7 @@
         .product-code { color: #555; font-family: 'Courier New', monospace; letter-spacing: -0.5px; font-weight: bold; }
         
         .header-right { width: 20%; display: flex; justify-content: flex-end; align-items: flex-start; }
-        .tag-logo { width: 100%; height: auto; max-width: 40px; object-fit: contain; }
+        .tag-logo { width: 100%; height: auto; max-width: 40px; max-height: 40px; object-fit: contain; }
 
         .mid-section { margin-bottom: 2px; }
         .product-detail { font-size: 10px; font-weight: 400; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
@@ -141,7 +141,7 @@
 
         .bulk-container { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 0px; }
         .bulk-line { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px dotted #eee; padding: 0; }
-        .bulk-label { font-size: 9px; font-weight: normal; color: #555; white-space: nowrap; margin-bottom: 2px; }
+        .bulk-label { font-weight: normal; color: #555; white-space: nowrap; margin-bottom: 2px; line-height: 1; }
         .bulk-price { font-weight: 800; color: var(--theme-color); text-align: right; line-height: 1; }
 
         .shop-footer { font-size: 8px; color: #888; text-align: center; border-top: 1px dotted #ccc; padding-top: 1px; margin-top: 1px; white-space: nowrap; overflow: hidden; font-weight: 400; }
@@ -153,10 +153,9 @@
             #preview-area { width: 100%; padding: 0; overflow: visible; background: white; }
             .a4-page { width: 100%; box-shadow: none; padding: 0; margin: 0; height: auto; }
             
-            /* กำหนดขอบกระดาษเริ่มต้น 3 มม. ที่นี่ */
             @page { 
                 size: A4; 
-                margin: 3mm; /* เว้นขอบ 3 มม. โดยรอบ */
+                margin: 3mm; 
             }
             
             .price-tag { border: 1px dotted #bbb; page-break-inside: avoid; margin: 0; } 
@@ -209,8 +208,8 @@
 
     <script>
         let tagsData = [
-            { id: 1, type: 'normal', name: "สีไม้มาสเตอร์อาร์ต 12 สี PREMIUM", nameSize: "14", detail: "", price1: "49", priceSize: "52", code: "8851907273156", codeSize: "8", qr: "", qrType: "img", qrSize: "10", quantity: 1 },
-            { id: 2, type: 'bulk', name: "บิลเงินสด คาร์บอนPS 2 ชั้น #1", nameSize: "14", detail: "", price1: "", priceSize: "24", code: "8850893000470", codeSize: "8", qr: "ขายดี", qrType: "text", qrSize: "12", quantity: 1,
+            { id: 1, type: 'normal', name: "สีไม้มาสเตอร์อาร์ต 12 สี PREMIUM", nameSize: "14", detail: "", price1: "49", priceSize: "52", code: "8851907273156", codeSize: "8", qr: "", qrType: "img", qrSize: "10", logo: "", quantity: 1 },
+            { id: 2, type: 'bulk', name: "บิลเงินสด คาร์บอนPS 2 ชั้น #1", nameSize: "14", labelSize: "10", detail: "", price1: "", priceSize: "24", code: "8850893000470", codeSize: "8", qr: "ขายดี", qrType: "text", qrSize: "12", logo: "", quantity: 1,
                 tiers: [
                     { qty: "เล่มละ", price: "45" },
                     { qty: "ยกลัง (100)", price: "3200" }
@@ -218,7 +217,7 @@
             }
         ];
 
-        let defaults = { name: 14, price: 52, code: 8, qr: 10 };
+        let defaults = { name: 14, price: 52, code: 8, qr: 10, label: 10 };
 
         renderInputs();
         renderPreview();
@@ -228,34 +227,34 @@
             const wInput = document.getElementById('set-width');
             const hInput = document.getElementById('set-height');
             
-            let d = { name: 14, price: 52, code: 8, qr: 10 }; 
+            let d = { name: 14, price: 52, code: 8, qr: 10, label: 10 }; 
 
             if (preset === 'std') {
                 wInput.value = 4.9; hInput.value = 4.3;
             } 
             else if (preset === 'a4_full') { 
                 wInput.value = 20.2; hInput.value = 28.5;
-                d = { name: 60, price: 250, code: 36, qr: 32 };
+                d = { name: 60, price: 250, code: 36, qr: 32, label: 30 };
             }
             else if (preset === 'a4_split2') { 
                 wInput.value = 20.2; hInput.value = 14.2;
-                d = { name: 40, price: 150, code: 24, qr: 20 };
+                d = { name: 40, price: 150, code: 24, qr: 20, label: 22 };
             }
             else if (preset === 'a4_row3') { 
                 wInput.value = 20.2; hInput.value = 9.5;
-                d = { name: 30, price: 100, code: 18, qr: 16 };
+                d = { name: 30, price: 100, code: 18, qr: 16, label: 18 };
             }
             else if (preset === 'a4_row4') {
                 wInput.value = 20.2; hInput.value = 7.1;
-                d = { name: 24, price: 80, code: 14, qr: 12 };
+                d = { name: 24, price: 80, code: 14, qr: 12, label: 14 };
             }
             else if (preset === 'a4_split4') { 
                 wInput.value = 10.0; hInput.value = 14.2;
-                d = { name: 24, price: 90, code: 16, qr: 14 };
+                d = { name: 24, price: 90, code: 16, qr: 14, label: 16 };
             }
             else if (preset === 'a4_split8') { 
                 wInput.value = 10.0; hInput.value = 7.1;
-                d = { name: 18, price: 60, code: 12, qr: 10 };
+                d = { name: 18, price: 60, code: 12, qr: 10, label: 12 };
             }
 
             updateSize();
@@ -267,9 +266,21 @@
                     tag.priceSize = d.price;
                     tag.codeSize = d.code;
                     tag.qrSize = d.qr;
+                    tag.labelSize = d.label;
                 });
                 renderInputs(); 
                 renderPreview(); 
+            }
+        }
+
+        function handleLogoUpload(idx, file) {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tagsData[idx].logo = e.target.result;
+                    renderPreview();
+                }
+                reader.readAsDataURL(file);
             }
         }
 
@@ -301,7 +312,7 @@
                         </div>
                     `;
                 } else if(tag.type === 'bulk') {
-                    if(!tag.tiers) tag.tiers = [{qty: "1 ชิ้น", price: ""}, {qty: "ยกลัง", price: ""}];
+                    if(!tag.tiers) tag.tiers = [{qty: "1 เล่ม", price: ""}, {qty: "ยกลัง", price: ""}];
                     let tiersHTML = tag.tiers.map((t, tIdx) => `
                         <div class="bulk-input-row">
                             <input type="text" placeholder="จำนวน" value="${t.qty}" oninput="updTier(${idx}, ${tIdx}, 'qty', this.value)" style="width:45%;">
@@ -317,8 +328,9 @@
                             </div>
                         </div>
                         <div class="input-row">
-                            <span class="label"></span>
-                            <span class="size-label" style="margin-left:auto;">Font:</span>
+                            <span class="label">Font จำนวน:</span>
+                            <input type="number" class="font-size-input" value="${tag.labelSize || defaults.label}" onchange="upd(${idx}, 'labelSize', this.value)">
+                            <span class="size-label" style="margin-left:auto;">Font ราคา:</span>
                             <input type="number" class="font-size-input" value="${tag.priceSize || 20}" onchange="upd(${idx}, 'priceSize', this.value)">
                         </div>
                     `;
@@ -340,6 +352,11 @@
                         <button class="btn-delete" onclick="del(${idx})">ลบ</button>
                     </div>
                     
+                    <div class="input-row">
+                        <span class="label">โลโก้สินค้า:</span>
+                        <input type="file" accept="image/*" onchange="handleLogoUpload(${idx}, this.files[0])" style="font-size:11px;">
+                    </div>
+
                     <div class="input-row">
                         <span class="label">ชื่อสินค้า:</span>
                         <input type="text" class="main-input" placeholder="ชื่อสินค้า" value="${tag.name}" oninput="upd(${idx}, 'name', this.value)" style="font-weight:bold;">
@@ -397,6 +414,7 @@
                     let pSize = tag.priceSize ? tag.priceSize + 'px' : defaults.price + 'px';
                     let nSize = tag.nameSize ? tag.nameSize + 'px' : defaults.name + 'px';
                     let cSize = tag.codeSize ? tag.codeSize + 'px' : defaults.code + 'px';
+                    let lSize = tag.labelSize ? tag.labelSize + 'px' : defaults.label + 'px';
 
                     if(tag.type === 'normal') {
                         priceHTML = `<div class="price-normal" style="font-size:${pSize};"><span class="currency">฿</span>${tag.price1}</div>`;
@@ -409,20 +427,23 @@
                         let bulkSize = tag.priceSize ? tag.priceSize + 'px' : "20px";
                         let rowsHTML = tiers.map(t => `
                             <div class="bulk-line">
-                                <span class="bulk-label">${t.qty}</span>
+                                <span class="bulk-label" style="font-size:${lSize};">${t.qty}</span>
                                 <span class="bulk-price" style="font-size:${bulkSize};"><span class="currency">฿</span>${t.price}</span>
                             </div>
                         `).join('');
                         priceHTML = `<div class="bulk-container">${rowsHTML}</div>`;
                     }
                     
+                    // ส่วนโลโก้
+                    let logoHtml = tag.logo ? `<img src="${tag.logo}" class="tag-logo">` : `<img src="logo-ls.png" class="tag-logo">`;
+
                     pTag.innerHTML = `
                         <div class="top-section">
                             <div class="header-left">
                                 <div class="product-name" style="font-size:${nSize};">${tag.name}</div>
                                 <div class="product-code" style="font-size:${cSize};">${tag.code}</div>
                             </div>
-                            <div class="header-right"><img src="logo-ls.png" class="tag-logo"></div>
+                            <div class="header-right">${logoHtml}</div>
                         </div>
                         <div class="mid-section"><div class="product-detail">${tag.detail || ''}</div></div>
                         <div class="bottom-section">
@@ -447,6 +468,7 @@
                 price1: "", priceSize: defaults.price, 
                 code: "", codeSize: defaults.code,
                 qr: "", qrType: "img", qrSize: defaults.qr,
+                logo: "", labelSize: defaults.label,
                 quantity: 1, 
                 tiers:[] 
             }); 
@@ -464,4 +486,3 @@
     </script>
 </body>
 </html>
-
