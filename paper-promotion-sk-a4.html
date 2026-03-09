@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบพิมพ์ป้ายราคาสินค้า A4 - สมาร์ทคิดส์ สหพัฒน์</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --current-color: #ff0588; /* สีชมพู SK */
+            --border-weight: 8px;
+            --brand-size: 60px;
+            --price-size: 80px;
+            --avg-blue: #2ea3e6;
+            --bg-color: #fdf2f7; /* พื้นหลังชมพูอ่อนสำหรับหน้าเว็บ */
+            --panel-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 0;
+            display: flex; height: 100vh;
+            background-color: var(--bg-color);
+            color: #333;
+        }
+
+        /* --- แผงควบคุม (ซ้าย) --- */
+        #control-panel {
+            width: 480px; background: var(--panel-bg); padding: 25px;
+            border-right: 1px solid #ced4da; overflow-y: auto;
+            flex-shrink: 0; box-sizing: border-box;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10;
+        }
+
+        .system-header { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #fcc2d7; }
+        .system-header h2 { margin: 0 0 5px 0; color: var(--current-color); font-size: 22px; font-weight: 800; }
+        .system-header p { margin: 0; font-size: 14px; color: #6c757d; }
+
+        .fieldset-group { background: #ffffff; border: 1px solid #fcc2d7; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .fieldset-title { font-weight: 800; color: #495057; margin: 0 0 15px 0; font-size: 15px; display: flex; align-items: center; }
+        .fieldset-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background-color: var(--current-color); margin-right: 8px; border-radius: 2px; }
+
+        .form-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+        .form-row label { width: 140px; font-size: 14px; font-weight: 600; color: #495057; flex-shrink: 0; }
+
+        input[type="text"], input[type="number"], select {
+            flex-grow: 1; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px;
+            font-family: 'Sarabun', sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;
+        }
+
+        input.size-input { text-align: center; font-weight: bold; color: var(--current-color); background: #fff0f6; border-color: #fcc2d7; }
+        input[type="file"] { font-size: 13px; }
+        input[type="color"] { width: 100%; height: 36px; padding: 2px; cursor: pointer; border: 1px solid #ced4da; border-radius: 4px; }
+
+        .btn { cursor: pointer; border: none; border-radius: 6px; font-weight: 600; font-family: 'Sarabun', sans-serif; padding: 10px 15px; font-size: 14px; }
+        .btn-add { background: #fff0f6; color: var(--current-color); border: 1px dashed var(--current-color); width: 100%; margin-top: 5px; }
+        .btn-print { background: #28a745; color: #fff; font-size: 18px; padding: 15px; width: 100%; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-del { background: #dc3545; color: #fff; padding: 8px 12px; font-size: 13px; flex-shrink: 0; }
+
+        .tier-input-row { display: flex; gap: 8px; align-items: center; background: #fdf2f7; padding: 10px; border: 1px solid #fcc2d7; border-radius: 6px; margin-bottom: 8px; }
+
+        /* --- พื้นที่แสดงผลจำลอง (ขวา) --- */
+        #preview-area { flex-grow: 1; display: flex; justify-content: center; overflow-y: auto; padding: 30px; background-color: #525659; }
+        
+        .a4-page {
+            width: 210mm; min-height: 297mm; background: white; position: relative;
+            box-sizing: border-box; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            padding: 5mm; margin: 0 auto;
+        }
+
+        /* --- ดีไซน์ป้ายโปรโมชั่น --- */
+        .promo-tag {
+            width: 100%; height: 100%;
+            border: var(--border-weight) dashed var(--current-color);
+            border-radius: 30px; padding: 40px; box-sizing: border-box;
+            display: flex; flex-direction: column; position: relative; 
+        }
+
+        .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+
+        .img-placeholder { 
+            width: 200px; height: 200px; background: #ffffff; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border: 2px solid #fcc2d7; text-align: center;
+        }
+        .img-placeholder img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        
+        .brand-info { text-align: right; max-width: 60%; }
+        .brand-name { font-size: var(--brand-size); font-weight: 800; color: var(--current-color); line-height: 1.1; margin: 0; word-wrap: break-word; }
+        .spec-text { font-size: calc(var(--brand-size) * 0.45); font-weight: 600; color: #495057; margin-top: 5px; }
+
+        .retail-row { border-bottom: 3px solid #fdf2f7; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: baseline; gap: 20px; }
+        .retail-label { font-size: calc(var(--price-size) * 0.6); font-weight: 800; color: #212529; }
+        .retail-price { font-size: var(--price-size); font-weight: 800; color: #dc3545; }
+
+        .tiers-container { display: flex; flex-direction: column; gap: 20px; }
+        .tier-item { display: flex; flex-direction: column; align-items: flex-end; }
+        .tier-pricing-row { display: flex; align-items: baseline; justify-content: flex-end; width: 100%; }
+        .tier-label { font-size: calc(var(--price-size) * 0.6); font-weight: 800; margin-right: 25px; color: #212529; }
+        .tier-main-price { font-size: calc(var(--price-size) * 0.85); font-weight: 800; color: #dc3545; line-height: 1; }
+        .tier-avg { font-size: calc(var(--price-size) * 0.4); font-weight: 800; color: var(--avg-blue); margin-top: 5px; }
+
+        .tag-footer { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; color: #adb5bd; font-size: 16px; font-weight: 500; }
+
+        /* --- ซ่อน Scrollbar ตอนพิมพ์ --- */
+        @media print {
+            html, body { 
+                background: none; width: 100%; height: 100%; 
+                margin: 0; padding: 0; overflow: hidden !important; 
+            }
+            #control-panel { display: none !important; }
+            #preview-area { 
+                padding: 0; background: none; overflow: visible !important; display: block;
+            }
+            .a4-page { box-shadow: none; margin: 0; width: 210mm; height: 297mm; padding: 5mm; }
+            .promo-tag { page-break-inside: avoid; }
+            @page { size: A4; margin: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="control-panel">
+    <div class="system-header">
+        <h2>ระบบป้ายราคาสินค้า A4</h2>
+        <p>ร้านสมาร์ทคิดส์ สหพัฒน์</p>
+    </div>
+
+    <div class="fieldset-group">
+        <div class="fieldset-title">1. ข้อมูลสินค้าและรูปภาพ</div>
+        
+        <div class="form-row">
+            <label>สีธีมป้าย:</label>
+            <div style="flex-grow: 1; display: flex; gap: 5px;">
+                <select id="brandColorSelect" onchange="toggleCustomColor()" style="flex-grow: 1;">
+                    <option value="#ff0588">ชมพู (Smart Kids)</option>
+                    <option value="#dc3545">แดง</option>
+                    <option value="#0056b3">น้ำเงิน</option>
+                    <option value="#28a745">เขียว</option>
+                    <option value="#fd7e14">ส้ม</option>
+                    <option value="#ffc107">เหลือง</option>
+                    <option value="#6f42c1">ม่วง</option>
+                    <option value="#212529">ดำ</option>
+                    <option value="custom">🌈 เลือกสีเอง...</option>
+                </select>
+                <input type="color" id="customColorPicker" value="#ff0588" style="display: none; width: 40px; padding: 0;" oninput="updatePreview()">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <label>เลือกรูปสำเร็จรูป:</label>
+            <select id="presetImageSelect" onchange="handlePresetImage()" style="font-weight: bold;">
+                <option value="">-- กรุณาเลือก หรืออัปโหลดเอง --</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:571/quality:100/uri:ifs%3A%2F%2FM%2F7d6fc55f-1724-49f3-8d09-b23feea3de50/watermark:F/width:873?csig=AAAAAAAAAAAAAAAAAAAAAOE5OUGEenBMR3cjS4kGufxdvntvIpOkVLSwhIME05uX&exp=1773061799&osig=AAAAAAAAAAAAAAAAAAAAAJQxC2UB47dVId87m3cREeYxzOK0ymM84-lMi1Brp-5m&signer=media-rpc&x-canva-quality=screen_2x">ดับเบิ้ล เอ 80 แกรม (Double A)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:1096/quality:100/uri:ifs%3A%2F%2FM%2Fa9c6306e-22b3-44f5-988a-2539a684d62d/watermark:F/width:1600?csig=AAAAAAAAAAAAAAAAAAAAAABRAID4X5JHU8tBhv5QzEZKT8S2Ffc3_xyP-mZLZ0RE&exp=1773059708&osig=AAAAAAAAAAAAAAAAAAAAAKQORl_EfSaO_cr-2-E1umAhf96qfuwxQnOfVfBmcHTo&signer=media-rpc&x-canva-quality=screen_2x">ดับเบิ้ล เอ 90 แกรม (Color Print)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:316/quality:100/uri:ifs%3A%2F%2FM%2Fead3c276-6977-4901-a7aa-a20e1584944c/watermark:F/width:431?csig=AAAAAAAAAAAAAAAAAAAAAGKMitFBW74wwfE5DUhkhIgbwCbqY_4i3ZDNJ_gnGrVV&exp=1773062586&osig=AAAAAAAAAAAAAAAAAAAAAOwSSnN4qRt6hLAAue0y9cfxmT9J7JfXXgS79w-4zVsr&signer=media-rpc&x-canva-quality=screen_2x">ควอลิตี้ 70 แกรม (Quality)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:368/quality:100/uri:ifs%3A%2F%2FM%2F2f097645-23cc-4a06-9a06-f81361bd53e8/watermark:F/width:510?csig=AAAAAAAAAAAAAAAAAAAAAN8o3LcF_r4oDM-dVCEYBDqZTugpqMdFn3EoBlo-3QWP&exp=1773060257&osig=AAAAAAAAAAAAAAAAAAAAAEANrpnevHyBipL8RkcTXcoREKadJq5yQDdK59m-_0lX&signer=media-rpc&x-canva-quality=screen_2x">ไอเดียเวิร์ค 80 แกรม (Idea Work)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:356/quality:100/uri:ifs%3A%2F%2FM%2F6815bbb8-f47f-469b-95fc-954960df0b5a/watermark:F/width:494?csig=AAAAAAAAAAAAAAAAAAAAAEUuRPQ4Wf9L7TSiXRCpJYOKpS6HB6UZcqnmcRU_giVQ&exp=1773061436&osig=AAAAAAAAAAAAAAAAAAAAAGF5XB-NIEKnuy5-Rui6XVRxP7R6HrO6zNb0SMfzaARf&signer=media-rpc&x-canva-quality=screen_2x">ไอเดียแม็กซ์ 70 แกรม (Idea Max)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:337/quality:100/uri:ifs%3A%2F%2FM%2Ff9086bcb-188e-4008-a967-ddafa6c999b2/watermark:F/width:486?csig=AAAAAAAAAAAAAAAAAAAAAM4rhS5BdP4fadN2YJdgmgK1xhXo2LZOOmnXk1WDGuyx&exp=1773058897&osig=AAAAAAAAAAAAAAAAAAAAAI4qOpVDeTww6lXB1ofkvTv94UALJ9WjVS3Sba6IMr3J&signer=media-rpc&x-canva-quality=screen_2x">อัลติเมท 80 แกรม (Ultimate)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:744/quality:100/uri:ifs%3A%2F%2FM%2F07ea952f-cdcd-43ca-8daf-4878feecc1d8/watermark:F/width:1107?csig=AAAAAAAAAAAAAAAAAAAAAHu8U8MiDRo5Q-koABoKYctGbaCW08dfXKnb_LpY7Aud&exp=1773060043&osig=AAAAAAAAAAAAAAAAAAAAAE6yzlbGoyn5flUmc1v86lwYBd9Xa44Jf4cvhN0qE9EG&signer=media-rpc&x-canva-quality=screen_2x">ดีไลท์ 70 แกรม (Delight)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:737/quality:100/uri:ifs%3A%2F%2FM%2F4d5f37ca-9187-4cc7-b660-7107b6a7928e/watermark:F/width:800?csig=AAAAAAAAAAAAAAAAAAAAAJiUFegUh0EWGL9bhGFhSOGn_W2UMm-JlcPrOrF611Nv&exp=1773059493&osig=AAAAAAAAAAAAAAAAAAAAAA2eRdST_U0A7GBQh8-XZeZc7MiUq3YAOVqDz5NDrNxP&signer=media-rpc&x-canva-quality=screen">กรีนรี้ด ถนอมสายตา 80 แกรม (Green Read)</option>
+                <option value="https://media.canva.com/v2/image-resize/format:PNG/height:362/quality:100/uri:ifs%3A%2F%2FM%2Fcba85e74-d7ee-4043-8702-8f7bb97316b4/watermark:F/width:505?csig=AAAAAAAAAAAAAAAAAAAAAMf8UOMx4nvwh1zNZzFZI3IEJaQ7okYOmtUR2E6ICFw5&exp=1773061998&osig=AAAAAAAAAAAAAAAAAAAAALykbMxvYlm0ycskdwj7QtYO6y5X5f1tbfz3av5Z4gnk&signer=media-rpc&x-canva-quality=screen_2x">ไอเดีย กรีน 80 แกรม (Idea Green)</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>อัปโหลดรูปภาพเอง:</label>
+            <input type="file" id="imgInput" accept="image/*" onchange="handleImageUpload(this)">
+        </div>
+        
+        <div class="form-row">
+            <label>ยี่ห้อสินค้า:</label>
+            <input type="text" id="brandName" value="ดับเบิ้ล เอ" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>รายละเอียด:</label>
+            <input type="text" id="specName" value="80 แกรม" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>จำนวนรีม/ลัง:</label>
+            <input type="number" id="reamsPerBox" value="5" min="1" oninput="updatePreview()">
+        </div>
+    </div>
+
+    <div class="fieldset-group">
+        <div class="fieldset-title">2. กำหนดขนาด (ตัวเลข)</div>
+        
+        <div class="form-row">
+            <label>ความหนาเส้น (px):</label>
+            <input type="number" class="size-input" id="borderWeight" value="8" min="1" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>ขนาดชื่อยี่ห้อ (px):</label>
+            <input type="number" class="size-input" id="brandSize" value="60" min="10" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>ขนาดเลขราคา (px):</label>
+            <input type="number" class="size-input" id="priceSize" value="80" min="10" oninput="updatePreview()">
+        </div>
+    </div>
+
+    <div class="fieldset-group">
+        <div class="fieldset-title">3. ราคาจำหน่าย</div>
+        
+        <div class="form-row" style="margin-bottom: 15px;">
+            <label style="color: #dc3545;">ราคาปลีก/รีม:</label>
+            <input type="number" id="retailPrice" value="120" oninput="updatePreview()">
+        </div>
+        
+        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">ราคาส่ง (ขายยกลัง):</label>
+        
+        <div id="tiers-container"></div>
+        
+        <button class="btn btn-add" onclick="addTier()">+ เพิ่มระดับราคาส่ง</button>
+    </div>
+
+    <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ป้ายราคา (A4)</button>
+</div>
+
+<div id="preview-area">
+    <div class="a4-page" id="print-content"></div>
+</div>
+
+<script>
+    let tiersData = [
+        { boxes: 1, pricePerBox: 599 },
+        { boxes: 2, pricePerBox: 1188 },
+        { boxes: 4, pricePerBox: 2356 },
+        { boxes: 8, pricePerBox: 4672 }
+    ];
+    let currentImgData = null;
+
+    function handlePresetImage() {
+        const selectUrl = document.getElementById('presetImageSelect').value;
+        if (selectUrl !== "") {
+            currentImgData = selectUrl;
+            document.getElementById('imgInput').value = ""; 
+            updatePreview();
+        } else {
+            currentImgData = null;
+            updatePreview();
+        }
+    }
+
+    function handleImageUpload(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('presetImageSelect').value = ""; 
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImgData = e.target.result;
+                updatePreview();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function toggleCustomColor() {
+        const select = document.getElementById('brandColorSelect');
+        const picker = document.getElementById('customColorPicker');
+        if (select.value === 'custom') {
+            picker.style.display = 'block';
+        } else {
+            picker.style.display = 'none';
+        }
+        updatePreview();
+    }
+
+    function addTier() {
+        tiersData.push({ boxes: 1, pricePerBox: 0 });
+        renderTierInputs();
+        updatePreview();
+    }
+
+    function removeTier(index) {
+        tiersData.splice(index, 1);
+        renderTierInputs();
+        updatePreview();
+    }
+
+    function renderTierInputs() {
+        const container = document.getElementById('tiers-container');
+        container.innerHTML = '';
+        tiersData.forEach((tier, index) => {
+            container.innerHTML += `
+                <div class="tier-input-row">
+                    <input type="number" min="1" value="${tier.boxes}" oninput="updateTierData(${index}, 'boxes', this.value)" style="width: 60px;">
+                    <span style="font-size: 12px;">ลัง</span>
+                    <input type="number" min="0" value="${tier.pricePerBox}" oninput="updateTierData(${index}, 'pricePerBox', this.value)">
+                    <button class="btn btn-del" onclick="removeTier(${index})">ลบ</button>
+                </div>
+            `;
+        });
+    }
+
+    function updateTierData(index, field, value) {
+        tiersData[index][field] = value === '' ? 0 : parseFloat(value);
+        updatePreview();
+    }
+
+    function formatMainPrice(num) {
+        if (num % 1 === 0) {
+            return num.toLocaleString('th-TH') + '.-';
+        } else {
+            return num.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+    }
+
+    function formatNumberNoDash(num) {
+        if (num % 1 === 0) {
+            return num.toLocaleString('th-TH');
+        } else {
+            return num.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+    }
+
+    function updatePreview() {
+        const colorSelect = document.getElementById('brandColorSelect').value;
+        const finalColor = colorSelect === 'custom' ? document.getElementById('customColorPicker').value : colorSelect;
+
+        const bWeight = document.getElementById('borderWeight').value || 8;
+        const bSize = document.getElementById('brandSize').value || 60;
+        const pSize = document.getElementById('priceSize').value || 80;
+
+        const root = document.documentElement;
+        root.style.setProperty('--current-color', finalColor);
+        root.style.setProperty('--border-weight', bWeight + 'px');
+        root.style.setProperty('--brand-size', bSize + 'px');
+        root.style.setProperty('--price-size', pSize + 'px');
+
+        const brandName = document.getElementById('brandName').value || '-';
+        const specName = document.getElementById('specName').value || '-';
+        const retailPrice = document.getElementById('retailPrice').value || '0';
+        
+        let reamsPerBox = parseFloat(document.getElementById('reamsPerBox').value);
+        if (isNaN(reamsPerBox) || reamsPerBox <= 0) reamsPerBox = 1; 
+
+        const displayRetail = formatMainPrice(parseFloat(retailPrice));
+
+        let tiersHtml = tiersData.map(tier => {
+            const rawAvg = tier.pricePerBox / (tier.boxes * reamsPerBox);
+            const formattedAvg = formatNumberNoDash(rawAvg);
+            const displayTotalPrice = formatMainPrice(tier.pricePerBox);
+            const formattedTotalPriceNoDash = formatNumberNoDash(tier.pricePerBox);
+            const rawSingleBox = tier.pricePerBox / tier.boxes;
+            const displaySingleBoxPrice = formatMainPrice(rawSingleBox);
+
+            if (tier.boxes <= 1) {
+                return `
+                    <div class="tier-item" style="margin-bottom: 25px;">
+                        <div class="tier-pricing-row">
+                            <span class="tier-label">${tier.boxes} ลัง ${tier.boxes > 1 ? `(${tier.boxes * reamsPerBox} รีม)` : `(${reamsPerBox} รีม)`}</span>
+                            <span class="tier-main-price">${displayTotalPrice}</span>
+                        </div>
+                        <div class="tier-avg">เฉลี่ยรีมละ ${formattedAvg}</div>
+                    </div>`;
+            } else {
+                return `
+                    <div class="tier-item" style="margin-bottom: 25px;">
+                        <div class="tier-pricing-row" style="margin-bottom: 5px;">
+                            <span class="tier-label">${tier.boxes} ลัง</span>
+                            <span style="font-size: calc(var(--price-size) * 0.45); font-weight: 800; color: #212529; margin-right: 15px;">เหลือลังละ</span>
+                            <span class="tier-main-price">${displaySingleBoxPrice}</span>
+                        </div>
+                        <div class="tier-avg" style="display: flex; gap: 12px; align-items: baseline; font-size: calc(var(--price-size) * 0.35);">
+                            <span style="color: var(--avg-blue);">${tier.boxes} ลัง ${formattedTotalPriceNoDash}</span>
+                            <span style="color: var(--avg-blue);">เฉลี่ยรีมละ ${formattedAvg}</span>
+                        </div>
+                    </div>`;
+            }
+        }).join('');
+
+        const imgHtml = currentImgData 
+            ? `<img src="${currentImgData}" alt="Product">` 
+            : `<span style="font-size: 14px; color: #adb5bd;">กรุณาเลือกหรือ<br>อัปโหลดรูปภาพ</span>`;
+
+        document.getElementById('print-content').innerHTML = `
+            <div class="promo-tag">
+                <div class="header-section">
+                    <div class="img-placeholder">${imgHtml}</div>
+                    <div class="brand-info">
+                        <div class="brand-name">${brandName}</div>
+                        <div class="spec-text">${specName}</div>
+                    </div>
+                </div>
+                <div class="retail-row">
+                    <span class="retail-label">รีมละ</span>
+                    <span class="retail-price">${displayRetail}</span>
+                </div>
+                <div class="tiers-container">${tiersHtml}</div>
+                <div class="tag-footer">ร้านสมาร์ทคิดส์ สหพัฒน์</div>
+            </div>`;
+    }
+
+    window.onload = function() {
+        renderTierInputs();
+        updatePreview();
+    };
+</script>
+
+</body>
+</html>
