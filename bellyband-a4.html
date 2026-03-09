@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบพิมพ์สายคาดสินค้า A4 แนวนอน - แหลมฉบังเครื่องเขียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --current-color: #0056b3; 
+            --bg-color: #e9ecef;
+            --panel-bg: #ffffff;
+            --cut-line: #adb5bd;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0; padding: 0;
+            display: flex; height: 100vh;
+            background-color: var(--bg-color);
+            color: #333;
+        }
+
+        /* --- แผงควบคุม (ซ้าย) --- */
+        #control-panel {
+            width: 480px; background: var(--panel-bg); padding: 25px;
+            border-right: 1px solid #ced4da; overflow-y: auto;
+            flex-shrink: 0; box-sizing: border-box;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10;
+        }
+
+        /* ปุ่มย้อนกลับ */
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: #6c757d; text-decoration: none; font-size: 14px;
+            font-weight: 600; margin-bottom: 20px; transition: 0.2s;
+        }
+        .btn-back:hover { color: #023f88; }
+
+        .system-header { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef; }
+        .system-header h2 { margin: 0 0 5px 0; color: #023f88; font-size: 22px; font-weight: 800; }
+        .system-header p { margin: 0; font-size: 14px; color: #6c757d; }
+
+        .fieldset-group { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .fieldset-title { font-weight: 800; color: #495057; margin: 0 0 15px 0; font-size: 15px; display: flex; align-items: center; }
+        .fieldset-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background-color: #023f88; margin-right: 8px; border-radius: 2px; }
+
+        .form-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; }
+        .form-row label { width: 140px; font-size: 14px; font-weight: 600; color: #495057; flex-shrink: 0; }
+
+        input[type="text"], input[type="number"], select {
+            flex-grow: 1; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px;
+            font-family: 'Sarabun', sans-serif; font-size: 14px; width: 100%; box-sizing: border-box;
+        }
+
+        input.size-input { text-align: center; font-weight: bold; color: #023f88; background: #e6f2ff; border-color: #b8daff; }
+        input[type="color"] { width: 100%; height: 36px; padding: 2px; cursor: pointer; border: 1px solid #ced4da; border-radius: 4px; }
+
+        .btn-print { background: #28a745; color: #fff; font-size: 18px; padding: 15px; width: 100%; margin-top: 10px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer; font-family: 'Sarabun'; transition: 0.2s;}
+        .btn-print:hover { background: #218838; }
+        
+        .alert-box { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; }
+
+        /* --- พื้นที่แสดงผลจำลอง (ขวา) --- */
+        #preview-area { flex-grow: 1; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 30px; background-color: #525659; }
+        
+        .a4-landscape {
+            width: 297mm; min-height: 210mm; background: white; position: relative;
+            box-sizing: border-box; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            padding: 5mm 8.5mm; margin: 0 auto;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        }
+
+        /* --- ดีไซน์สายคาด (ข้อความอยู่ตรงกลางเป๊ะ) --- */
+        .belly-band {
+            width: 280mm; 
+            border: 1px dashed var(--cut-line);
+            box-sizing: border-box;
+            display: flex; justify-content: center; align-items: center; 
+            padding: 0 15px; margin-bottom: 0px; 
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .band-content {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            white-space: nowrap;
+        }
+
+        .brand-text { font-size: 12px; color: #999; margin-right: 5px; font-weight: 500; }
+        .product-name { font-weight: 800; color: #000; }
+        .pack-qty { font-weight: 800; color: #555; }
+        .price-text { font-weight: 800; color: var(--current-color); margin-left: 5px; }
+        
+        .cut-icon { position: absolute; left: 2px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #ccc; }
+
+        /* --- ซ่อน Scrollbar และหมุนกระดาษตอนพิมพ์ --- */
+        @media print {
+            html, body { 
+                background: none; width: 100%; height: 100%; 
+                margin: 0; padding: 0; overflow: hidden !important; 
+            }
+            #control-panel { display: none !important; }
+            #preview-area { 
+                padding: 0; background: none; overflow: visible !important; display: block;
+            }
+            .a4-landscape { box-shadow: none; margin: 0; width: 297mm; height: 210mm; padding: 5mm 8.5mm; }
+            .belly-band { page-break-inside: avoid; border-color: #888; }
+            
+            @page { size: A4 landscape; margin: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="control-panel">
+    <a href="index.html" class="btn-back">
+        <i class="fas fa-arrow-left"></i> กลับสู่หน้า Dashboard
+    </a>
+
+    <div class="system-header">
+        <h2>ระบบพิมพ์สายคาดสินค้า (A4)</h2>
+        <p>แหลมฉบังเครื่องเขียน (1995)</p>
+    </div>
+
+    <div class="alert-box">
+        <i class="fas fa-info-circle"></i> <b>เคล็ดลับ:</b> ยิ่งตั้งความสูงสายคาดน้อย จะยิ่งได้จำนวนเส้นต่อ 1 หน้า A4 มากขึ้น (ระบบคำนวณให้อัตโนมัติ)
+    </div>
+
+    <div class="fieldset-group">
+        <div class="fieldset-title">1. ข้อความบนสายคาด</div>
+        
+        <div class="form-row">
+            <label>สีข้อความราคา:</label>
+            <div style="flex-grow: 1; display: flex; gap: 5px;">
+                <select id="brandColorSelect" onchange="toggleCustomColor()" style="flex-grow: 1;">
+                    <option value="#dc3545">แดง (ดึงดูดสายตา)</option>
+                    <option value="#0056b3">น้ำเงิน</option>
+                    <option value="#28a745">เขียว</option>
+                    <option value="#fd7e14">ส้ม</option>
+                    <option value="#212529">ดำ</option>
+                    <option value="custom">🌈 เลือกสีเอง...</option>
+                </select>
+                <input type="color" id="customColorPicker" value="#000000" style="display: none; width: 40px; padding: 0;" oninput="updatePreview()">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <label>ข้อความยี่ห้อ (ถ้ามี):</label>
+            <input type="text" id="brandText" value="" placeholder="เช่น LS 1995 (เว้นว่างได้)" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>ชื่อสินค้า:</label>
+            <input type="text" id="productName" value="หักภาษี" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>จำนวน/แพ็ค:</label>
+            <input type="text" id="packQty" value="20 เล่ม" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label style="color: #dc3545;">ราคา:</label>
+            <input type="text" id="priceText" value="เล่มละ 59.-" oninput="updatePreview()">
+        </div>
+    </div>
+
+    <div class="fieldset-group">
+        <div class="fieldset-title">2. กำหนดขนาด (ตัวเลข)</div>
+        
+        <div class="form-row">
+            <label>ความสูงสายคาด (ซม.):</label>
+            <input type="number" class="size-input" id="bandHeightCm" value="2.0" step="0.1" min="1.0" max="10.0" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>ขนาดชื่อสินค้า (px):</label>
+            <input type="number" class="size-input" id="nameSize" value="24" min="10" oninput="updatePreview()">
+        </div>
+        
+        <div class="form-row">
+            <label>ขนาดราคา (px):</label>
+            <input type="number" class="size-input" id="priceSize" value="28" min="10" oninput="updatePreview()">
+        </div>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">
+        <i class="fas fa-print"></i> พิมพ์สายคาด (A4 แนวนอน)
+    </button>
+</div>
+
+<div id="preview-area">
+    <div class="a4-landscape" id="print-content"></div>
+</div>
+
+<script>
+    function toggleCustomColor() {
+        const select = document.getElementById('brandColorSelect');
+        const picker = document.getElementById('customColorPicker');
+        if (select.value === 'custom') {
+            picker.style.display = 'block';
+        } else {
+            picker.style.display = 'none';
+        }
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const colorSelect = document.getElementById('brandColorSelect').value;
+        const finalColor = colorSelect === 'custom' ? document.getElementById('customColorPicker').value : colorSelect;
+        document.documentElement.style.setProperty('--current-color', finalColor);
+
+        const brandText = document.getElementById('brandText').value;
+        const productName = document.getElementById('productName').value;
+        const packQty = document.getElementById('packQty').value;
+        const priceText = document.getElementById('priceText').value;
+
+        const nameSize = document.getElementById('nameSize').value || 24;
+        const priceSize = document.getElementById('priceSize').value || 28;
+        
+        let bandHeightCm = parseFloat(document.getElementById('bandHeightCm').value);
+        if (isNaN(bandHeightCm) || bandHeightCm < 1.0) bandHeightCm = 2.0;
+
+        const usableHeightMm = 200; 
+        const bandHeightMm = bandHeightCm * 10;
+        let bandsCount = Math.floor(usableHeightMm / bandHeightMm);
+        
+        if (bandsCount > 25) bandsCount = 25; 
+        if (bandsCount < 1) bandsCount = 1;
+
+        const container = document.getElementById('print-content');
+        container.innerHTML = ''; 
+
+        for (let i = 0; i < bandsCount; i++) {
+            const brandHtml = brandText ? `<span class="brand-text">${brandText}</span>` : '';
+            
+            container.innerHTML += `
+                <div class="belly-band" style="height: ${bandHeightMm}mm;">
+                    <i class="fas fa-cut cut-icon"></i>
+                    <div class="band-content">
+                        ${brandHtml}
+                        <span class="product-name" style="font-size: ${nameSize}px;">${productName}</span>
+                        <span class="pack-qty" style="font-size: ${nameSize}px;">${packQty}</span>
+                        <span class="price-text" style="font-size: ${priceSize}px;">${priceText}</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    window.onload = function() {
+        updatePreview();
+    };
+</script>
+
+</body>
+</html>
