@@ -170,14 +170,22 @@
         const SHEET_ID = '1ZYrcL_5-cZuk7FU-VhI9Btjh8PBGViW5qp1REvRcj-M'; 
         
         let dbRules = [];
-        let dbItems = {}; // เก็บเป็น Object เพื่อง่ายต่อการค้นหา
+        let dbItems = {}; 
         let dbServices = [];
 
-        // ฟังก์ชันแปลงลิงก์ Drive
+        // ฟังก์ชันจัดการลิงก์รูปภาพ (อัปเดตใหม่ รองรับทั้ง Google Drive และ Canva)
         function getDriveDirectLink(url) {
             if (!url) return '';
-            const match = url.match(/[-\w]{25,}/);
-            if (match && match[0]) return `https://drive.google.com/uc?export=view&id=${match[0]}`;
+            
+            // 1. ถ้าเป็นลิงก์ Google Drive ให้ดึงเฉพาะ ID มาสร้างเป็น Direct Link
+            if (url.includes('drive.google.com') || url.includes('drive.usercontent.google.com')) {
+                const match = url.match(/(?:id=|\/d\/)([-\w]+)/);
+                if (match && match[1]) {
+                    return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                }
+            }
+            
+            // 2. ถ้าเป็นลิงก์จากเว็บอื่น (เช่น Canva, รูปเว็บตรง) ให้ใช้ลิงก์เดิมเลย ไม่ต้องแปลง
             return url;
         }
 
