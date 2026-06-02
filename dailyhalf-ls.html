@@ -98,7 +98,6 @@
 
         <div class="main-layout">
             <div class="col-left">
-                <!-- 1. เงินทอนเช้า -->
                 <div class="card">
                     <div class="card-head h-morn">
                         <span style="flex-grow:1;">1. เงินทอนเช้า</span>
@@ -110,7 +109,6 @@
                     <table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table>
                 </div>
 
-                <!-- 2. ปิดร้าน -->
                 <div class="card">
                     <div class="card-head h-eve">
                         <span style="flex-grow:1;">2. ปิดร้าน (นับได้)</span>
@@ -122,7 +120,6 @@
                     <table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table>
                 </div>
 
-                <!-- 3. ฝาก / เบิกใช้ -->
                 <div class="card">
                     <div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div>
                     <table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table>
@@ -134,7 +131,6 @@
             </div>
 
             <div class="col-right">
-                <!-- 4. QR Code -->
                 <div class="card">
                     <div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div>
                     <div class="qr-wrapper">
@@ -146,7 +142,6 @@
                     </div>
                 </div>
 
-                <!-- 5. โครงการพิเศษ (แก้ไขชื่อได้) -->
                 <div class="card">
                     <div class="card-head h-half">
                         <span>5.<input type="text" id="halfTitle" value="ไทยพลัส 60/40" style="width:130px; font-weight:bold; border:none; background:transparent; color:#d35400; text-align:left;" oninput="calc()"></span>
@@ -161,7 +156,6 @@
                     </div>
                 </div>
 
-                <!-- 6. สรุปยอด -->
                 <div class="card">
                     <div class="card-head h-sum">6. สรุปยอดขายจริง</div>
                     <div style="padding:5px 10px;">
@@ -187,7 +181,6 @@
                     </div>
                 </div>
 
-                <!-- Result Status -->
                 <div id="statusBox" class="status-box">
                     <div style="width:100%; display:flex; justify-content:center; gap:10px;"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div>
                     <div style="font-size:0.8rem; font-weight:normal; margin-top:5px; opacity:0.8;">เวลาปัจจุบัน: <span id="realtimeClock">--:--:--</span></div>
@@ -214,8 +207,10 @@
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, halfRows = 6, saveTimer = null;
-    const KEY = 'cashApp_LaemChabang_Half_V54';
-    const CLOUD_URL = 'https://script.google.com/macros/s/AKfycby6QT-QvjpOfUOYldT4g_zSSraHxiVkEdP3w5-_cDUKLjUiCgVg3WX-cdta-2DENZgayw/exec';
+    const KEY = 'cashApp_LaemChabang_Half_V55';
+    
+    // ⚠️ นำ URL ของ Apps Script ตัวใหม่มาวางตรงนี้ ⚠️
+    const CLOUD_URL = 'httpshttps://script.google.com/macros/s/AKfycbwr66FOie1ejWpJ83pVdUQZ24PbUmDrDkMjo8zVjyRDURX0Uw-FpOIodZgd2YuV5Tf7_w/exec';
 
     function init() { 
         buildTable('tbMorn', 'm'); 
@@ -333,17 +328,18 @@
         alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); 
     }
 
-    // 🌟 พระเอกอยู่ตรงนี้ครับ! ฟังก์ชันเชื่อมต่อ Google Sheet ที่ปรับปรุงใหม่
+    // 🌟 ระบบ Sync ข้อมูลเข้า Google Sheet (ทำงานแบบเงียบ)
     function silentCloudSync() { 
         const k = getKey(curD); 
         const form = getForm(); 
-        // 1. ดึงชื่อโครงการที่พนักงานพิมพ์ในช่องที่ 5 มาต่อท้ายชื่อสาขา
+        
+        // 1. นำชื่อโครงการที่พิมพ์มาประกอบร่างเป็นชื่อสาขา
         const projectName = document.getElementById('halfTitle').value || 'โครงการพิเศษ';
         const shopName = "แหลมฉบัง (" + projectName + ")";
 
-        // 2. จัดเรียงข้อมูลสำหรับหน้า Dashboard สรุป (สร้างแท็บใหม่ "ใบส่งเงิน โครงการ" ให้อัตโนมัติ)
+        // 2. ส่งข้อมูลยอดสรุปไปที่แท็บ "ใบส่งเงิน โครงการ" (ที่คุณ J สร้างรอไว้)
         const summaryData = { 
-            targetTab: "ใบส่งเงิน โครงการ", // <--- แจ้ง GAS ให้ไปวางที่แท็บนี้
+            targetTab: "ใบส่งเงิน โครงการ", 
             date: k, 
             shop: shopName, 
             emp: form.emp || "ไม่ระบุ", 
@@ -353,7 +349,7 @@
         }; 
         fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); 
 
-        // 3. จัดเรียงข้อมูลเพื่อทำ System_Backup สำหรับเวลาเรียกดูข้อมูลย้อนหลัง
+        // 3. ส่งข้อมูลดิบทั้งหมดไปเก็บเป็นประวัติในแท็บ "System_Backup"
         const backupData = {
             mode: "backup",
             date: k,
