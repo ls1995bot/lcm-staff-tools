@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบส่งเงินขาย (คนละครึ่ง) แหลมฉบังเครื่องเขียน</title>
+    <title>ระบบส่งเงินขาย (โครงการพิเศษ) แหลมฉบังเครื่องเขียน</title>
     <link rel="icon" href="logo-ls.png.png">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -45,6 +45,7 @@
         .badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; font-size: 0.8rem; }
         #saveStatus { color: #fff; margin-right: 15px; font-weight: bold; opacity: 0; transition: opacity 0.5s ease-in-out; }
         .print-header, .print-watermark { display: none; }
+        
         @media print {
             @page { size: A4 portrait; margin: 5mm; }
             body { background: white; padding: 0; position: relative; overflow: hidden; }
@@ -66,107 +67,469 @@
 <body>
 <div class="container">
     <div class="print-watermark">แหลมฉบังเครื่องเขียน</div>
-    <div class="print-header"><h1>แหลมฉบังเครื่องเขียน (1995)</h1><div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div></div>
-    <div class="app-header no-print">
-        <div style="display:flex; align-items:center; gap:12px;"><img src="logo-ls.png.png" class="shop-logo"><div><div style="font-size:1.2rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div><div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขาย (คนละครึ่ง)</div></div></div>
-        <div class="toolbar"><span id="saveStatus">💾 จำแล้ว!</span><a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a><button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button><button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองลงคอม</small></button><button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()"><span>📥 เปิด</span><small>ดูข้อมูลเก่า</small></button><input type="file" id="fileInput" style="display:none;" onchange="importFile(this)"></div>
+    <div class="print-header">
+        <h1>แหลมฉบังเครื่องเขียน (1995)</h1>
+        <div><div>วันที่: <span id="pDate">...</span></div><div>พนง: <span id="pStaff">...</span></div></div>
     </div>
+    
+    <div class="app-header no-print">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="logo-ls.png.png" class="shop-logo" onerror="this.src='logo-ls.jpg'">
+            <div>
+                <div style="font-size:1.2rem; font-weight:bold;">แหลมฉบังเครื่องเขียน (1995)</div>
+                <div style="font-size:0.8rem; opacity:0.9;">ระบบส่งเงินขาย (โครงการพิเศษ)</div>
+            </div>
+        </div>
+        <div class="toolbar">
+            <span id="saveStatus">💾 จำแล้ว!</span>
+            <a href="index.html" class="btn-main" style="background:#6c757d;"><span>⬅️ กลับ</span><small>หน้าเมนูหลัก</small></a>
+            <button class="btn-main" style="background:#28a745;" onclick="manualSave()"><span>💾 จำไว้</span><small>บันทึก/ซิงค์ระบบ</small></button>
+            <button class="btn-main" style="background:#17a2b8;" onclick="exportFile()"><span>📂 ส่งออก</span><small>สำรองลงคอม</small></button>
+            <button class="btn-main" style="background:#0d6efd;" onclick="document.getElementById('fileInput').click()"><span>📥 เปิด</span><small>ดูข้อมูลเก่า</small></button>
+            <input type="file" id="fileInput" style="display:none;" onchange="importFile(this)">
+        </div>
+    </div>
+
     <div id="dailyPage">
         <div class="no-print" style="text-align:right; margin-bottom:10px; display:flex; justify-content:flex-end; align-items:center; gap:10px;">
-            <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold; cursor:pointer;"><label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
+            <input type="month" id="monthPicker" onchange="changeMonth()" style="padding:5px; width:150px; border-radius:5px; border:1px solid #ccc; font-weight:bold; cursor:pointer;">
+            <label style="font-weight:bold;">พนักงาน: <input type="text" id="empName" style="width:180px; border-bottom:2px solid var(--primary); text-align:left;" oninput="updatePrintInfo()"></label>
         </div>
+
         <div class="main-layout">
             <div class="col-left">
-                <div class="card"><div class="card-head h-morn"><span style="flex-grow:1;">1. เงินทอนเช้า</span><div style="display:flex; gap:10px; align-items:center;"><input type="time" id="timeMorn" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;"><span id="totalMorn" style="min-width:60px; text-align:right;">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table></div>
-                <div class="card"><div class="card-head h-eve"><span style="flex-grow:1;">2. ปิดร้าน (นับได้)</span><div style="display:flex; gap:10px; align-items:center;"><input type="time" id="timeEve" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;"><span id="totalEve" style="min-width:60px; text-align:right;">0.00</span></div></div><table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table></div>
-                <div class="card"><div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div><table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delOpsRow()">- ลบแถว</button></div></div>
+                <!-- 1. เงินทอนเช้า -->
+                <div class="card">
+                    <div class="card-head h-morn">
+                        <span style="flex-grow:1;">1. เงินทอนเช้า</span>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="time" id="timeMorn" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;">
+                            <span id="totalMorn" style="min-width:60px; text-align:right;">0.00</span>
+                        </div>
+                    </div>
+                    <table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbMorn"></tbody></table>
+                </div>
+
+                <!-- 2. ปิดร้าน -->
+                <div class="card">
+                    <div class="card-head h-eve">
+                        <span style="flex-grow:1;">2. ปิดร้าน (นับได้)</span>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="time" id="timeEve" oninput="triggerSave()" style="width:75px; text-align:center; font-size:0.85rem;">
+                            <span id="totalEve" style="min-width:60px; text-align:right;">0.00</span>
+                        </div>
+                    </div>
+                    <table><thead><tr><th width="35%">รายการ</th><th width="40%">ยอดรวม</th><th width="25%">จำนวน</th></tr></thead><tbody id="tbEve"></tbody></table>
+                </div>
+
+                <!-- 3. ฝาก / เบิกใช้ -->
+                <div class="card">
+                    <div class="card-head h-ops"><span>3. ฝาก / เบิกใช้</span><span>รวม: <span id="totalOps">0.00</span></span></div>
+                    <table><thead><tr><th width="20%">เวลา</th><th>รายการ</th><th width="35%">จำนวนเงิน</th></tr></thead><tbody id="tbOps"></tbody></table>
+                    <div class="no-print" style="padding:5px; text-align:center;">
+                        <button class="btn-sm btn-add" onclick="addOpsRow('')">+ เพิ่มแถว</button>
+                        <button class="btn-sm btn-del" onclick="delOpsRow()">- ลบแถว</button>
+                    </div>
+                </div>
             </div>
+
             <div class="col-right">
-                <div class="card"><div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div><div class="qr-wrapper"><table id="qrTable"><thead><tr><th id="th_q1">1</th><th id="th_q2">2</th><th id="th_q3">3</th><th id="th_q4">4</th><th id="th_q5">5</th></tr></thead><tbody id="tbQR"></tbody></table></div><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button></div></div>
-                <div class="card"><div class="card-head h-half"><span>5.<input type="text" id="halfTitle" value="คนละครึ่ง" style="width:120px; font-weight:bold; border:none; background:transparent; color:#d35400; text-align:left;" oninput="calc()"></span><span>รวม: <span id="totalHalf">0.00</span></span></div><div class="qr-wrapper"><table id="halfTable"><thead><tr><th id="th_h1">1</th><th id="th_h2">2</th><th id="th_h3">3</th><th id="th_h4">4</th><th id="th_h5">5</th></tr></thead><tbody id="tbHalf"></tbody></table></div><div class="no-print" style="padding:5px; text-align:center;"><button class="btn-sm btn-add" onclick="addHalfRow()">+ เพิ่มแถว</button><button class="btn-sm btn-del" onclick="delHalfRow()">- ลบแถว</button></div></div>
+                <!-- 4. QR Code -->
+                <div class="card">
+                    <div class="card-head h-qr"><span>4. QR Code / โอน</span><span>รวม: <span id="totalQR">0.00</span></span></div>
+                    <div class="qr-wrapper">
+                        <table id="qrTable"><thead><tr><th id="th_q1">1</th><th id="th_q2">2</th><th id="th_q3">3</th><th id="th_q4">4</th><th id="th_q5">5</th></tr></thead><tbody id="tbQR"></tbody></table>
+                    </div>
+                    <div class="no-print" style="padding:5px; text-align:center;">
+                        <button class="btn-sm btn-add" onclick="addQrRow()">+ เพิ่มแถว</button>
+                        <button class="btn-sm btn-del" onclick="delQrRow()">- ลบแถว</button>
+                    </div>
+                </div>
+
+                <!-- 5. โครงการพิเศษ (แก้ไขชื่อได้) -->
+                <div class="card">
+                    <div class="card-head h-half">
+                        <span>5.<input type="text" id="halfTitle" value="ไทยพลัส 60/40" style="width:130px; font-weight:bold; border:none; background:transparent; color:#d35400; text-align:left;" oninput="calc()"></span>
+                        <span>รวม: <span id="totalHalf">0.00</span></span>
+                    </div>
+                    <div class="qr-wrapper">
+                        <table id="halfTable"><thead><tr><th id="th_h1">1</th><th id="th_h2">2</th><th id="th_h3">3</th><th id="th_h4">4</th><th id="th_h5">5</th></tr></thead><tbody id="tbHalf"></tbody></table>
+                    </div>
+                    <div class="no-print" style="padding:5px; text-align:center;">
+                        <button class="btn-sm btn-add" onclick="addHalfRow()">+ เพิ่มแถว</button>
+                        <button class="btn-sm btn-del" onclick="delHalfRow()">- ลบแถว</button>
+                    </div>
+                </div>
+
+                <!-- 6. สรุปยอด -->
                 <div class="card">
                     <div class="card-head h-sum">6. สรุปยอดขายจริง</div>
                     <div style="padding:5px 10px;">
                         <div class="sum-row"><span>(2) เงินสดปิดร้าน:</span><span id="sumCash">0.00</span></div>
                         <div class="sum-row" style="color:#138496;"><span>(3) (+) ฝาก/เบิกใช้:</span><span id="sumOps">0.00</span></div>
                         <div class="sum-row" style="color:#8e44ad;"><span>(4) (+) QR Code:</span><span id="sumQR">0.00</span></div>
-                        <div class="sum-row" style="color:#d35400;"><span>(5) (+) <span id="sumHalfTitle">คนละครึ่ง</span>:</span><span id="sumHalf">0.00</span></div>
+                        <div class="sum-row" style="color:#d35400;"><span>(5) (+) <span id="sumHalfTitle">โครงการพิเศษ</span>:</span><span id="sumHalf">0.00</span></div>
                         <div class="sum-row" style="color:#d35400;"><span>(1) (-) หักเงินทอนเช้า:</span><span id="sumFloat">- 0.00</span></div>
-                        <div class="sum-final"><div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ (2+3+4+5-1):</span><span id="grandTotal" style="font-size:1.2rem;">0.00</span></div></div>
-                        <div style="margin-top:5px; border-top:2px solid #eee; padding-top:5px;"><div class="sum-row"><span>ยอดขาย POS:</span><div style="display:flex; gap:5px; justify-content:flex-end; align-items:center;"><input type="number" id="posVal" style="font-size:1.1rem; width:120px; color:#000; font-weight:bold;" oninput="calc()"><input type="time" id="timePOS" style="width:75px; text-align:center; font-size:0.9rem;" oninput="triggerSave()"></div></div></div>
+                        
+                        <div class="sum-final">
+                            <div class="sum-row" style="border:none;"><span>(=) ยอดขายจริงสุทธิ (2+3+4+5-1):</span><span id="grandTotal" style="font-size:1.2rem;">0.00</span></div>
+                        </div>
+                        
+                        <div style="margin-top:5px; border-top:2px solid #eee; padding-top:5px;">
+                            <div class="sum-row">
+                                <span>ยอดขาย POS:</span>
+                                <div style="display:flex; gap:5px; justify-content:flex-end; align-items:center;">
+                                    <input type="number" id="posVal" style="font-size:1.1rem; width:120px; color:#000; font-weight:bold;" oninput="calc()">
+                                    <input type="time" id="timePOS" style="width:75px; text-align:center; font-size:0.9rem;" oninput="triggerSave()">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div id="statusBox" class="status-box"><div style="width:100%; display:flex; justify-content:center; gap:10px;"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div><div style="font-size:0.8rem; font-weight:normal; margin-top:5px; opacity:0.8;">เวลาปัจจุบัน: <span id="realtimeClock">--:--:--</span></div></div>
+
+                <!-- Result Status -->
+                <div id="statusBox" class="status-box">
+                    <div style="width:100%; display:flex; justify-content:center; gap:10px;"><span>ผลต่าง:</span> <span id="diffText">--</span> <span id="diffVal">0.00</span></div>
+                    <div style="font-size:0.8rem; font-weight:normal; margin-top:5px; opacity:0.8;">เวลาปัจจุบัน: <span id="realtimeClock">--:--:--</span></div>
+                </div>
+                
                 <button class="no-print" style="width:100%; padding:15px; background:#2c3e50; color:white; border-radius:8px; font-weight:bold; margin-top:10px; cursor:pointer;" onclick="window.print()">🖨️ สั่งพิมพ์รายงาน (A4)</button>
             </div>
         </div>
+
         <div class="guide-box no-print">
             <h3><i class="fas fa-info-circle"></i> คู่มือการใช้งานระบบส่งเงิน</h3>
-            <div class="guide-step">
-                <h5>1. การเลือกวันที่</h5>
-                <p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p>
-            </div>
-            <div class="guide-step">
-                <h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5>
-                <p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมให้ทันที</p>
-            </div>
-            <div class="guide-step">
-                <h5>3. การบันทึกยอดโอน และ หมวดพิเศษ</h5>
-                <p>กรอกยอดโอนในหมวดที่ 4 และยอดคนละครึ่งในหมวดที่ 5 (ท่านสามารถ <b>คลิกที่คำว่าคนละครึ่งเพื่อเปลี่ยนชื่อหมวด</b> เป็นอย่างอื่นได้ เช่น บัตรเครดิต)</p>
-            </div>
-            <div class="guide-step">
-                <h5>4. สรุปผลต่างยอดขาย</h5>
-                <p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ระบบจะเปรียบเทียบยอดขายจริงสุทธิให้อัตโนมัติ</p>
-            </div>
-            <div class="guide-step">
-                <h5>5. บันทึกลงเครื่อง</h5>
-                <p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อบันทึกข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> เพื่อสำรองไฟล์ลงคอมพิวเตอร์</p>
-            </div>
-            <div class="guide-step">
-                <h5>6. การเรียกดูข้อมูลเก่า</h5>
-                <p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลัง</p>
-            </div>
+            <div class="guide-step"><h5>1. การเลือกวันที่</h5><p>เลือกเดือนที่ต้องการจาก <b>"ช่องเลือกเดือน"</b> ด้านบน และคลิกเลือก "วันที่" จากแถบเมนูด้านล่างสุด ระบบจะจำข้อมูลแยกรายวันให้เอง</p></div>
+            <div class="guide-step"><h5>2. บันทึกเงินทอนและยอดปิดร้าน</h5><p>นับยอดรวมของธนบัตรและเหรียญแต่ละชนิดแล้วกรอกในช่อง <b>"ยอดรวม"</b> ระบบจะคำนวณจำนวนใบ/เหรียญ และสรุปยอดรวมให้ทันที</p></div>
+            <div class="guide-step"><h5>3. การบันทึกยอดโอน และ หมวดพิเศษ</h5><p>กรอกยอดโอนในหมวดที่ 4 และยอดพิเศษในหมวดที่ 5 (ท่านสามารถ <b>คลิกที่ชื่อหมวดที่ 5 เพื่อเปลี่ยนชื่อโครงการ</b> ได้อย่างอิสระ เช่น ไทยพลัส, คนละครึ่ง)</p></div>
+            <div class="guide-step"><h5>4. สรุปผลต่างยอดขาย</h5><p>กรอกยอดขายจากเครื่อง <span class="badge">SeniorSoft (POS)</span> ระบบจะเปรียบเทียบยอดขายจริงสุทธิให้อัตโนมัติ</p></div>
+            <div class="guide-step"><h5>5. บันทึกลงเครื่อง</h5><p>กดปุ่ม <span class="badge" style="background:#28a745; color:white;">💾 จำไว้</span> เพื่อบันทึกข้อมูลล่าสุด และกด <span class="badge" style="background:#17a2b8; color:white;">📂 ส่งออก</span> เพื่อสำรองไฟล์ลงคอมพิวเตอร์</p></div>
+            <div class="guide-step"><h5>6. การเรียกดูข้อมูลเก่า</h5><p>กดปุ่ม <span class="badge" style="background:#0d6efd; color:white;">📥 เปิด</span> เพื่อเลือกไฟล์ที่เคยสำรองไว้กลับขึ้นมาดูย้อนหลัง</p></div>
         </div>
     </div>
 </div>
+
 <div style="position:fixed; bottom:0; width:100%; background:#fff; border-top:1px solid #ccc; padding:5px; display:flex; overflow-x:auto; z-index:9999;" class="no-print" id="sheetContainer"></div>
+
 <script>
     const denoms = [1000, 500, 100, 50, 20, 10, 5, 2, 1];
     let db = {}, curY, curM, curD, qrRows = 6, halfRows = 6, saveTimer = null;
-    const KEY = 'cashApp_LaemChabang_Half_V53';
+    const KEY = 'cashApp_LaemChabang_Half_V54';
     const CLOUD_URL = 'https://script.google.com/macros/s/AKfycby6QT-QvjpOfUOYldT4g_zSSraHxiVkEdP3w5-_cDUKLjUiCgVg3WX-cdta-2DENZgayw/exec';
-    function init() { buildTable('tbMorn', 'm'); buildTable('tbEve', 'e'); buildQR(qrRows); buildHalf(halfRows); buildOps(3, true); const saved = localStorage.getItem(KEY); if(saved) db = JSON.parse(saved); const now = new Date(); document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); changeMonth(); document.addEventListener('keydown', handleNav); startClock(); }
+
+    function init() { 
+        buildTable('tbMorn', 'm'); 
+        buildTable('tbEve', 'e'); 
+        buildQR(qrRows); 
+        buildHalf(halfRows); 
+        buildOps(3, true); 
+        const saved = localStorage.getItem(KEY); 
+        if(saved) db = JSON.parse(saved); 
+        const now = new Date(); 
+        document.getElementById('monthPicker').value = now.toISOString().slice(0, 7); 
+        changeMonth(); 
+        document.addEventListener('keydown', handleNav); 
+        startClock(); 
+    }
+
     function startClock() { setInterval(() => { document.getElementById('realtimeClock').innerText = new Date().toLocaleTimeString('th-TH'); }, 1000); }
-    function handleNav(e) { const el = e.target; if(el.tagName !== 'INPUT') return; if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); navigate(el, e.key); } if (e.key === 'Enter') { e.preventDefault(); navigate(el, 'ArrowDown'); } }
-    function navigate(el, key) { const allInputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="month"]):not([type="file"])')); const idx = allInputs.indexOf(el); if(el.id.startsWith('q_') || el.id.startsWith('h_')) { const prefix = el.id.substring(0, 2); const [_, c, r] = el.id.split('_').map(Number); let nC = c, nR = r; if (key === 'ArrowUp') nR--; else if (key === 'ArrowDown') nR++; else if (key === 'ArrowLeft') nC--; else if (key === 'ArrowRight') nC++; const target = document.getElementById(`${prefix}${nC}_${nR}`); if(target) { target.focus(); return; } } let dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1; const next = idx + dir; if(next >= 0 && next < allInputs.length) allInputs[next].focus(); }
-    function changeMonth() { const v = document.getElementById('monthPicker').value; if(!v) return; [curY, curM] = v.split('-').map(Number); renderTabs(); loadDay(curD || new Date().getDate()); }
-    function renderTabs() { const c = document.getElementById('sheetContainer'); c.innerHTML = ''; const max = new Date(curY, curM, 0).getDate(); for(let i=1; i<=max; i++) { const d = document.createElement('div'); d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; d.innerText = i; d.onclick = () => { forceSave(); curD = i; loadDay(i); renderTabs(); }; c.appendChild(d); } }
+
+    function handleNav(e) { 
+        const el = e.target; 
+        if(el.tagName !== 'INPUT') return; 
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); navigate(el, e.key); } 
+        if (e.key === 'Enter') { e.preventDefault(); navigate(el, 'ArrowDown'); } 
+    }
+
+    function navigate(el, key) { 
+        const allInputs = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="month"]):not([type="file"])')); 
+        const idx = allInputs.indexOf(el); 
+        if(el.id.startsWith('q_') || el.id.startsWith('h_')) { 
+            const prefix = el.id.substring(0, 2); 
+            const [_, c, r] = el.id.split('_').map(Number); 
+            let nC = c, nR = r; 
+            if (key === 'ArrowUp') nR--; else if (key === 'ArrowDown') nR++; else if (key === 'ArrowLeft') nC--; else if (key === 'ArrowRight') nC++; 
+            const target = document.getElementById(`${prefix}${nC}_${nR}`); 
+            if(target) { target.focus(); return; } 
+        } 
+        let dir = (key === 'ArrowDown' || key === 'ArrowRight') ? 1 : -1; 
+        const next = idx + dir; 
+        if(next >= 0 && next < allInputs.length) allInputs[next].focus(); 
+    }
+
+    function changeMonth() { 
+        const v = document.getElementById('monthPicker').value; 
+        if(!v) return; 
+        [curY, curM] = v.split('-').map(Number); 
+        renderTabs(); 
+        loadDay(curD || new Date().getDate()); 
+    }
+
+    function renderTabs() { 
+        const c = document.getElementById('sheetContainer'); 
+        c.innerHTML = ''; 
+        const max = new Date(curY, curM, 0).getDate(); 
+        for(let i=1; i<=max; i++) { 
+            const d = document.createElement('div'); 
+            d.style = `min-width:35px; height:35px; margin-right:5px; border:1px solid #ccc; display:flex; justify-content:center; align-items:center; cursor:pointer; background:${i===curD?'var(--primary)':'#fff'}; color:${i===curD?'#fff':'#000'}; border-radius:4px; font-weight:bold;`; 
+            d.innerText = i; 
+            d.onclick = () => { forceSave(); curD = i; loadDay(i); renderTabs(); }; 
+            c.appendChild(d); 
+        } 
+    }
+
     function getKey(d) { return `${curY}-${String(curM).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
-    function updatePrintInfo() { document.getElementById('pDate').innerText = getKey(curD || new Date().getDate()); document.getElementById('pStaff').innerText = document.getElementById('empName').value || '................................'; triggerSave(); }
-    function loadDay(d) { document.querySelectorAll('input').forEach(i => { if(i.type!='file' && i.type!='month') { i.value=''; if(i.type=='checkbox') i.checked=false; }}); document.getElementById('tbOps').innerHTML = ''; buildQR(qrRows); buildHalf(halfRows); const k = getKey(d); if(db[k]) { if(db[k].ops) buildOps(db[k].ops.length, false); if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } if(db[k].h_r && db[k].h_r > halfRows) { halfRows = db[k].h_r; buildHalf(halfRows); } setForm(db[k]); } else { buildOps(3, true); calc(); } updatePrintInfo(); }
-    function triggerSave() { if(saveTimer) clearTimeout(saveTimer); saveTimer = setTimeout(forceSave, 300); }
-    function forceSave() { if(!curD) return; db[getKey(curD)] = getForm(); localStorage.setItem(KEY, JSON.stringify(db)); const el = document.getElementById('saveStatus'); el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1000); silentCloudSync(); }
-    function manualSave() { forceSave(); alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); }
-    function silentCloudSync() { const k = getKey(curD); const form = getForm(); const summaryData = { date: k, shop: "แหลมฉบัง (คนละครึ่ง)", emp: form.emp || "ไม่ระบุ", pos: form.pos || 0, actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') }; fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); }
-    function buildTable(id, p) { const tb = document.getElementById(id); denoms.forEach(d => tb.innerHTML += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`); }
-    function buildOps(n, def) { document.getElementById('tbOps').innerHTML = ''; for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); }
-    function addOpsRow(val) { const tb = document.getElementById('tbOps'); const r = document.createElement('tr'); r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; tb.appendChild(r); }
-    function delOpsRow() { const tb = document.getElementById('tbOps'); if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } }
-    function buildQR(r) { const t=document.getElementById('tbQR'); t.innerHTML=''; for(let i=1;i<=r;i++) addQrRowHTML(i); }
-    function addQrRowHTML(r) { const t=document.getElementById('tbQR'); let h=`<tr>`; for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}" style="width:13px;height:13px;margin:0 1px;"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
-    function addQrRow() { qrRows++; addQrRowHTML(qrRows); }
-    function delQrRow() { if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } }
-    function buildHalf(r) { const t=document.getElementById('tbHalf'); t.innerHTML=''; for(let i=1;i<=r;i++) addHalfRowHTML(i); }
-    function addHalfRowHTML(r) { const t=document.getElementById('tbHalf'); let h=`<tr>`; for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="hc_${c}_${r}" style="width:13px;height:13px;margin:0 1px;"><input type="number" id="h_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; t.insertAdjacentHTML('beforeend', h+'</tr>'); }
-    function addHalfRow() { halfRows++; addHalfRowHTML(halfRows); }
-    function delHalfRow() { if(halfRows > 1) { document.getElementById('tbHalf').deleteRow(-1); halfRows--; calc(); } }
+
+    function updatePrintInfo() { 
+        document.getElementById('pDate').innerText = getKey(curD || new Date().getDate()); 
+        document.getElementById('pStaff').innerText = document.getElementById('empName').value || '................................'; 
+        triggerSave(); 
+    }
+
+    function loadDay(d) { 
+        document.querySelectorAll('input').forEach(i => { 
+            if(i.type!='file' && i.type!='month') { 
+                i.value=''; 
+                if(i.type=='checkbox') i.checked=false; 
+            }
+        }); 
+        document.getElementById('tbOps').innerHTML = ''; 
+        
+        qrRows = 6; 
+        halfRows = 6; 
+        buildQR(qrRows); 
+        buildHalf(halfRows); 
+        
+        const k = getKey(d); 
+        if(db[k]) { 
+            if(db[k].ops) buildOps(db[k].ops.length, false); 
+            if(db[k].qr_r && db[k].qr_r > qrRows) { qrRows = db[k].qr_r; buildQR(qrRows); } 
+            if(db[k].h_r && db[k].h_r > halfRows) { halfRows = db[k].h_r; buildHalf(halfRows); } 
+            setForm(db[k]); 
+        } else { 
+            buildOps(3, true); 
+            calc(); 
+        } 
+        updatePrintInfo(); 
+    }
+
+    function triggerSave() { 
+        if(saveTimer) clearTimeout(saveTimer); 
+        saveTimer = setTimeout(forceSave, 300); 
+    }
+
+    function forceSave() { 
+        if(!curD) return; 
+        db[getKey(curD)] = getForm(); 
+        localStorage.setItem(KEY, JSON.stringify(db)); 
+        const el = document.getElementById('saveStatus'); 
+        el.style.opacity = 1; 
+        setTimeout(() => { el.style.opacity = 0; }, 1000); 
+        silentCloudSync(); 
+    }
+
+    function manualSave() { 
+        forceSave(); 
+        alert(`💾 บันทึกยอดวันที่ ${getKey(curD)} เรียบร้อย`); 
+    }
+
+    // 🌟 พระเอกอยู่ตรงนี้ครับ! ฟังก์ชันเชื่อมต่อ Google Sheet ที่ปรับปรุงใหม่
+    function silentCloudSync() { 
+        const k = getKey(curD); 
+        const form = getForm(); 
+        // 1. ดึงชื่อโครงการที่พนักงานพิมพ์ในช่องที่ 5 มาต่อท้ายชื่อสาขา
+        const projectName = document.getElementById('halfTitle').value || 'โครงการพิเศษ';
+        const shopName = "แหลมฉบัง (" + projectName + ")";
+
+        // 2. จัดเรียงข้อมูลสำหรับหน้า Dashboard สรุป (สร้างแท็บใหม่ "ใบส่งเงิน โครงการ" ให้อัตโนมัติ)
+        const summaryData = { 
+            targetTab: "ใบส่งเงิน โครงการ", // <--- แจ้ง GAS ให้ไปวางที่แท็บนี้
+            date: k, 
+            shop: shopName, 
+            emp: form.emp || "ไม่ระบุ", 
+            pos: form.pos || 0, 
+            actual: document.getElementById('grandTotal').innerText.replace(/,/g, ''), 
+            diff: document.getElementById('diffVal').innerText.replace(/[+,]/g, '') 
+        }; 
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(summaryData) }); 
+
+        // 3. จัดเรียงข้อมูลเพื่อทำ System_Backup สำหรับเวลาเรียกดูข้อมูลย้อนหลัง
+        const backupData = {
+            mode: "backup",
+            date: k,
+            shop: shopName,
+            emp: form.emp || "ไม่ระบุ",
+            raw: JSON.stringify(db[k])
+        };
+        fetch(CLOUD_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(backupData) }); 
+    }
+
+    function buildTable(id, p) { 
+        const tb = document.getElementById(id); 
+        denoms.forEach(d => tb.innerHTML += `<tr><td>${d>=20?'แบงก์':'เหรียญ'} ${d}</td><td><input type="number" id="${p}v_${d}" oninput="calc()"></td><td id="${p}q_${d}" style="text-align:center; color:#888;">-</td></tr>`); 
+    }
+
+    function buildOps(n, def) { 
+        document.getElementById('tbOps').innerHTML = ''; 
+        for(let i=0; i<n; i++) addOpsRow(def ? "ฝากเข้าบัญชี" : ""); 
+    }
+
+    function addOpsRow(val) { 
+        const tb = document.getElementById('tbOps'); 
+        const r = document.createElement('tr'); 
+        r.innerHTML = `<td><input type="time" class="op-time" oninput="triggerSave()"></td><td><input type="text" class="op-name" value="${val}" oninput="triggerSave()"></td><td><input type="number" class="op-val" oninput="calc()"></td>`; 
+        tb.appendChild(r); 
+    }
+
+    function delOpsRow() { 
+        const tb = document.getElementById('tbOps'); 
+        if(tb.rows.length > 0) { tb.deleteRow(-1); calc(); } 
+    }
+
+    function buildQR(r) { 
+        const t=document.getElementById('tbQR'); 
+        t.innerHTML=''; 
+        for(let i=1;i<=r;i++) addQrRowHTML(i); 
+    }
+
+    function addQrRowHTML(r) { 
+        const t=document.getElementById('tbQR'); 
+        let h=`<tr>`; 
+        for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="qc_${c}_${r}" style="width:13px;height:13px;margin:0 1px;" onchange="triggerSave()"><input type="number" id="q_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; 
+        t.insertAdjacentHTML('beforeend', h+'</tr>'); 
+    }
+
+    function addQrRow() { 
+        qrRows++; 
+        addQrRowHTML(qrRows); 
+        triggerSave(); 
+    }
+
+    function delQrRow() { 
+        if(qrRows > 1) { document.getElementById('tbQR').deleteRow(-1); qrRows--; calc(); } 
+    }
+
+    function buildHalf(r) { 
+        const t=document.getElementById('tbHalf'); 
+        t.innerHTML=''; 
+        for(let i=1;i<=r;i++) addHalfRowHTML(i); 
+    }
+
+    function addHalfRowHTML(r) { 
+        const t=document.getElementById('tbHalf'); 
+        let h=`<tr>`; 
+        for(let c=1;c<=5;c++) h+=`<td><div style="display:flex; border:1px solid #eee; align-items:center;"><input type="checkbox" id="hc_${c}_${r}" style="width:13px;height:13px;margin:0 1px;" onchange="triggerSave()"><input type="number" id="h_${c}_${r}" style="border:none; padding:1px; font-size:0.7rem;" oninput="calc()"></div></td>`; 
+        t.insertAdjacentHTML('beforeend', h+'</tr>'); 
+    }
+
+    function addHalfRow() { 
+        halfRows++; 
+        addHalfRowHTML(halfRows); 
+        triggerSave(); 
+    }
+
+    function delHalfRow() { 
+        if(halfRows > 1) { document.getElementById('tbHalf').deleteRow(-1); halfRows--; calc(); } 
+    }
+
     function fmt(n) { return n.toLocaleString('en-US', {minimumFractionDigits:2}); }
+    
     function num(id) { const e=document.getElementById(id); return e ? (parseFloat(e.value)||0) : 0; }
-    function calc() { let m=0, e=0, q=0, h=0; denoms.forEach(d => { let mv=num(`mv_${d}`); m+=mv; let ev=num(`ev_${d}`); e+=ev; }); for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) q+=num(`q_${c}_${r}`); for(let r=1; r<=halfRows; r++) for(let c=1; c<=5; c++) h+=num(`h_${c}_${r}`); let ops = 0; document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); document.getElementById('totalMorn').innerText = fmt(m); document.getElementById('totalEve').innerText = fmt(e); document.getElementById('totalOps').innerText = fmt(ops); document.getElementById('totalQR').innerText = fmt(q); document.getElementById('totalHalf').innerText = fmt(h); document.getElementById('sumHalfTitle').innerText = document.getElementById('halfTitle').value || 'คนละครึ่ง'; let grand = (e + ops + q + h) - m; document.getElementById('sumCash').innerText = fmt(e); document.getElementById('sumOps').innerText = fmt(ops); document.getElementById('sumQR').innerText = fmt(q); document.getElementById('sumHalf').innerText = fmt(h); document.getElementById('sumFloat').innerText = '- ' + fmt(m); document.getElementById('grandTotal').innerText = fmt(grand); let diff = grand - num('posVal'); const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal'); if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } else if(diff<0) { box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText='- '+fmt(Math.abs(diff)); } else { box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+ '+fmt(Math.abs(diff)); } triggerSave(); }
-    function getForm() { let opsData = []; const rows = document.getElementById('tbOps').rows; for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); const d = { pos: document.getElementById('posVal').value, tp: document.getElementById('timePOS').value, hTitle: document.getElementById('halfTitle').value, tm: document.getElementById('timeMorn').value, te: document.getElementById('timeEve').value, emp: document.getElementById('empName').value, qr_r: qrRows, h_r: halfRows, ops: opsData, m: {}, e: {}, qr: {}, h: {} }; denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } for(let r=1; r<=halfRows; r++) for(let c=1; c<=5; c++) { let v=document.getElementById(`h_${c}_${r}`).value; let k=document.getElementById(`hc_${c}_${r}`).checked; if(v||k) d.h[`${c},${r}`]={v,k}; } return d; }
-    function setForm(d) { document.getElementById('posVal').value = d.pos||''; document.getElementById('timePOS').value = d.tp||''; document.getElementById('halfTitle').value = d.hTitle || 'คนละครึ่ง'; document.getElementById('timeMorn').value = d.tm||''; document.getElementById('timeEve').value = d.te||''; document.getElementById('empName').value = d.emp||''; const rows = document.getElementById('tbOps').rows; if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } if(d.h) for(let k in d.h) { let [c,r]=k.split(','); let el=document.getElementById(`h_${c}_${r}`); if(el) { el.value=d.h[k].v||''; document.getElementById(`hc_${c}_${r}`).checked=d.h[k].k||false; } } calc(); }
-    function exportFile() { forceSave(); const b = new Blob([JSON.stringify(db)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `LaemChabang_Half_${getKey(curD)}.json`; a.click(); }
-    function importFile(e) { const r = new FileReader(); r.onload = x => { try { Object.assign(db, JSON.parse(x.target.result)); localStorage.setItem(KEY, JSON.stringify(db)); loadDay(curD); alert("✅ ดึงข้อมูลเรียบร้อย"); } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } }; r.readAsText(e.files[0]); }
+
+    function calc() { 
+        let m=0, e=0, q=0, h=0; 
+        denoms.forEach(d => { let mv=num(`mv_${d}`); m+=mv; let ev=num(`ev_${d}`); e+=ev; }); 
+        for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) q+=num(`q_${c}_${r}`); 
+        for(let r=1; r<=halfRows; r++) for(let c=1; c<=5; c++) h+=num(`h_${c}_${r}`); 
+        let ops = 0; 
+        document.querySelectorAll('.op-val').forEach(el => ops += (parseFloat(el.value)||0)); 
+        
+        document.getElementById('totalMorn').innerText = fmt(m); 
+        document.getElementById('totalEve').innerText = fmt(e); 
+        document.getElementById('totalOps').innerText = fmt(ops); 
+        document.getElementById('totalQR').innerText = fmt(q); 
+        document.getElementById('totalHalf').innerText = fmt(h); 
+        document.getElementById('sumHalfTitle').innerText = document.getElementById('halfTitle').value || 'โครงการพิเศษ'; 
+        
+        let grand = (e + ops + q + h) - m; 
+        document.getElementById('sumCash').innerText = fmt(e); 
+        document.getElementById('sumOps').innerText = fmt(ops); 
+        document.getElementById('sumQR').innerText = fmt(q); 
+        document.getElementById('sumHalf').innerText = fmt(h); 
+        document.getElementById('sumFloat').innerText = '- ' + fmt(m); 
+        document.getElementById('grandTotal').innerText = fmt(grand); 
+        
+        let diff = grand - num('posVal'); 
+        const box=document.getElementById('statusBox'), txt=document.getElementById('diffText'), val=document.getElementById('diffVal'); 
+        if(Math.abs(diff)<1) { box.style.background='#d1e7dd'; box.style.color='#0f5132'; txt.innerText='✅ ยอดตรง'; val.innerText='0.00'; } 
+        else if(diff<0) { box.style.background='#f8d7da'; box.style.color='#842029'; txt.innerText='❌ ขาด'; val.innerText='- '+fmt(Math.abs(diff)); } 
+        else { box.style.background='#fff3cd'; box.style.color='#664d03'; txt.innerText='⚠️ เกิน'; val.innerText='+ '+fmt(Math.abs(diff)); } 
+        triggerSave(); 
+    }
+
+    function getForm() { 
+        let opsData = []; 
+        const rows = document.getElementById('tbOps').rows; 
+        for(let i=0; i<rows.length; i++) opsData.push({ t: rows[i].querySelector('.op-time').value, n: rows[i].querySelector('.op-name').value, v: rows[i].querySelector('.op-val').value }); 
+        
+        const d = { 
+            pos: document.getElementById('posVal').value, 
+            tp: document.getElementById('timePOS').value, 
+            hTitle: document.getElementById('halfTitle').value, 
+            tm: document.getElementById('timeMorn').value, 
+            te: document.getElementById('timeEve').value, 
+            emp: document.getElementById('empName').value, 
+            qr_r: qrRows, h_r: halfRows, ops: opsData, 
+            m: {}, e: {}, qr: {}, h: {} 
+        }; 
+        
+        denoms.forEach(x => { d.m[x]=document.getElementById(`mv_${x}`).value; d.e[x]=document.getElementById(`ev_${x}`).value; }); 
+        
+        for(let r=1; r<=qrRows; r++) for(let c=1; c<=5; c++) { let v=document.getElementById(`q_${c}_${r}`).value; let k=document.getElementById(`qc_${c}_${r}`).checked; if(v||k) d.qr[`${c},${r}`]={v,k}; } 
+        for(let r=1; r<=halfRows; r++) for(let c=1; c<=5; c++) { let v=document.getElementById(`h_${c}_${r}`).value; let k=document.getElementById(`hc_${c}_${r}`).checked; if(v||k) d.h[`${c},${r}`]={v,k}; } 
+        return d; 
+    }
+
+    function setForm(d) { 
+        document.getElementById('posVal').value = d.pos||''; 
+        document.getElementById('timePOS').value = d.tp||''; 
+        document.getElementById('halfTitle').value = d.hTitle || 'ไทยพลัส 60/40'; 
+        document.getElementById('timeMorn').value = d.tm||''; 
+        document.getElementById('timeEve').value = d.te||''; 
+        document.getElementById('empName').value = d.emp||''; 
+        
+        const rows = document.getElementById('tbOps').rows; 
+        if(d.ops) d.ops.forEach((o, i) => { if(rows[i]) { rows[i].querySelector('.op-time').value=o.t; rows[i].querySelector('.op-name').value=o.n; rows[i].querySelector('.op-val').value=o.v; } }); 
+        
+        denoms.forEach(x => { if(d.m) document.getElementById(`mv_${x}`).value=d.m[x]||''; if(d.e) document.getElementById(`ev_${x}`).value=d.e[x]||''; }); 
+        
+        if(d.qr) for(let k in d.qr) { let [c,r]=k.split(','); let el=document.getElementById(`q_${c}_${r}`); if(el) { el.value=d.qr[k].v||''; document.getElementById(`qc_${c}_${r}`).checked=d.qr[k].k||false; } } 
+        if(d.h) for(let k in d.h) { let [c,r]=k.split(','); let el=document.getElementById(`h_${c}_${r}`); if(el) { el.value=d.h[k].v||''; document.getElementById(`hc_${c}_${r}`).checked=d.h[k].k||false; } } 
+        calc(); 
+    }
+
+    function exportFile() { 
+        forceSave(); 
+        const b = new Blob([JSON.stringify(db)], {type: "application/json"}); 
+        const a = document.createElement('a'); 
+        a.href = URL.createObjectURL(b); 
+        a.download = `LaemChabang_Project_${getKey(curD)}.json`; 
+        a.click(); 
+    }
+
+    function importFile(e) { 
+        const r = new FileReader(); 
+        r.onload = x => { 
+            try { 
+                Object.assign(db, JSON.parse(x.target.result)); 
+                localStorage.setItem(KEY, JSON.stringify(db)); 
+                loadDay(curD); 
+                alert("✅ ดึงข้อมูลเรียบร้อย"); 
+            } catch(e){ alert("❌ ไฟล์ไม่ถูกต้อง"); } 
+        }; 
+        r.readAsText(e.files[0]); 
+    }
+
     init();
 </script>
 </body>
