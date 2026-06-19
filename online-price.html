@@ -16,7 +16,7 @@
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; color: #333; }
 
         /* --- Sidebar --- */
-        #sidebar { width: 280px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10; }
+        #sidebar { width: 300px; background: white; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.05); z-index: 10; }
         .sidebar-head { text-align: center; margin-bottom: 5px; }
         .sidebar-head img { width: 60px; border-radius: 50%; border: 2px solid var(--primary); }
         .sidebar-head h3 { margin: 10px 0 0 0; color: var(--primary); font-weight: 800; }
@@ -94,9 +94,19 @@
         <input type="text" id="searchAll" placeholder="พิมพ์ชื่อสินค้า หรือ บาร์โค้ด..." onkeyup="filterAllTables()">
     </div>
 
+    <div style="background: #fff0f0; border: 1px solid var(--shopee); padding: 12px; border-radius: 8px;">
+        <label style="font-size: 12px; font-weight: bold; color:var(--shopee);"><i class="fas fa-shopping-bag"></i> คำนวณตั้งราคา Shopee</label>
+        <input type="number" id="shpCalcInput" placeholder="ใส่ราคาหน้าร้าน (บาท)" oninput="calcShopeeMini()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; font-size: 14px; margin-top:5px; outline:none;">
+        <div style="margin-top: 8px; font-size: 13px; color:#333; display:flex; justify-content:space-between; align-items:center;">
+            <span>ควรตั้งในแอป:</span>
+            <strong id="shpCalcResult" style="font-size: 18px; color:var(--shopee);">0.00</strong>
+        </div>
+        <div style="font-size: 10px; color:#888; margin-top:2px; text-align:right;">*เรท 0.8181 (หักคอมฯ 14.98% + ธุรกรรม 3.21%)<br>+ 1 บาท/ออเดอร์</div>
+    </div>
+
     <div style="background: #e8f5e9; border: 1px solid var(--grab); padding: 12px; border-radius: 8px;">
         <label style="font-size: 12px; font-weight: bold; color:var(--grab);"><i class="fas fa-motorcycle"></i> คำนวณตั้งราคา Grab</label>
-        <input type="number" id="grabCalcInput" placeholder="ใส่ราคาหน้าร้าน (บาท)" oninput="calcGrabMini()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: Sarabun; font-size: 14px; margin-top:5px; outline:none;">
+        <input type="number" id="grabCalcInput" placeholder="ใส่ราคาหน้าร้าน (บาท)" oninput="calcGrabMini()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: 'Sarabun'; font-size: 14px; margin-top:5px; outline:none;">
         <div style="margin-top: 8px; font-size: 13px; color:#333; display:flex; justify-content:space-between; align-items:center;">
             <span>ควรตั้งในแอป:</span>
             <strong id="grabCalcResult" style="font-size: 18px; color:var(--grab);">0.00</strong>
@@ -179,17 +189,28 @@
 </div>
 
 <script>
+    // คำนวณ Shopee อัตโนมัติ (อัปเดต 1 มิ.ย. 69)
+    function calcShopeeMini() {
+        const p = parseFloat(document.getElementById('shpCalcInput').value) || 0;
+        if(p === 0) {
+            document.getElementById('shpCalcResult').innerText = "0.00";
+            return;
+        }
+        // สูตรคำนวณ: (ราคาหน้าร้าน / 0.8181) + 1 บาทค่าโครงสร้างพื้นฐาน
+        const shpPrice = (p / 0.8181) + 1;
+        document.getElementById('shpCalcResult').innerText = '฿' + shpPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
     // คำนวณ Grab อัตโนมัติ
     function calcGrabMini() {
-    const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
-    if(p === 0) {
-        document.getElementById('grabCalcResult').innerText = "0.00";
-        return;
+        const p = parseFloat(document.getElementById('grabCalcInput').value) || 0;
+        if(p === 0) {
+            document.getElementById('grabCalcResult').innerText = "0.00";
+            return;
+        }
+        const grabPrice = p / 0.786;
+        document.getElementById('grabCalcResult').innerText = '฿' + grabPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
-    // สูตรคำนวณ: ราคาหน้าร้าน / 0.786 (ตามตาราง Grab Merchant)
-    const grabPrice = p / 0.786;
-    document.getElementById('grabCalcResult').innerText = '฿' + grabPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-}
 
     const SHEET_ID = '1HY2Kcj7ifT8LrNZtX9Eif90Z8uTRITl-MPJurwKoP70';
     let DATA_GAGA = [];
